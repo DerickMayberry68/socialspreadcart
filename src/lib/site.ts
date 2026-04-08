@@ -6,7 +6,7 @@ export const siteConfig = {
   url:
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://thesocialspreadcart.com",
   description:
-    "Luxury charcuterie boards, a mobile catering cart, and elevated event spreads in Bentonville, Arkansas.",
+    "A mobile snack and beverage cart serving NWA with charcuterie, dirty soda, mini pancakes, sweet treats, and event-ready service.",
   phone: "(501) 555-0191",
   email: "info@socialspreadcart.com",
   instagram: "https://instagram.com/thesocialspreadcart",
@@ -17,16 +17,17 @@ export const defaultMetadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default:
-      "The Social Spread Cart | Charcuterie Boards & Mobile Catering in Bentonville",
+      "The Social Spread Cart | Mobile Snack & Beverage Cart in NWA",
     template: "%s | The Social Spread Cart",
   },
   description: siteConfig.description,
   keywords: [
     "charcuterie Bentonville",
-    "mobile catering Arkansas",
-    "grazing tables Bentonville",
-    "event catering Arkansas",
-    "charcuterie boards Arkansas",
+    "dirty soda Bentonville",
+    "mini pancakes Bentonville",
+    "mobile snack cart Arkansas",
+    "mobile beverage cart Arkansas",
+    "NWA snack cart",
   ],
   openGraph: {
     title: "The Social Spread Cart",
@@ -66,9 +67,10 @@ export const navigation = [
 ];
 
 export const serviceOptions = [
-  "Boards",
+  "Charcuterie",
+  "Dirty Soda",
+  "Mini Pancakes",
   "Mobile Cart",
-  "Custom Catering",
   "Pop-up",
   "Other",
 ];

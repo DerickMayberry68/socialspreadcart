@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cartHighlights } from "@/lib/fallback-data";
+import { cartGallery, lifestyleGrid } from "@/lib/media";
 import type { EventItem, GalleryItem, MenuItem, Testimonial } from "@/lib/types";
 import { formatEventDate, formatPrice } from "@/lib/utils";
 
@@ -33,21 +34,22 @@ export function HomePage({
         <div className="absolute inset-x-0 bottom-0 h-7 bg-stripe opacity-95" />
         <SectionShell className="relative grid min-h-[calc(100vh-90px)] items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr]">
           <Reveal>
-            <Badge>Bentonville • Mobile Catering • Charcuterie</Badge>
+            <Badge>NWA • Mobile Snack Cart • Events</Badge>
             <h1 className="mt-6 max-w-3xl font-heading text-5xl leading-[0.95] text-sage sm:text-6xl lg:text-7xl">
-              Sophisticated spreads for Southern celebrations.
+              Mobile Snack & Beverage Cart serving NWA 🧀🍬🍇🥂
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-ink/72 sm:text-xl">
-              Charcuterie Boards • Mobile Cart • Social Events
+              Charcuterie, Dirty Soda, Mini Pancakes, and more!
             </p>
             <p className="mt-6 max-w-2xl text-base leading-8 text-ink/68 sm:text-lg">
-              The Social Spread Cart brings elevated grazing, beautifully styled
-              boards, and polished mobile catering to weddings, parties,
-              pop-ups, and corporate gatherings across Bentonville.
+              The Social Spread Cart brings a playful but polished cart
+              experience to Northwest Arkansas with snackable charcuterie,
+              dirty soda, mini pancakes, sweet treats, and event-friendly
+              service for parties, pop-ups, school functions, and brand events.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" asChild>
-                <Link href="/menu">Browse Boards</Link>
+                <Link href="/menu">Browse Menu</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link href="/contact#quote-form">Book the Cart</Link>
@@ -55,8 +57,8 @@ export function HomePage({
             </div>
             <div className="mt-10 grid gap-4 text-sm uppercase tracking-[0.18em] text-ink/60 sm:grid-cols-3">
               <div>Pickup + Delivery</div>
-              <div>Events + Weddings</div>
-              <div>Luxury Brand Styling</div>
+              <div>Pop-ups + Private Events</div>
+              <div>Snacks + Sips + Sweets</div>
             </div>
           </Reveal>
           <Reveal delay={0.1} className="mx-auto max-w-xl">
@@ -67,19 +69,20 @@ export function HomePage({
               <div className="rounded-[28px] border border-sage/10 bg-cream p-8">
                 <Logo variant="rect" priority />
                 <div className="mt-8 grid grid-cols-2 gap-4">
-                  {["template-10.svg", "template-8.svg", "template-6.svg", "template-7.svg"].map(
-                    (item) => (
-                      <div key={item} className="overflow-hidden rounded-[22px] border border-sage/10 bg-white">
+                  {lifestyleGrid.map((item) => (
+                      <div
+                        key={item}
+                        className="overflow-hidden rounded-[22px] border border-sage/10 bg-white"
+                      >
                         <Image
-                          src={`/brand/templates/${item}`}
-                          alt=""
+                          src={item}
+                          alt="The Social Spread Cart menu item"
                           width={540}
                           height={675}
                           className="h-full w-full object-cover"
                         />
                       </div>
-                    ),
-                  )}
+                  ))}
                 </div>
               </div>
             </div>
@@ -93,22 +96,24 @@ export function HomePage({
             {
               icon: CarFront,
               title: "Pickup + local delivery",
-              copy: "Serving Bentonville and nearby communities with polished handoff and setup.",
+              copy: "Serving Bentonville and nearby communities with polished handoff, delivery, and event-day setup.",
             },
             {
               icon: Store,
               title: "Styled mobile cart service",
-              copy: "A beautiful on-site focal point for showers, receptions, launches, and corporate events.",
+              copy: "A photo-ready cart setup for parties, school events, launches, receptions, and community pop-ups.",
             },
             {
               icon: Sparkles,
               title: "Curated to fit the moment",
-              copy: "Seasonal menus, dietary accommodations, and presentation details designed around your event.",
+              copy: "Build a mix of charcuterie, dirty soda, mini pancakes, candy, and seasonal treats around your event.",
             },
           ].map((item) => (
             <div key={item.title} className="rounded-[24px] bg-white/70 p-5">
               <item.icon className="h-8 w-8 text-sage" />
-              <h3 className="mt-4 font-heading text-3xl text-sage">{item.title}</h3>
+              <h3 className="mt-4 font-heading text-3xl text-sage">
+                {item.title}
+              </h3>
               <p className="mt-3 text-base leading-7 text-ink/68">{item.copy}</p>
             </div>
           ))}
@@ -117,9 +122,9 @@ export function HomePage({
 
       <SectionShell className="mt-24">
         <SectionHeading
-          eyebrow="Featured Boards"
-          title="Signature boards designed to feel generous, refined, and celebration-ready."
-          description="Each board balances visual impact with easy hosting, whether you’re ordering for pickup, delivery, or a full-service event."
+          eyebrow="Featured Menu"
+          title="A cart menu built for snacking, sipping, and celebrating."
+          description="From charcuterie-forward favorites to sweet bites and drinks, the menu is designed to feel flexible, crowd-pleasing, and event-ready."
         />
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {featured.map((item, index) => (
@@ -164,8 +169,8 @@ export function HomePage({
           <Reveal>
             <SectionHeading
               eyebrow="The Cart Experience"
-              title="A mobile catering cart that feels like part of the celebration."
-              description="Perfect for weddings, office socials, product launches, showers, and polished private gatherings."
+              title="A mobile snack and beverage cart that becomes part of the event."
+              description="Perfect for school events, showers, birthdays, brand launches, markets, and private gatherings that need a fun focal point."
             />
             <ul className="mt-8 space-y-4 text-base leading-7 text-ink/70">
               {cartHighlights.map((item) => (
@@ -180,19 +185,20 @@ export function HomePage({
           </Reveal>
           <Reveal delay={0.12}>
             <div className="grid gap-5 sm:grid-cols-2">
-              {["template-9.svg", "template-2.svg", "template-10.svg", "template-6.svg"].map(
-                (item) => (
-                  <div key={item} className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft">
+              {cartGallery.map((item) => (
+                  <div
+                    key={item}
+                    className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft"
+                  >
                     <Image
-                      src={`/brand/templates/${item}`}
-                      alt=""
+                      src={item}
+                      alt="The Social Spread Cart cart menu"
                       width={540}
                       height={675}
                       className="h-full w-full object-cover"
                     />
                   </div>
-                ),
-              )}
+              ))}
             </div>
           </Reveal>
         </SectionShell>
@@ -202,8 +208,8 @@ export function HomePage({
         <Reveal>
           <SectionHeading
             eyebrow="Upcoming Pop-ups"
-            title="Find the cart around town and plan ahead for seasonal events."
-            description="We keep upcoming public events easy to browse so guests can drop in, taste, and order with confidence."
+            title="Find the cart around NWA and plan ahead for upcoming pop-ups."
+            description="We keep public events easy to browse so guests can stop in for snacks, drinks, and seasonal specials."
           />
           <Button className="mt-8" variant="outline" asChild>
             <Link href="/events">View Events Calendar</Link>
@@ -272,7 +278,9 @@ export function HomePage({
                   <p className="text-xs uppercase tracking-[0.2em] text-gold">
                     {item.eyebrow}
                   </p>
-                  <p className="mt-2 font-heading text-2xl text-sage">{item.title}</p>
+                  <p className="mt-2 font-heading text-2xl text-sage">
+                    {item.title}
+                  </p>
                 </div>
               </div>
             </Reveal>

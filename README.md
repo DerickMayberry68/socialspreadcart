@@ -1,6 +1,6 @@
 # The Social Spread Cart
 
-Premium Next.js 15 + Supabase website for The Social Spread Cart, a Bentonville, Arkansas charcuterie and mobile catering brand.
+Premium Next.js 15 + Supabase website for The Social Spread Cart, a Bentonville-based mobile snack and beverage cart brand serving NWA.
 
 ## Stack
 
@@ -68,7 +68,7 @@ The migration creates two public buckets:
 - `boards`
 - `events`
 
-Use those for production board and event photography. The seed content currently uses the uploaded brand artwork so the site has a polished fallback even before photography is uploaded.
+Use those for production menu and event photography. The seed content currently uses the uploaded brand artwork so the site has a polished fallback even before photography is uploaded.
 
 ## Admin route
 

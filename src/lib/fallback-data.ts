@@ -4,9 +4,8 @@ import type {
   MenuItem,
   Testimonial,
 } from "@/lib/types";
+import { foodMedia } from "@/lib/media";
 import { slugify } from "@/lib/utils";
-
-const template = (name: string) => `/brand/templates/${name}`;
 
 export const fallbackMenuItems: MenuItem[] = [
   {
@@ -20,7 +19,7 @@ export const fallbackMenuItems: MenuItem[] = [
     dietary: ["Vegetarian"],
     occasion: ["Brunch", "Shower", "Corporate"],
     lead_time: "48 hours",
-    image_url: template("template-10.svg"),
+    image_url: foodMedia.miniPancakes,
     featured: true,
     order_url: "#quote-form",
   },
@@ -35,7 +34,7 @@ export const fallbackMenuItems: MenuItem[] = [
     dietary: ["Vegetarian", "Gluten-Free Option"],
     occasion: ["Birthday", "Engagement", "Girls Night"],
     lead_time: "72 hours",
-    image_url: template("template-8.svg"),
+    image_url: foodMedia.charcuteriePlatter,
     featured: true,
     order_url: "#quote-form",
   },
@@ -50,7 +49,7 @@ export const fallbackMenuItems: MenuItem[] = [
     dietary: ["Gluten-Free Option"],
     occasion: ["Wedding", "Corporate", "Holiday"],
     lead_time: "5 days",
-    image_url: template("template-9.svg"),
+    image_url: foodMedia.charcuterieSpread,
     featured: true,
     order_url: "#quote-form",
   },
@@ -59,13 +58,13 @@ export const fallbackMenuItems: MenuItem[] = [
     name: "Petite Grazing Cups",
     slug: slugify("Petite Grazing Cups"),
     description:
-      "Individually styled grazing cups for cocktail hours, pop-ups, and polished grab-and-go service.",
+      "Individually styled snack cups for cocktail hours, pop-ups, and polished grab-and-go cart service.",
     price_cents: 7200,
     size: "Mini",
     dietary: ["Vegetarian Option"],
     occasion: ["Corporate", "Pop-up", "Reception"],
     lead_time: "72 hours",
-    image_url: template("template-6.svg"),
+    image_url: foodMedia.charcuteriePlatter,
     featured: false,
     order_url: "#quote-form",
   },
@@ -80,7 +79,7 @@ export const fallbackMenuItems: MenuItem[] = [
     dietary: ["Vegetarian", "Gluten-Free"],
     occasion: ["Wellness", "Corporate", "Lunch"],
     lead_time: "72 hours",
-    image_url: template("template-2.svg"),
+    image_url: foodMedia.charcuterieSpread,
     featured: false,
     order_url: "#quote-form",
   },
@@ -95,7 +94,7 @@ export const fallbackMenuItems: MenuItem[] = [
     dietary: ["Vegetarian"],
     occasion: ["Birthday", "Baby Shower", "Holiday"],
     lead_time: "72 hours",
-    image_url: template("template-7.svg"),
+    image_url: foodMedia.dirtySodaFloat,
     featured: false,
     order_url: "#quote-form",
   },
@@ -108,8 +107,8 @@ export const fallbackEvents: EventItem[] = [
     date: "2026-04-18T11:00:00-05:00",
     location: "Downtown Bentonville Square, Bentonville",
     description:
-      "Stop by for signature grazing cups, take-home boards, and seasonal specials from the cart.",
-    image_url: template("template-8.svg"),
+      "Stop by for charcuterie cups, dirty soda, mini pancakes, and seasonal specials from the cart.",
+    image_url: foodMedia.charcuteriePlatter,
     join_url: "#quote-form",
   },
   {
@@ -119,7 +118,7 @@ export const fallbackEvents: EventItem[] = [
     location: "8th Street Market, Bentonville",
     description:
       "An evening cart service featuring sharable bites, sparkling pairings, and Mother's Day gifting inspiration.",
-    image_url: template("template-6.svg"),
+    image_url: foodMedia.fruitSodaBottles,
     join_url: "#quote-form",
   },
   {
@@ -128,8 +127,8 @@ export const fallbackEvents: EventItem[] = [
     date: "2026-05-23T13:00:00-05:00",
     location: "Downtown Bentonville Event Loft",
     description:
-      "A curated tasting experience for couples exploring mobile charcuterie service for wedding weekends.",
-    image_url: template("template-10.svg"),
+      "A curated tasting experience for couples exploring snack, beverage, and grazing-cart service for wedding weekends.",
+    image_url: foodMedia.dirtySodaFloat,
     join_url: "#quote-form",
   },
 ];
@@ -163,57 +162,57 @@ export const fallbackGallery: GalleryItem[] = [
     id: "gallery-1",
     title: "Brand-forward event styling",
     eyebrow: "Curated Details",
-    image_url: template("template-10.svg"),
+    image_url: foodMedia.charcuterieSpread,
   },
   {
     id: "gallery-2",
-    title: "Luxe stationary-inspired layouts",
-    eyebrow: "Instagram Templates",
-    image_url: template("template-9.svg"),
+    title: "Colorful drink moments from the cart",
+    eyebrow: "Dirty Soda",
+    image_url: foodMedia.dirtySodaFloat,
   },
   {
     id: "gallery-3",
-    title: "Vintage-modern story frames",
-    eyebrow: "Editorial Moments",
-    image_url: template("template-8.svg"),
+    title: "Mini pancakes with a sweet brunch feel",
+    eyebrow: "Mini Pancakes",
+    image_url: foodMedia.miniPancakes,
   },
   {
     id: "gallery-4",
-    title: "Clean green-and-cream presentation",
-    eyebrow: "Brand Style",
-    image_url: template("template-7.svg"),
+    title: "Bottle service and bright soda styling",
+    eyebrow: "Beverage Cart",
+    image_url: foodMedia.fruitSodaBottles,
   },
   {
     id: "gallery-5",
-    title: "Premium seasonal feature art",
-    eyebrow: "Social Assets",
-    image_url: template("template-6.svg"),
+    title: "A close-up charcuterie moment for grazing service",
+    eyebrow: "Charcuterie",
+    image_url: foodMedia.charcuteriePlatter,
   },
   {
     id: "gallery-6",
-    title: "Refined event announcement artwork",
-    eyebrow: "Launch Materials",
-    image_url: template("template-2.svg"),
+    title: "Snack and drink pairings for pop-up service",
+    eyebrow: "Cart Service",
+    image_url: foodMedia.dirtySodaFloat,
   },
 ];
 
 export const cartHighlights = [
-  "Mobile charcuterie cart service for weddings, showers, launch parties, and corporate receptions",
-  "Full grazing tables, passed appetizers, and custom styled spreads",
+  "Mobile snack and beverage cart service for weddings, showers, launch parties, school events, and corporate receptions",
+  "Charcuterie, dirty soda, mini pancakes, sweet treats, and custom event-day menu mixes",
   "Pickup, local delivery, and on-site setup across Bentonville and surrounding areas",
-  "Seasonal menus, dietary accommodations, and fully branded presentation details",
+  "Seasonal menu drops, dietary accommodations, and branded presentation details that feel polished in person and on camera",
 ];
 
 export const faqItems = [
   {
     question: "How far in advance should I book?",
     answer:
-      "Boards typically require 48 to 72 hours, while cart service and larger spreads are best booked 2 to 4 weeks in advance.",
+      "Smaller menu orders typically require 48 to 72 hours, while cart service and larger event bookings are best secured 2 to 4 weeks in advance.",
   },
   {
     question: "Do you offer delivery?",
     answer:
-      "Yes. Local pickup and delivery are available for boards, and on-site service is available for Bentonville and nearby communities.",
+      "Yes. Pickup and local delivery are available for select menu items, and on-site cart service is available for Bentonville and nearby communities.",
   },
   {
     question: "Can you accommodate dietary requests?",

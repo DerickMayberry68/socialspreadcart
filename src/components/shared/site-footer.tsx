@@ -14,9 +14,9 @@ export function SiteFooter() {
             <Logo />
           </div>
           <p className="mt-6 max-w-md text-base leading-7 text-ink/70">
-            Premium charcuterie boards, elevated mobile cart service, and
-            beautifully styled catering for celebrations across Bentonville and
-            surrounding Arkansas communities.
+            A mobile snack and beverage cart serving Bentonville and the wider
+            NWA area with charcuterie, dirty soda, mini pancakes, sweet treats,
+            and polished event service.
           </p>
         </div>
         <div>

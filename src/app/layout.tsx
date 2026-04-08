@@ -3,9 +3,6 @@ import { Cormorant_Garamond, Manrope } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "sonner";
 
-import { FloatingCta } from "@/components/shared/floating-cta";
-import { SiteFooter } from "@/components/shared/site-footer";
-import { SiteHeader } from "@/components/shared/site-header";
 import { defaultMetadata, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -42,10 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${heading.variable} ${sans.variable}`}>
       <body className="font-sans antialiased">
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
-        <FloatingCta />
+        {children}
         <Toaster richColors position="top-right" />
         <Script
           id="local-business-schema"
