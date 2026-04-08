@@ -52,7 +52,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
       <Card className="h-fit p-6">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-gold">Filters</p>
-          <h3 className="mt-2 font-heading text-3xl text-sage">Find your board</h3>
+          <h3 className="mt-2 font-heading text-3xl text-sage">Find your order</h3>
         </div>
         <div className="mt-6 space-y-6">
           {[
@@ -153,4 +153,3 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
     </div>
   );
 }
-

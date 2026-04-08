@@ -81,7 +81,7 @@ export function QuoteForm() {
         <CheckCircle2 className="mx-auto mt-6 h-10 w-10 text-sage" />
         <h3 className="mt-6 font-heading text-4xl text-sage">Thank you</h3>
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-ink/68">
-          We’ve received your inquiry and will follow up with next steps,
+          We&apos;ve received your inquiry and will follow up with next steps,
           availability, and a tailored quote.
         </p>
         <Button className="mt-8" onClick={() => setSuccess(false)}>
@@ -144,7 +144,7 @@ export function QuoteForm() {
             name="message"
             value={form.message}
             onChange={updateField}
-            placeholder="Tell us about your event vision, venue, timing, and any dietary requests."
+            placeholder="Tell us about your venue, timing, preferred services, and anything we should know about the event."
           />
         </div>
         <Button size="lg" type="submit" disabled={submitting}>
@@ -154,4 +154,3 @@ export function QuoteForm() {
     </Card>
   );
 }
-

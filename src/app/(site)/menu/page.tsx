@@ -8,7 +8,7 @@ import { getMenuItems } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Menu",
   description:
-    "Browse charcuterie, dirty soda, mini pancakes, and more from The Social Spread Cart in Bentonville.",
+    "Browse charcuterie boxes, charcuterie cups, and dirty soda to-go from The Social Spread Cart in Bentonville.",
 };
 
 export default async function MenuPage() {
@@ -19,8 +19,8 @@ export default async function MenuPage() {
       <SectionShell>
         <SectionHeading
           eyebrow="Menu"
-          title="Snack, sip, and shareable menu options built for pickup, delivery, and cart events."
-          description="Our menu includes charcuterie-forward favorites plus sweet and beverage options. Most smaller orders require 48 to 72 hours' notice, while larger cart bookings may require additional lead time."
+          title="Current pickup offerings for hosts who want something easy, polished, and ready to go."
+          description="The menu currently features large charcuterie boxes, charcuterie cups, and dirty soda 4-packs. Most orders require 24 to 48 hours&apos; notice, while cart bookings may require additional lead time."
         />
         <div className="mt-10 grid gap-4 lg:grid-cols-2">
           <Card className="p-6">

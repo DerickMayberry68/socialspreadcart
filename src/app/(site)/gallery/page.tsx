@@ -8,7 +8,7 @@ import { getGalleryItems } from "@/lib/data";
 export const metadata: Metadata = {
   title: "Gallery",
   description:
-    "An Instagram-inspired gallery for The Social Spread Cart's premium brand visuals and event styling.",
+    "A gallery of real cart setups, drinks, charcuterie, and event-ready menu moments from The Social Spread Cart.",
 };
 
 export default async function GalleryPage() {
@@ -19,8 +19,8 @@ export default async function GalleryPage() {
       <SectionShell>
         <SectionHeading
           eyebrow="Gallery"
-          title="A social-first visual gallery with the same clean, vintage-modern mood as the brand."
-          description="Use this page as a polished portfolio today, then swap in event photography and board closeups as your image library grows."
+          title="A gallery built around real cart service, drinks, and snack moments."
+          description="This page now leans on actual client photography so the site feels grounded in the real offering, not just the branding system."
         />
         <div className="mt-12 columns-1 gap-4 sm:columns-2 lg:columns-3">
           {gallery.map((item, index) => (
@@ -47,4 +47,3 @@ export default async function GalleryPage() {
     </div>
   );
 }
-

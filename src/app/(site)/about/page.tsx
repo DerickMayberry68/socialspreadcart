@@ -9,7 +9,7 @@ import { cartGallery } from "@/lib/media";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Meet The Social Spread Cart, a Bentonville snack and beverage cart brand serving NWA with charcuterie, dirty soda, mini pancakes, and more.",
+    "Meet The Social Spread Cart, a Bentonville cart brand serving NWA with charcuterie, dirty soda, bartending, and ice cream toppings bar service.",
 };
 
 export default function AboutPage() {
@@ -35,10 +35,10 @@ export default function AboutPage() {
                   approachable, and easy to enjoy.
                 </p>
                 <p>
-                  From intimate celebrations to larger guest counts, our menus
-                  blend charcuterie, drinks, sweets, and crowd-pleasing snack
-                  favorites with clean presentation and a calm service
-                  experience.
+                  From take-home orders to full event setups, the current offer
+                  is centered on large charcuterie boxes, charcuterie cups,
+                  dirty soda, and a small set of cart services including a mini
+                  pancake bar, bartending, and event-ready station setups.
                 </p>
                 <p>
                   We serve Bentonville and nearby Northwest Arkansas communities

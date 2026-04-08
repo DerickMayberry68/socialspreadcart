@@ -10,7 +10,7 @@ import { cartGallery } from "@/lib/media";
 export const metadata: Metadata = {
   title: "The Cart Service",
   description:
-    "Learn about The Social Spread Cart's mobile snack and beverage cart service for private events, pop-ups, and community gatherings.",
+    "Learn about The Social Spread Cart's Bentonville cart services for charcuterie, dirty soda, mini pancake bars, bartending, and ice cream toppings bars.",
 };
 
 export default function CartServicePage() {
@@ -20,7 +20,7 @@ export default function CartServicePage() {
         <SectionHeading
           eyebrow="The Cart Service"
           title="A mobile snack and beverage cart designed to be both the service and the scene."
-          description="The cart is perfect for showers, school events, birthdays, open houses, launch events, markets, and corporate socials where the menu should feel fun and memorable."
+          description="The cart is available for showers, school events, birthdays, open houses, launch events, markets, and corporate socials where the service should feel polished and memorable."
         />
         <div className="mt-12 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="grid gap-5 sm:grid-cols-2">
@@ -51,9 +51,10 @@ export default function CartServicePage() {
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
                 "Dirty soda service",
-                "Mini pancake service",
-                "Charcuterie options",
-                "Pop-up ready service",
+                "Charcuterie service",
+                "Mini pancake bar",
+                "Bartending service",
+                "Ice cream toppings bar",
               ].map((item) => (
                 <div
                   key={item}

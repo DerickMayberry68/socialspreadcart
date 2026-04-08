@@ -15,8 +15,8 @@ export function SiteFooter() {
           </div>
           <p className="mt-6 max-w-md text-base leading-7 text-ink/70">
             A mobile snack and beverage cart serving Bentonville and the wider
-            NWA area with charcuterie, dirty soda, mini pancakes, sweet treats,
-            and polished event service.
+            NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini
+            pancake bar service, and polished event setups.
           </p>
         </div>
         <div>
@@ -56,7 +56,7 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-sage/10 px-4 py-5 text-center text-xs uppercase tracking-[0.18em] text-ink/55">
-        © The Social Spread Cart
+        Copyright The Social Spread Cart
       </div>
     </footer>
   );

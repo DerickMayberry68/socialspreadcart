@@ -34,18 +34,19 @@ export function HomePage({
         <div className="absolute inset-x-0 bottom-0 h-7 bg-stripe opacity-95" />
         <SectionShell className="relative grid min-h-[calc(100vh-90px)] items-center gap-12 py-20 lg:grid-cols-[1.1fr_0.9fr]">
           <Reveal>
-            <Badge>NWA • Mobile Snack Cart • Events</Badge>
+            <Badge>NWA / Mobile Snack Cart / Events</Badge>
             <h1 className="mt-6 max-w-3xl font-heading text-5xl leading-[0.95] text-sage sm:text-6xl lg:text-7xl">
-              Mobile Snack & Beverage Cart serving NWA 🧀🍬🍇🥂
+              {"Mobile Snack & Beverage Cart serving NWA \u{1F9C0}\u{1F36C}\u{1F347}\u{1F942}"}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-ink/72 sm:text-xl">
-              Charcuterie, Dirty Soda, Mini Pancakes, and more!
+              Charcuterie boxes, charcuterie cups, dirty soda, and specialty cart service.
             </p>
             <p className="mt-6 max-w-2xl text-base leading-8 text-ink/68 sm:text-lg">
               The Social Spread Cart brings a playful but polished cart
-              experience to Northwest Arkansas with snackable charcuterie,
-              dirty soda, mini pancakes, sweet treats, and event-friendly
-              service for parties, pop-ups, school functions, and brand events.
+              experience to Northwest Arkansas with pickup-friendly
+              charcuterie, dirty soda to-go, and event service built around
+              charcuterie, a mini pancake bar, bartending, and an ice cream
+              toppings bar.
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" asChild>
@@ -57,8 +58,8 @@ export function HomePage({
             </div>
             <div className="mt-10 grid gap-4 text-sm uppercase tracking-[0.18em] text-ink/60 sm:grid-cols-3">
               <div>Pickup + Delivery</div>
-              <div>Pop-ups + Private Events</div>
-              <div>Snacks + Sips + Sweets</div>
+              <div>Cart Service + Events</div>
+              <div>Boxes + Cups + 4-Packs</div>
             </div>
           </Reveal>
           <Reveal delay={0.1} className="mx-auto max-w-xl">
@@ -70,18 +71,18 @@ export function HomePage({
                 <Logo variant="rect" priority />
                 <div className="mt-8 grid grid-cols-2 gap-4">
                   {lifestyleGrid.map((item) => (
-                      <div
-                        key={item}
-                        className="overflow-hidden rounded-[22px] border border-sage/10 bg-white"
-                      >
-                        <Image
-                          src={item}
-                          alt="The Social Spread Cart menu item"
-                          width={540}
-                          height={675}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
+                    <div
+                      key={item}
+                      className="overflow-hidden rounded-[22px] border border-sage/10 bg-white"
+                    >
+                      <Image
+                        src={item}
+                        alt="The Social Spread Cart menu item"
+                        width={540}
+                        height={675}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
@@ -106,7 +107,7 @@ export function HomePage({
             {
               icon: Sparkles,
               title: "Curated to fit the moment",
-              copy: "Build a mix of charcuterie, dirty soda, mini pancakes, candy, and seasonal treats around your event.",
+              copy: "Choose from charcuterie, dirty soda, a mini pancake bar, bartending service, and an ice cream toppings bar based on the kind of event you are hosting.",
             },
           ].map((item) => (
             <div key={item.title} className="rounded-[24px] bg-white/70 p-5">
@@ -123,8 +124,8 @@ export function HomePage({
       <SectionShell className="mt-24">
         <SectionHeading
           eyebrow="Featured Menu"
-          title="A cart menu built for snacking, sipping, and celebrating."
-          description="From charcuterie-forward favorites to sweet bites and drinks, the menu is designed to feel flexible, crowd-pleasing, and event-ready."
+          title="The current pickup menu is tight, clear, and built around the real best sellers."
+          description="Right now the menu centers on large charcuterie boxes, individual charcuterie cups, and dirty soda 4-packs to go."
         />
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {featured.map((item, index) => (
@@ -186,18 +187,18 @@ export function HomePage({
           <Reveal delay={0.12}>
             <div className="grid gap-5 sm:grid-cols-2">
               {cartGallery.map((item) => (
-                  <div
-                    key={item}
-                    className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft"
-                  >
-                    <Image
-                      src={item}
-                      alt="The Social Spread Cart cart menu"
-                      width={540}
-                      height={675}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+                <div
+                  key={item}
+                  className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft"
+                >
+                  <Image
+                    src={item}
+                    alt="The Social Spread Cart cart menu"
+                    width={540}
+                    height={675}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               ))}
             </div>
           </Reveal>
@@ -258,7 +259,8 @@ export function HomePage({
       <SectionShell className="mt-24">
         <SectionHeading
           eyebrow="Gallery"
-          title="Instagram-inspired brand moments that carry the same refined mood from screen to event day."
+          title="Real menu and event moments that show what the cart actually brings to the table."
+          description="From charcuterie styling to dirty soda service, the gallery reflects the real mix of pickup products and cart moments."
           align="center"
         />
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

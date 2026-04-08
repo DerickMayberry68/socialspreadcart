@@ -8,7 +8,7 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Request a quote from The Social Spread Cart for charcuterie, dirty soda, mini pancakes, and mobile cart service in NWA.",
+    "Request a quote from The Social Spread Cart for charcuterie boxes, cups, dirty soda, mini pancake bar service, bartending, and cart service in NWA.",
 };
 
 export default function ContactPage() {
@@ -18,7 +18,7 @@ export default function ContactPage() {
         <SectionHeading
           eyebrow="Contact + Quotes"
           title="Tell us about your date, guest count, and event vision."
-          description="We&apos;ll use your inquiry to build a tailored recommendation for charcuterie, dirty soda, mini pancakes, cart service, or a custom event mix."
+          description="We&apos;ll use your inquiry to recommend the right mix of charcuterie boxes, cups, dirty soda, mini pancake bar service, bartending, or cart service for the event."
         />
         <div className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="h-fit p-8">

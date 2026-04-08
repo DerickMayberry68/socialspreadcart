@@ -6,7 +6,7 @@ export const siteConfig = {
   url:
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://thesocialspreadcart.com",
   description:
-    "A mobile snack and beverage cart serving NWA with charcuterie, dirty soda, mini pancakes, sweet treats, and event-ready service.",
+    "A Bentonville mobile cart offering charcuterie boxes, charcuterie cups, dirty soda, a mini pancake bar, bartending service, and an ice cream toppings bar for NWA events.",
   phone: "(501) 555-0191",
   email: "info@socialspreadcart.com",
   instagram: "https://instagram.com/thesocialspreadcart",
@@ -24,7 +24,10 @@ export const defaultMetadata: Metadata = {
   keywords: [
     "charcuterie Bentonville",
     "dirty soda Bentonville",
-    "mini pancakes Bentonville",
+    "charcuterie cups Bentonville",
+    "mini pancake bar Bentonville",
+    "bartending service Bentonville",
+    "ice cream toppings bar Bentonville",
     "mobile snack cart Arkansas",
     "mobile beverage cart Arkansas",
     "NWA snack cart",
@@ -58,7 +61,7 @@ export const defaultMetadata: Metadata = {
 
 export const navigation = [
   { title: "Home", href: "/" },
-  { title: "Boards", href: "/menu" },
+  { title: "Menu", href: "/menu" },
   { title: "The Cart", href: "/cart-service" },
   { title: "Events", href: "/events" },
   { title: "Gallery", href: "/gallery" },
@@ -67,10 +70,13 @@ export const navigation = [
 ];
 
 export const serviceOptions = [
-  "Charcuterie",
-  "Dirty Soda",
-  "Mini Pancakes",
-  "Mobile Cart",
-  "Pop-up",
+  "Charcuterie Boxes",
+  "Charcuterie Cups",
+  "Dirty Soda 4-Pack",
+  "Charcuterie Cart",
+  "Dirty Soda Cart",
+  "Mini Pancake Bar",
+  "Bartending Service",
+  "Ice Cream Toppings Bar",
   "Other",
 ];
