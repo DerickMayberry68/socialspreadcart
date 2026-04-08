@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(182, 145, 82, 0.12), transparent 30%),
+    linear-gradient(180deg, #fbf6ec 0%, #f8f1e3 48%, #f4ead6 100%);
+  color: #171717;
+}
+
+* {
+  border-color: rgba(91, 115, 60, 0.15);
+}
+
+.hero-glow {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(182, 145, 82, 0.16), transparent 26%),
+    radial-gradient(circle at 80% 0%, rgba(91, 115, 60, 0.2), transparent 28%);
+}
+
+.section-frame {
+  position: relative;
+}
+
+.section-frame::before,
+.section-frame::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  height: 10px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(91, 115, 60, 0.94) 0,
+    rgba(91, 115, 60, 0.94) 18px,
+    rgba(14, 14, 14, 0.96) 18px,
+    rgba(14, 14, 14, 0.96) 36px
+  );
+}
+
+.section-frame::before {
+  top: 0;
+}
+
+.section-frame::after {
+  bottom: 0;
+}
+
+.calendar-shell .react-calendar {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans);
+}
+
+.calendar-shell .react-calendar__navigation {
+  margin-bottom: 1rem;
+}
+
+.calendar-shell .react-calendar__navigation button {
+  min-width: 44px;
+  border-radius: 9999px;
+  color: #5b733c;
+  font-weight: 600;
+}
+
+.calendar-shell .react-calendar__navigation button:enabled:hover,
+.calendar-shell .react-calendar__navigation button:enabled:focus,
+.calendar-shell .react-calendar__tile:enabled:hover,
+.calendar-shell .react-calendar__tile:enabled:focus {
+  background: rgba(91, 115, 60, 0.1);
+}
+
+.calendar-shell .react-calendar__tile {
+  border-radius: 16px;
+  padding-block: 0.9rem;
+}
+
+.calendar-shell .react-calendar__tile--now {
+  background: rgba(182, 145, 82, 0.16);
+}
+
+.calendar-shell .react-calendar__tile--active {
+  background: #5b733c;
+  color: #f8f1e3;
+}
+
+.calendar-shell .event-dot {
+  display: inline-flex;
+  height: 0.4rem;
+  width: 0.4rem;
+  border-radius: 9999px;
+  background: #b69152;
+}
+

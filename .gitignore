@@ -1,0 +1,10 @@
+.next
+node_modules
+.vercel
+.env
+.env.local
+.env.production
+dist
+coverage
+npm-debug.log*
+
