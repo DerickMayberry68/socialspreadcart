@@ -36,7 +36,7 @@ export function SiteHeader() {
         </nav>
         <div className="hidden lg:block">
           <Button asChild>
-            <Link href="/contact#quote-form">Book the Cart</Link>
+            <Link href="/contact">Book the Cart</Link>
           </Button>
         </div>
         <button
@@ -65,7 +65,7 @@ export function SiteHeader() {
               </Link>
             ))}
             <Button asChild>
-              <Link href="/contact#quote-form" onClick={() => setOpen(false)}>
+              <Link href="/contact" onClick={() => setOpen(false)}>
                 Book the Cart
               </Link>
             </Button>

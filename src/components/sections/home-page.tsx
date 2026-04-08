@@ -52,7 +52,7 @@ export function HomePage({
                 <Link href="/menu">Browse Menu</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
-                <Link href="/contact#quote-form">Book the Cart</Link>
+                <Link href="/contact">Book the Cart</Link>
               </Button>
             </div>
             <div className="mt-10 grid gap-4 text-sm uppercase tracking-[0.18em] text-ink/60 sm:grid-cols-3">

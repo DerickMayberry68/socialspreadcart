@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Manrope } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "sonner";
 
+import { Analytics } from "@vercel/analytics/next";
 import { defaultMetadata, siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -40,6 +41,7 @@ export default function RootLayout({
     <html lang="en" className={`${heading.variable} ${sans.variable}`}>
       <body className="font-sans antialiased">
         {children}
+        <Analytics />
         <Toaster richColors position="top-right" />
         <Script
           id="local-business-schema"
