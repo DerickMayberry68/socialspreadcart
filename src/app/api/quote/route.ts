@@ -35,22 +35,61 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     );
 
-    const { error } = await supabase.from("quotes").insert({
-      name: payload.name,
-      email: payload.email,
-      phone: payload.phone,
-      event_date: payload.eventDate,
-      event_type: payload.eventType,
-      guests: payload.guests,
-      services: payload.services,
-      message: payload.message,
-    });
+    // Upsert contact by email (case-insensitive)
+    const { data: contactData, error: contactError } = await supabase
+      .from("contacts")
+      .upsert(
+        {
+          name: payload.name,
+          email: payload.email.toLowerCase(),
+          phone: payload.phone,
+          source: "quote",
+        },
+        { onConflict: "email", ignoreDuplicates: false },
+      )
+      .select("id")
+      .single();
 
-    if (error) {
+    if (contactError) {
       return NextResponse.json(
-        { ok: false, message: error.message },
+        { ok: false, message: contactError.message },
         { status: 500 },
       );
+    }
+
+    const contactId = contactData?.id;
+
+    // Insert quote linked to contact
+    const { data: quoteData, error: quoteError } = await supabase
+      .from("quotes")
+      .insert({
+        contact_id: contactId,
+        name: payload.name,
+        email: payload.email,
+        phone: payload.phone,
+        event_date: payload.eventDate,
+        event_type: payload.eventType,
+        guests: payload.guests,
+        services: payload.services,
+        message: payload.message,
+      })
+      .select("id")
+      .single();
+
+    if (quoteError) {
+      return NextResponse.json(
+        { ok: false, message: quoteError.message },
+        { status: 500 },
+      );
+    }
+
+    // Log the interaction on the contact timeline
+    if (contactId) {
+      await supabase.from("interactions").insert({
+        contact_id: contactId,
+        type: "quote_submitted",
+        body: `Quote #${quoteData?.id?.slice(0, 8)} — ${payload.eventType} for ${payload.guests} guests on ${payload.eventDate}. Services: ${payload.services.join(", ")}.`,
+      });
     }
   }
 

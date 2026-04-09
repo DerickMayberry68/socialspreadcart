@@ -48,3 +48,64 @@ export type GalleryItem = {
   image_url: string;
 };
 
+// ── CRM ──────────────────────────────────────────────────────
+
+export type Profile = {
+  id: string;
+  full_name: string;
+  email: string;
+  role: "admin" | "staff";
+  created_at: string;
+  updated_at: string;
+};
+
+export type ContactStatus = "new" | "contacted" | "booked" | "closed";
+export type ContactSource = "quote" | "contact_form";
+
+export type Contact = {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string | null;
+  source: ContactSource;
+  status: ContactStatus;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type InteractionType =
+  | "quote_submitted"
+  | "note"
+  | "follow_up"
+  | "status_change"
+  | "contact_form";
+
+export type Interaction = {
+  id: string;
+  contact_id: string;
+  type: InteractionType;
+  body?: string | null;
+  created_by?: string | null;
+  created_at: string;
+  profile?: Pick<Profile, "id" | "full_name"> | null;
+};
+
+export type QuoteStatus = "new" | "in_progress" | "booked" | "closed" | "lost";
+
+export type Quote = {
+  id: string;
+  contact_id?: string | null;
+  name: string;
+  email: string;
+  phone: string;
+  event_date: string;
+  event_type: string;
+  guests: string;
+  services: string[];
+  message: string;
+  status: QuoteStatus;
+  created_at: string;
+  updated_at: string;
+};
+

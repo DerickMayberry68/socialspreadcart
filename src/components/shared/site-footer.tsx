@@ -56,7 +56,15 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="border-t border-sage/10 px-4 py-5 text-center text-xs uppercase tracking-[0.18em] text-ink/55">
-        Copyright The Social Spread Cart
+        &copy; {new Date().getFullYear()} The Social Spread Cart &mdash; Created with ❤️ by{" "}
+        <a
+          href="https://studioxconsulting.com"
+          target="_blank"
+          rel="noreferrer"
+          className="transition hover:text-sage"
+        >
+          Studio X Consulting LLC
+        </a>
       </div>
     </footer>
   );
