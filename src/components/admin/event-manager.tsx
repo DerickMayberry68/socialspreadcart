@@ -67,7 +67,7 @@ function EventForm({
       </label>
       <input
         type={type}
-        value={form[name]}
+        value={form[name] ?? ""}
         onChange={(e) => set(name, e.target.value)}
         required={required}
         className="w-full rounded-[12px] border border-sage/20 bg-cream px-4 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-1 focus:ring-sage"
