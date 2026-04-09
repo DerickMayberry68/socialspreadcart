@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export default function AdminLoginPage() {
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") ?? "/admin";
@@ -43,9 +43,71 @@ export default function AdminLoginPage() {
   };
 
   return (
+    <div className="rounded-[28px] border border-sage/15 bg-white px-8 py-10 shadow-soft">
+      <h1 className="font-heading text-3xl text-sage">Admin Sign In</h1>
+      <p className="mt-1 text-sm text-ink/55">
+        The Social Spread Cart · Staff Portal
+      </p>
+
+      {error && (
+        <div className="mt-5 rounded-[16px] bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={submit} className="mt-6 space-y-4">
+        <div className="space-y-1.5">
+          <label
+            htmlFor="email"
+            className="text-xs uppercase tracking-[0.15em] text-ink/60"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded-[14px] border border-sage/20 bg-cream px-4 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-1 focus:ring-sage"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label
+            htmlFor="password"
+            className="text-xs uppercase tracking-[0.15em] text-ink/60"
+          >
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full rounded-[14px] border border-sage/20 bg-cream px-4 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-1 focus:ring-sage"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-2 w-full rounded-full bg-sage px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:bg-sage-700 disabled:opacity-50"
+        >
+          {loading ? "Signing in…" : "Sign In"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="mx-auto mb-8 w-32">
           <Image
             src="/brand/logos/logo-circle.png"
@@ -57,64 +119,9 @@ export default function AdminLoginPage() {
           />
         </div>
 
-        <div className="rounded-[28px] border border-sage/15 bg-white px-8 py-10 shadow-soft">
-          <h1 className="font-heading text-3xl text-sage">Admin Sign In</h1>
-          <p className="mt-1 text-sm text-ink/55">
-            The Social Spread Cart · Staff Portal
-          </p>
-
-          {error && (
-            <div className="mt-5 rounded-[16px] bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={submit} className="mt-6 space-y-4">
-            <div className="space-y-1.5">
-              <label
-                htmlFor="email"
-                className="text-xs uppercase tracking-[0.15em] text-ink/60"
-              >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-[14px] border border-sage/20 bg-cream px-4 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-1 focus:ring-sage"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label
-                htmlFor="password"
-                className="text-xs uppercase tracking-[0.15em] text-ink/60"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-[14px] border border-sage/20 bg-cream px-4 py-2.5 text-sm text-ink outline-none focus:border-sage focus:ring-1 focus:ring-sage"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-2 w-full rounded-full bg-sage px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:bg-sage-700 disabled:opacity-50"
-            >
-              {loading ? "Signing in…" : "Sign In"}
-            </button>
-          </form>
-        </div>
+        <React.Suspense fallback={null}>
+          <LoginForm />
+        </React.Suspense>
 
         <p className="mt-6 text-center text-xs uppercase tracking-[0.15em] text-ink/35">
           © {new Date().getFullYear()} The Social Spread Cart
