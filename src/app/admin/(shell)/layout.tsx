@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, Users, FileText, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, FileText, CalendarDays, ExternalLink } from "lucide-react";
 
 import { LogoutButton } from "@/components/admin/logout-button";
 
@@ -51,7 +51,14 @@ export default function AdminShellLayout({
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-sage/10 px-3 py-3">
+        <div className="border-t border-sage/10 px-3 py-3 space-y-1">
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.15em] text-ink/55 transition hover:bg-sage/10 hover:text-sage"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+            Back to Site
+          </Link>
           <LogoutButton />
         </div>
       </aside>

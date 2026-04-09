@@ -14,12 +14,14 @@ export function TestimonialCarousel({
   const [index, setIndex] = React.useState(0);
 
   React.useEffect(() => {
+    if (testimonials.length < 2) return;
     const timer = window.setInterval(() => {
       setIndex((current) => (current + 1) % testimonials.length);
     }, 5000);
-
     return () => window.clearInterval(timer);
   }, [testimonials.length]);
+
+  if (testimonials.length === 0) return null;
 
   return (
     <div>
