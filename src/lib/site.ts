@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import type { ServiceOption } from "@/types/booking";
+
 export const siteConfig = {
   name: "The Social Spread Cart",
   domain: "TheSocialSpreadCart.com",
@@ -80,3 +82,15 @@ export const serviceOptions = [
   "Ice Cream Toppings Bar",
   "Other",
 ];
+
+export const serviceDescriptions: Record<ServiceOption, string> = {
+  "Charcuterie Boxes": "Hand-crafted individual grazing boxes for every guest",
+  "Charcuterie Cups": "Portable cups perfect for mingling crowds",
+  "Dirty Soda 4-Pack": "Four flavored craft sodas — a crowd favorite",
+  "Charcuterie Cart": "Full cart setup with curated boards and displays",
+  "Dirty Soda Cart": "Mobile dirty soda station served fresh to your guests",
+  "Mini Pancake Bar": "Interactive pancake bar with toppings and syrups",
+  "Bartending Service": "Professional bartending for your event",
+  "Ice Cream Toppings Bar": "Build-your-own ice cream topping station",
+  "Other": "Something unique in mind? Tell us more in your message",
+};

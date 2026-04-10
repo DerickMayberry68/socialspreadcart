@@ -1,3 +1,5 @@
+import type { EventType, ServiceOption } from "@/types/booking";
+
 export type MenuItem = {
   id: string;
   name: string;
@@ -28,9 +30,9 @@ export type QuoteRequest = {
   email: string;
   phone: string;
   eventDate: string;
-  eventType: string;
+  eventType: EventType;
   guests: string;
-  services: string[];
+  services: ServiceOption[];
   message: string;
 };
 

@@ -8,3 +8,8 @@ dist
 coverage
 npm-debug.log*
 assets/
+*.log
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
