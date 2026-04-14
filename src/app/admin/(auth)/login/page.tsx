@@ -38,7 +38,24 @@ function LoginForm() {
       return;
     }
 
-    router.push(returnUrl);
+    const response = await fetch("/api/auth/post-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ returnUrl }),
+    });
+    const payload = (await response.json()) as {
+      ok: boolean;
+      redirectTo?: string;
+      message?: string;
+    };
+
+    if (!response.ok || !payload.ok || !payload.redirectTo) {
+      setError(payload.message ?? "We couldn't resolve your tenant membership.");
+      setLoading(false);
+      return;
+    }
+
+    router.push(payload.redirectTo);
     router.refresh();
   };
 
@@ -97,7 +114,7 @@ function LoginForm() {
           disabled={loading}
           className="mt-2 w-full rounded-full bg-sage px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:bg-sage-700 disabled:opacity-50"
         >
-          {loading ? "Signing in…" : "Sign In"}
+          {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
     </div>

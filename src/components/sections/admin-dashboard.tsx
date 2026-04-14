@@ -163,18 +163,24 @@ export function AdminDashboard({
                 featured: menuForm.featured === "true",
               };
 
-              const { data, error } = await supabase
-                .from("menu_items")
-                .insert(payload)
-                .select()
-                .single();
+              const response = await fetch("/api/admin/menu-items", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              const result = (await response.json()) as {
+                ok: boolean;
+                item?: MenuItem;
+                message?: string;
+              };
 
-              if (error) {
-                toast.error(error.message);
+              if (!response.ok || !result.ok || !result.item) {
+                toast.error(result.message ?? "Failed to add menu item.");
                 return;
               }
 
-              setMenuItems((current) => [...current, data as MenuItem]);
+              const item = result.item;
+              setMenuItems((current) => [...current, item]);
               setMenuForm({
                 name: "",
                 description: "",
@@ -240,18 +246,24 @@ export function AdminDashboard({
                 id: crypto.randomUUID(),
               };
 
-              const { data, error } = await supabase
-                .from("events")
-                .insert(payload)
-                .select()
-                .single();
+              const response = await fetch("/api/admin/events", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+              });
+              const result = (await response.json()) as {
+                ok: boolean;
+                event?: EventItem;
+                message?: string;
+              };
 
-              if (error) {
-                toast.error(error.message);
+              if (!response.ok || !result.ok || !result.event) {
+                toast.error(result.message ?? "Failed to add event.");
                 return;
               }
 
-              setEvents((current) => [...current, data as EventItem]);
+              const createdEvent = result.event;
+              setEvents((current) => [...current, createdEvent]);
               setEventForm({
                 title: "",
                 date: "",

@@ -25,7 +25,7 @@ export function TestimonialCarousel({
 
   return (
     <div>
-      <Card className="overflow-hidden p-8 sm:p-10">
+      <Card className="overflow-hidden rounded-[36px] border-[#e7ddcc] bg-[#fffaf4] p-8 sm:p-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={testimonials[index].id}
@@ -34,16 +34,19 @@ export function TestimonialCarousel({
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.35 }}
           >
-            <p className="font-heading text-3xl leading-tight text-sage sm:text-4xl">
+            <p className="text-xs uppercase tracking-[0.32em] text-[#ad7a54]">
+              Client love note
+            </p>
+            <p className="mt-5 font-heading text-3xl leading-tight text-[#284237] sm:text-4xl">
               “{testimonials[index].quote}”
             </p>
             <div className="mt-6 text-sm uppercase tracking-[0.2em] text-ink/60">
-              {testimonials[index].name} · {testimonials[index].occasion}
+              {testimonials[index].name} • {testimonials[index].occasion}
             </div>
           </motion.div>
         </AnimatePresence>
       </Card>
-      <div className="mt-5 flex gap-2">
+      <div className="mt-5 flex justify-center gap-2">
         {testimonials.map((testimonial, itemIndex) => (
           <button
             key={testimonial.id}
@@ -59,4 +62,3 @@ export function TestimonialCarousel({
     </div>
   );
 }
-

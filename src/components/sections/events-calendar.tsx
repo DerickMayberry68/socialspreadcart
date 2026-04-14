@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Calendar from "react-calendar";
 import { isSameDay } from "date-fns";
-import { MapPin } from "lucide-react";
+import { CalendarDays, MapPin } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,11 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
-      <Card className="calendar-shell p-5 sm:p-7">
+      <Card className="calendar-shell rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-5 sm:p-7">
+        <div className="mb-5">
+          <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">Calendar view</p>
+          <h3 className="mt-2 font-heading text-3xl text-[#284237]">Plan around the cart</h3>
+        </div>
         <Calendar
           onChange={(value: CalendarValue) => {
             if (value instanceof Date) {
@@ -48,14 +52,15 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
           }
         />
       </Card>
+
       <div className="space-y-4">
         {visibleEvents.length === 0 ? (
-          <Card className="p-8 sm:p-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-gold">
+          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8 sm:p-10">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#ad7a54]">
               No Public Events Yet
             </p>
-            <h3 className="mt-3 font-heading text-4xl text-sage">
-              The next cart pop-up hasn&apos;t been posted yet.
+            <h3 className="mt-3 font-heading text-4xl text-[#284237]">
+              The next cart pop-up has not been posted yet.
             </h3>
             <p className="mt-4 max-w-xl text-base leading-7 text-ink/68">
               Check back soon for upcoming public events, or reach out directly
@@ -68,15 +73,27 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
           </Card>
         ) : (
           visibleEvents.map((event) => (
-            <Card key={event.id} className="overflow-hidden p-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="rounded-full bg-sage px-4 py-2 text-xs uppercase tracking-[0.2em] text-cream">
-                  {formatLongDate(event.date)}
+            <div
+              key={event.id}
+              className="rounded-[32px] border border-sage/10 bg-white/88 p-6 shadow-soft"
+            >
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#284237] text-center text-[#fbf5eb]">
+                  <CalendarDays className="h-5 w-5" />
                 </div>
-                <div>
-                  <h3 className="font-heading text-3xl text-sage">{event.title}</h3>
-                  <div className="mt-2 flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-gold">
-                    <MapPin className="h-4 w-4" />
+                <div className="flex-1">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
+                        {formatLongDate(event.date)}
+                      </p>
+                      <h3 className="mt-2 font-heading text-3xl text-[#284237]">
+                        {event.title}
+                      </h3>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2 text-sm uppercase tracking-[0.18em] text-ink/55">
+                    <MapPin className="h-4 w-4 text-[#4f684d]" />
                     {event.location}
                   </div>
                   <p className="mt-4 text-base leading-7 text-ink/68">
@@ -84,7 +101,7 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
                   </p>
                 </div>
               </div>
-            </Card>
+            </div>
           ))
         )}
       </div>

@@ -1,16 +1,15 @@
 import { HomePage } from "@/components/sections/home-page";
-import {
-  getEvents,
-  getGalleryItems,
-  getMenuItems,
-  getTestimonials,
-} from "@/lib/data";
+import { getGalleryItems } from "@/lib/data";
+import { withCurrentTenant } from "@/lib/tenant";
+import { EventService } from "@/services/event-service";
+import { MenuService } from "@/services/menu-service";
+import { TestimonialService } from "@/services/testimonial-service";
 
 export default async function IndexPage() {
   const [menuItems, events, testimonials, gallery] = await Promise.all([
-    getMenuItems(),
-    getEvents(),
-    getTestimonials(),
+    withCurrentTenant(MenuService.listMenuItems),
+    withCurrentTenant(EventService.listEvents),
+    withCurrentTenant(TestimonialService.listTestimonials),
     getGalleryItems(),
   ]);
 
@@ -23,4 +22,3 @@ export default async function IndexPage() {
     />
   );
 }
-

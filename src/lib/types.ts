@@ -26,6 +26,7 @@ export type EventItem = {
 };
 
 export type QuoteRequest = {
+  tenantId: string;
   name: string;
   email: string;
   phone: string;
@@ -48,6 +49,43 @@ export type GalleryItem = {
   title: string;
   eyebrow: string;
   image_url: string;
+};
+
+export type TenantRole = "owner" | "admin" | "staff";
+
+export type TenantInvitationStatus =
+  | "pending"
+  | "accepted"
+  | "expired"
+  | "revoked";
+
+export type TenantInvitation = {
+  id: string;
+  tenant_id: string;
+  email: string;
+  role: TenantRole;
+  token: string;
+  invited_by: string;
+  status: TenantInvitationStatus;
+  expires_at: string;
+  created_at: string;
+  accepted_at?: string | null;
+};
+
+export type TenantMembership = {
+  tenant_id: string;
+  user_id: string;
+  role: TenantRole;
+  created_at: string;
+  tenant?: {
+    id: string;
+    slug: string;
+    name: string;
+    status: "active" | "suspended" | "archived";
+    created_at: string;
+    updated_at: string;
+  } | null;
+  profile?: Pick<Profile, "id" | "full_name" | "email"> | null;
 };
 
 // ── CRM ──────────────────────────────────────────────────────
@@ -110,4 +148,3 @@ export type Quote = {
   created_at: string;
   updated_at: string;
 };
-

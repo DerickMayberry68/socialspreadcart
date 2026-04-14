@@ -19,31 +19,33 @@ export default function CartServicePage() {
       <SectionShell>
         <SectionHeading
           eyebrow="The Cart Service"
-          title="A mobile snack and beverage cart designed to be both the service and the scene."
-          description="The cart is available for showers, school events, birthdays, open houses, launch events, markets, and corporate socials where the service should feel polished and memorable."
+          title="A mobile snack and beverage cart designed to feel like both the service and the scene."
+          description="The cart is made for showers, school events, birthdays, open houses, launch events, markets, and corporate socials where the service should feel polished and memorable."
         />
+
         <div className="mt-12 grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="grid gap-5 sm:grid-cols-2">
             {cartGallery.map((item) => (
-                <div
-                  key={item}
-                  className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft"
-                >
-                  <Image
-                    src={item}
-                    alt="The Social Spread Cart cart item"
-                    width={700}
-                    height={875}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+              <div
+                key={item}
+                className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft"
+              >
+                <Image
+                  src={item}
+                  alt="The Social Spread Cart event service"
+                  width={700}
+                  height={875}
+                  className="h-full w-full object-cover"
+                />
+              </div>
             ))}
           </div>
-          <Card className="p-8 sm:p-10">
-            <h3 className="font-heading text-4xl text-sage">What&apos;s included</h3>
+
+          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8 sm:p-10">
+            <h3 className="font-heading text-4xl text-[#284237]">What is included</h3>
             <ul className="mt-6 space-y-4 text-base leading-7 text-ink/68">
               {cartHighlights.map((item) => (
-                <li key={item} className="rounded-[24px] bg-sage-50 px-5 py-4">
+                <li key={item} className="rounded-[24px] bg-white px-5 py-4">
                   {item}
                 </li>
               ))}
@@ -58,7 +60,7 @@ export default function CartServicePage() {
               ].map((item) => (
                 <div
                   key={item}
-                  className="rounded-[24px] border border-sage/10 bg-white px-4 py-4 text-sm uppercase tracking-[0.18em] text-sage"
+                  className="rounded-[24px] border border-sage/10 bg-[linear-gradient(180deg,#fff8f1_0%,#f9ecdc_100%)] px-4 py-4 text-sm uppercase tracking-[0.18em] text-[#284237]"
                 >
                   {item}
                 </div>

@@ -11,6 +11,7 @@ export function LogoutButton() {
   const logout = async () => {
     const supabase = getSupabaseBrowserClient();
     if (supabase) await supabase.auth.signOut();
+    await fetch("/api/auth/logout", { method: "POST" });
     router.push("/");
     router.refresh();
   };
@@ -18,7 +19,7 @@ export function LogoutButton() {
   return (
     <button
       onClick={logout}
-      className="flex items-center gap-2 rounded-full px-3 py-1.5 text-xs uppercase tracking-[0.15em] text-ink/55 transition hover:bg-sage/10 hover:text-sage"
+      className="flex items-center gap-2 rounded-full px-3 py-2 text-xs uppercase tracking-[0.15em] text-ink/55 transition hover:bg-[#eef4e9] hover:text-sage"
     >
       <LogOut className="h-3.5 w-3.5" />
       Sign Out

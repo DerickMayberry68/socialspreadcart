@@ -6,8 +6,28 @@ import { navigation, siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-24 overflow-hidden border-t border-sage/10 bg-[#f5edda]">
-      <div className="absolute inset-x-0 top-0 h-6 bg-stripe opacity-90" />
+    <footer className="relative mt-24 overflow-hidden border-t border-sage/10 bg-[#f4ecdf]">
+      <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+        <div className="rounded-[36px] bg-[linear-gradient(135deg,#284237_0%,#3a5d4f_100%)] px-8 py-10 text-[#f8f4ee] shadow-[0_26px_80px_rgba(40,66,55,0.18)]">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#d8e3d5]">
+                Let&apos;s make hosting feel lovely
+              </p>
+              <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
+                Warm hospitality, joyful details, and a setup guests remember.
+              </h2>
+            </div>
+            <Link
+              href="/contact"
+              className="inline-flex items-center justify-center rounded-full bg-[#f4c28f] px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-[#284237] transition hover:-translate-y-0.5 hover:bg-[#efb97e]"
+            >
+              Book the Cart
+            </Link>
+          </div>
+        </div>
+      </div>
+
       <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
         <div>
           <div className="w-40">
@@ -55,8 +75,9 @@ export function SiteFooter() {
           </ul>
         </div>
       </div>
+
       <div className="border-t border-sage/10 px-4 py-5 text-center text-xs uppercase tracking-[0.18em] text-ink/55">
-        &copy; {new Date().getFullYear()} The Social Spread Cart &mdash; Created with ❤️ by{" "}
+        &copy; {new Date().getFullYear()} The Social Spread Cart - Created with care by{" "}
         <a
           href="https://studioxconsulting.com"
           target="_blank"
