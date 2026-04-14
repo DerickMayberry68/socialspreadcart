@@ -39,7 +39,7 @@ export const RESERVED_SLUGS = [
 ] as const;
 
 export function getLegacyTenantSlug(): string {
-  return (process.env.LEGACY_TENANT_SLUG ?? "sarah").trim().toLowerCase();
+  return (process.env.LEGACY_TENANT_SLUG ?? "shayley").trim().toLowerCase();
 }
 
 function normalizeHostname(value: string | null | undefined): string | null {
@@ -80,8 +80,8 @@ function getTenantRoutingHostnames(): string[] {
  * Parse the leading subdomain label from an HTTP host value.
  *
  * Examples:
- *   "sarah.socialspreadcart.com" -> "sarah"
- *   "sarah.localhost:3000" -> "sarah"
+ *   "shayley.socialspreadcart.com" -> "shayley"
+ *   "shayley.localhost:3000" -> "shayley"
  *   "socialspreadcart.com" -> null
  *   "localhost:3000" -> null
  *   "www.socialspreadcart.com" -> null

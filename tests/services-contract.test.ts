@@ -314,7 +314,7 @@ describe("services contract", () => {
   it("withCurrentTenant passes the current tenant id into the service function", async () => {
     getCurrentTenantMock.mockResolvedValue({
       id: TENANT_ID,
-      slug: "sarah",
+      slug: "shayley",
       name: "Tenant",
       status: "active",
       created_at: "2026-01-01T00:00:00Z",

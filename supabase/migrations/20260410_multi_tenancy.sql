@@ -49,7 +49,7 @@ create index if not exists tenant_users_user_idx
 -- 3. Seed the legacy tenant
 -- ------------------------------------------------------------
 insert into public.tenants (slug, name, status)
-values ('sarah', 'The Social Spread Cart', 'active')
+values ('shayley', 'The Social Spread Cart', 'active')
 on conflict (slug) do nothing;
 
 -- ------------------------------------------------------------
@@ -60,10 +60,10 @@ do $$
 declare
   legacy_id uuid;
 begin
-  select id into legacy_id from public.tenants where slug = 'sarah';
+  select id into legacy_id from public.tenants where slug = 'shayley';
 
   if legacy_id is null then
-    raise exception 'Legacy tenant (slug=sarah) was not created';
+    raise exception 'Legacy tenant (slug=shayley) was not created';
   end if;
 
   -- menu_items
@@ -455,7 +455,7 @@ create policy "interactions_tenant_delete"
 -- ------------------------------------------------------------
 insert into public.tenant_users (tenant_id, user_id, role)
 select
-  (select id from public.tenants where slug = 'sarah'),
+  (select id from public.tenants where slug = 'shayley'),
   p.id,
   'owner'
 from public.profiles p

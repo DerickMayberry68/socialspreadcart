@@ -18,11 +18,11 @@ import {
 
 describe("parseSubdomain()", () => {
   it("extracts subdomain from production host", () => {
-    expect(parseSubdomain("sarah.socialspreadcart.com")).toBe("sarah");
+    expect(parseSubdomain("shayley.socialspreadcart.com")).toBe("shayley");
   });
 
   it("extracts subdomain from localhost with port", () => {
-    expect(parseSubdomain("sarah.localhost:3000")).toBe("sarah");
+    expect(parseSubdomain("shayley.localhost:3000")).toBe("shayley");
   });
 
   it("returns null for bare production domain", () => {
@@ -46,7 +46,7 @@ describe("parseSubdomain()", () => {
   });
 
   it("lowercases uppercase subdomain", () => {
-    expect(parseSubdomain("SARAH.socialspreadcart.com")).toBe("sarah");
+    expect(parseSubdomain("SHAYLEY.socialspreadcart.com")).toBe("shayley");
   });
 
   it("strips port before parsing", () => {
@@ -73,8 +73,8 @@ function makeMockSupabase(result: { data: unknown; error: unknown }) {
 }
 
 const activeTenant = {
-  id: "uuid-sarah",
-  slug: "sarah",
+  id: "uuid-shayley",
+  slug: "shayley",
   name: "The Social Spread Cart",
   status: "active",
   created_at: "2026-01-01T00:00:00Z",
@@ -94,8 +94,8 @@ describe("resolveTenantFromHost()", () => {
 
   it("returns Tenant for a valid active slug", async () => {
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
-    const result = await resolveTenantFromHost("sarah.socialspreadcart.com", supabase);
-    expect(result).toMatchObject({ slug: "sarah", status: "active" });
+    const result = await resolveTenantFromHost("shayley.socialspreadcart.com", supabase);
+    expect(result).toMatchObject({ slug: "shayley", status: "active" });
   });
 
   it("returns TenantResolutionError('unknown_slug') for unknown slug", async () => {
@@ -125,7 +125,7 @@ describe("resolveTenantFromHost()", () => {
       data: { ...activeTenant, status: "suspended" },
       error: null,
     });
-    const result = await resolveTenantFromHost("sarah.socialspreadcart.com", supabase);
+    const result = await resolveTenantFromHost("shayley.socialspreadcart.com", supabase);
     expect(result).toBeInstanceOf(TenantResolutionError);
     expect((result as TenantResolutionError).code).toBe("suspended");
   });
@@ -135,7 +135,7 @@ describe("resolveTenantFromHost()", () => {
       data: { ...activeTenant, status: "archived" },
       error: null,
     });
-    const result = await resolveTenantFromHost("sarah.socialspreadcart.com", supabase);
+    const result = await resolveTenantFromHost("shayley.socialspreadcart.com", supabase);
     expect(result).toBeInstanceOf(TenantResolutionError);
     expect((result as TenantResolutionError).code).toBe("archived");
   });
@@ -144,7 +144,7 @@ describe("resolveTenantFromHost()", () => {
     setEnv({ ENABLE_BARE_DOMAIN_LEGACY: "true" });
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const result = await resolveTenantFromHost("socialspreadcart.com", supabase);
-    expect(result).toMatchObject({ slug: "sarah" });
+    expect(result).toMatchObject({ slug: "shayley" });
     const fromCall = (supabase.from as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(fromCall[0]).toBe("tenants");
   });
@@ -175,7 +175,7 @@ describe("resolveTenantFromHost()", () => {
     });
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const result = await resolveTenantFromHost("socialspreadcart.vercel.app", supabase);
-    expect(result).toMatchObject({ slug: "sarah" });
+    expect(result).toMatchObject({ slug: "shayley" });
   });
 
   it("uses ?_tenant= override in development mode", async () => {
@@ -194,6 +194,6 @@ describe("resolveTenantFromHost()", () => {
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const params = new URLSearchParams("_tenant=joe");
     const result = await resolveTenantFromHost("socialspreadcart.com", supabase, params);
-    expect(result).toMatchObject({ slug: "sarah" });
+    expect(result).toMatchObject({ slug: "shayley" });
   });
 });
