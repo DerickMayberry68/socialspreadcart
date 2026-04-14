@@ -161,7 +161,9 @@ export function HomePage({
                     <Sparkles key={index} className="h-4 w-4 fill-current" />
                   ))}
                 </div>
-                <p className="mt-4 text-lg leading-8 text-ink/72">"{proofQuote.quote}"</p>
+                <p className="mt-4 text-lg leading-8 text-ink/72">
+                  &ldquo;{proofQuote.quote}&rdquo;
+                </p>
                 <p className="mt-3 text-xs uppercase tracking-[0.26em] text-ink/50">
                   {proofQuote.name} - {proofQuote.occasion}
                 </p>
@@ -410,7 +412,7 @@ export function HomePage({
                 Local and event-ready
               </h3>
               <p className="mt-4 text-base leading-7 text-ink/66">
-                Location cues, event imagery, and clear service formats make the brand feel rooted, real, and easy to picture in a host's day.
+                Location cues, event imagery, and clear service formats make the brand feel rooted, real, and easy to picture in a host&apos;s day.
               </p>
             </Card>
             <Card className="rounded-[32px] p-7 md:col-span-2">

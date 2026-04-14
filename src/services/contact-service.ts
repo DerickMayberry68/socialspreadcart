@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import type { Contact, ContactStatus, Interaction, Quote } from "@/lib/types";
+import type { Contact, Interaction, Quote } from "@/lib/types";
 
 const tenantIdSchema = z.string().uuid();
 const contactStatusSchema = z.enum(["new", "contacted", "booked", "closed"]);

@@ -25,7 +25,7 @@ export default function ContactPage() {
         <div className="mt-12 grid gap-8 lg:grid-cols-[0.92fr_1.08fr]">
           <div className="space-y-5">
             <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8">
-              <h3 className="font-heading text-4xl text-[#284237]">Let's plan it</h3>
+              <h3 className="font-heading text-4xl text-[#284237]">Let&apos;s plan it</h3>
               <p className="mt-4 text-base leading-7 text-ink/68">
                 Smaller menu orders usually require 48 to 72 hours of notice.
                 Cart service and larger event bookings are best booked as early
