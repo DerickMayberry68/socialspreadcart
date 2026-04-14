@@ -5,6 +5,7 @@ import {
   ExternalLink,
   FileText,
   LayoutDashboard,
+  ShoppingBag,
   Shield,
   Users,
 } from "lucide-react";
@@ -13,6 +14,7 @@ import { LogoutButton } from "@/components/admin/logout-button";
 
 const nav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/menu-items", label: "Menu", icon: ShoppingBag },
   { href: "/admin/contacts", label: "Contacts", icon: Users },
   { href: "/admin/quotes", label: "Quotes", icon: FileText },
   { href: "/admin/events", label: "Events", icon: CalendarDays },

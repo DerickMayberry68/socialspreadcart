@@ -12,6 +12,7 @@ export type MenuItem = {
   lead_time: string;
   image_url: string;
   featured: boolean;
+  is_active: boolean;
   order_url?: string | null;
 };
 

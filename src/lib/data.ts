@@ -17,7 +17,8 @@ export async function getMenuItems(): Promise<MenuItem[]> {
   }
 
   const items = await withCurrentTenant(MenuService.listMenuItems);
-  return items.sort((a, b) => a.price_cents - b.price_cents);
+  const source = items.length > 0 ? items : fallbackMenuItems.filter((item) => item.is_active);
+  return source.sort((a, b) => a.price_cents - b.price_cents);
 }
 
 export async function getEvents(): Promise<EventItem[]> {

@@ -21,6 +21,7 @@ export const fallbackMenuItems: MenuItem[] = [
     lead_time: "48 hours",
     image_url: foodMedia.charcuterieSpread,
     featured: true,
+    is_active: true,
     order_url: "#quote-form",
   },
   {
@@ -36,6 +37,7 @@ export const fallbackMenuItems: MenuItem[] = [
     lead_time: "48 hours",
     image_url: clientMedia.charcuterieCupDetail,
     featured: true,
+    is_active: true,
     order_url: "#quote-form",
   },
   {
@@ -51,6 +53,7 @@ export const fallbackMenuItems: MenuItem[] = [
     lead_time: "24 hours",
     image_url: clientMedia.dirtySodaAndCharcuterieBox,
     featured: true,
+    is_active: true,
     order_url: "#quote-form",
   },
 ];

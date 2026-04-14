@@ -124,67 +124,86 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {filtered.map((item, index) => (
-          <div
-            key={item.id}
-            className="group overflow-hidden rounded-[34px] border border-sage/10 bg-white shadow-soft"
-          >
-            <div className={`bg-gradient-to-br p-4 ${cardBands[index % cardBands.length]}`}>
-              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-ink/48">
-                <span>{item.size}</span>
-                <span>{formatPrice(item.price_cents)}</span>
-              </div>
-              <div className="mt-4 overflow-hidden rounded-[24px]">
-                <Image
-                  src={item.image_url}
-                  alt={item.name}
-                  width={800}
-                  height={920}
-                  className="aspect-[4/4.8] h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-                />
-              </div>
+        {filtered.length === 0 ? (
+          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8 md:col-span-2 xl:col-span-3">
+            <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">No matches yet</p>
+            <h3 className="mt-3 font-heading text-4xl text-[#284237]">
+              No menu items fit those filters.
+            </h3>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-ink/66">
+              Try clearing one of the filters to browse the full menu again, or reach out if
+              you want something custom for your event.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button onClick={() => setFilters(defaultFilters)}>Show Full Menu</Button>
+              <Button variant="outline" asChild>
+                <Link href="/contact#quote-form">Ask for Something Custom</Link>
+              </Button>
             </div>
-            <div className="p-6">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-[#ad7a54]">
-                    {item.occasion[0] ?? "Menu favorite"}
-                  </p>
-                  <h3 className="mt-2 font-heading text-3xl text-[#284237]">
-                    {item.name}
-                  </h3>
+          </Card>
+        ) : (
+          filtered.map((item, index) => (
+            <div
+              key={item.id}
+              className="group overflow-hidden rounded-[34px] border border-sage/10 bg-white shadow-soft"
+            >
+              <div className={`bg-gradient-to-br p-4 ${cardBands[index % cardBands.length]}`}>
+                <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-ink/48">
+                  <span>{item.size}</span>
+                  <span>{formatPrice(item.price_cents)}</span>
+                </div>
+                <div className="mt-4 overflow-hidden rounded-[24px]">
+                  <Image
+                    src={item.image_url}
+                    alt={item.name}
+                    width={800}
+                    height={920}
+                    className="aspect-[4/4.8] h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
                 </div>
               </div>
-              <p className="mt-3 text-base leading-7 text-ink/68">
-                {item.description}
-              </p>
-              <p className="mt-4 text-xs uppercase tracking-[0.18em] text-ink/50">
-                Lead time: {item.lead_time}
-              </p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {item.dietary.map((value) => (
-                  <Badge
-                    key={value}
-                    className="border-[#ddd5c8] bg-[#fffaf4] text-[#5a6d57]"
-                  >
-                    {value}
-                  </Badge>
-                ))}
-              </div>
-              <div className="mt-5 flex gap-3">
-                <Button className="flex-1" asChild>
-                  <Link href="/contact#quote-form">Add to Quote</Link>
-                </Button>
-                <Button variant="outline" className="flex-1" asChild>
-                  <Link href="/contact#quote-form">
-                    Ask About This
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+              <div className="p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.18em] text-[#ad7a54]">
+                      {item.occasion[0] ?? "Menu favorite"}
+                    </p>
+                    <h3 className="mt-2 font-heading text-3xl text-[#284237]">
+                      {item.name}
+                    </h3>
+                  </div>
+                </div>
+                <p className="mt-3 text-base leading-7 text-ink/68">
+                  {item.description}
+                </p>
+                <p className="mt-4 text-xs uppercase tracking-[0.18em] text-ink/50">
+                  Lead time: {item.lead_time}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {item.dietary.map((value) => (
+                    <Badge
+                      key={value}
+                      className="border-[#ddd5c8] bg-[#fffaf4] text-[#5a6d57]"
+                    >
+                      {value}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="mt-5 flex gap-3">
+                  <Button className="flex-1" asChild>
+                    <Link href="/contact#quote-form">Add to Quote</Link>
+                  </Button>
+                  <Button variant="outline" className="flex-1" asChild>
+                    <Link href="/contact#quote-form">
+                      Ask About This
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );
