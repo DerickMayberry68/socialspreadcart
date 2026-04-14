@@ -189,11 +189,11 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
                     </Badge>
                   ))}
                 </div>
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Button className="flex-1" asChild>
+                <div className="mt-5 flex flex-col gap-3">
+                  <Button className="w-full" asChild>
                     <Link href="/contact#quote-form">Add to Quote</Link>
                   </Button>
-                  <Button variant="outline" className="flex-1" asChild>
+                  <Button variant="outline" className="w-full" asChild>
                     <Link href="/contact#quote-form">
                       Ask About This
                       <ArrowRight className="h-4 w-4" />
