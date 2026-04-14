@@ -7,16 +7,14 @@
  *
  * Resolution precedence:
  *   1. Dev-mode ?_tenant=<slug> query parameter (NODE_ENV=development only)
- *   2. Subdomain of the host (sarah.socialspreadcart.com → 'sarah')
- *   3. Bare domain / www → legacy tenant slug ('sarah') when
- *      ENABLE_BARE_DOMAIN_LEGACY !== 'false'
- *   4. Bare domain / www → TenantResolutionError('unknown_slug') when flag off
+ *   2. Subdomain of a recognized app host
+ *   3. Bare domain / www -> legacy tenant slug when
+ *      ENABLE_BARE_DOMAIN_LEGACY !== "false"
+ *   4. Bare domain / www -> TenantResolutionError("unknown_slug") when flag off
  */
 
 import { TenantResolutionError } from "./errors";
 import { TenantService, type TenantQueryClient } from "@/services/tenant-service";
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 export type Tenant = {
   id: string;
@@ -26,8 +24,6 @@ export type Tenant = {
   created_at: string;
   updated_at: string;
 };
-
-// ── Constants ────────────────────────────────────────────────────────────────
 
 export const RESERVED_SLUGS = [
   "app",
@@ -46,77 +42,117 @@ export function getLegacyTenantSlug(): string {
   return (process.env.LEGACY_TENANT_SLUG ?? "sarah").trim().toLowerCase();
 }
 
-// ── Host Parsing ─────────────────────────────────────────────────────────────
+function normalizeHostname(value: string | null | undefined): string | null {
+  const trimmed = value?.trim().toLowerCase();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  const candidate = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
+
+  try {
+    return new URL(candidate).hostname.toLowerCase();
+  } catch {
+    return trimmed.split("/")[0]?.split(":")[0] ?? null;
+  }
+}
+
+function getTenantRoutingHostnames(): string[] {
+  const candidates = [
+    process.env.NEXT_PUBLIC_APP_DOMAIN,
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    process.env.VERCEL_URL,
+    "socialspreadcart.com",
+  ];
+
+  return Array.from(
+    new Set(
+      candidates
+        .map((candidate) => normalizeHostname(candidate))
+        .filter((hostname): hostname is string => Boolean(hostname)),
+    ),
+  );
+}
 
 /**
  * Parse the leading subdomain label from an HTTP host value.
  *
  * Examples:
- *   'sarah.socialspreadcart.com'  → 'sarah'
- *   'sarah.localhost:3000'        → 'sarah'
- *   'socialspreadcart.com'        → null  (bare domain)
- *   'localhost:3000'              → null  (bare domain)
- *   'www.socialspreadcart.com'    → null  (www treated as bare)
- *   'foo.bar.socialspreadcart.com'→ null  (multi-label — rejected)
- *   'SARAH.localhost:3000'        → 'sarah' (lowercased)
+ *   "sarah.socialspreadcart.com" -> "sarah"
+ *   "sarah.localhost:3000" -> "sarah"
+ *   "socialspreadcart.com" -> null
+ *   "localhost:3000" -> null
+ *   "www.socialspreadcart.com" -> null
+ *   "foo.bar.socialspreadcart.com" -> null
+ *   "socialspreadcart.vercel.app" -> null
  */
-export function parseSubdomain(host: string): string | null {
-  // Strip port
-  const hostname = host.split(":")[0].toLowerCase();
-  const parts = hostname.split(".");
+export function parseSubdomain(
+  host: string,
+  baseHostnames: string[] = getTenantRoutingHostnames(),
+): string | null {
+  const hostname = normalizeHostname(host);
 
-  // Special case: <subdomain>.localhost (exactly 2 parts, second is 'localhost')
-  // Must be checked BEFORE the general <= 2 guard below.
-  if (parts.length === 2 && parts[1] === "localhost") {
-    const subdomain = parts[0];
-    if (subdomain === "www") return null;
+  if (!hostname) {
+    return null;
+  }
+
+  const localhostMatch = hostname.match(/^([^.]+)\.localhost$/);
+  if (localhostMatch) {
+    return localhostMatch[1] === "www" ? null : localhostMatch[1];
+  }
+
+  if (hostname === "localhost") {
+    return null;
+  }
+
+  for (const baseHostname of baseHostnames) {
+    if (hostname === baseHostname || hostname === `www.${baseHostname}`) {
+      return null;
+    }
+
+    if (!hostname.endsWith(`.${baseHostname}`)) {
+      continue;
+    }
+
+    const subdomain = hostname.slice(0, -(baseHostname.length + 1));
+
+    if (!subdomain || subdomain.includes(".") || subdomain === "www") {
+      return null;
+    }
+
     return subdomain;
   }
 
-  // Bare domain: single label ('localhost') or two-part ('socialspreadcart.com')
-  if (parts.length <= 2) return null;
+  if (hostname.endsWith(".vercel.app")) {
+    return null;
+  }
 
-  // Multi-label: 'foo.bar.socialspreadcart.com' (4+ parts) — reject
-  if (parts.length > 3) return null;
-
-  // Standard: '<subdomain>.<domain>.<tld>' (exactly 3 parts)
-  const subdomain = parts[0];
-
-  // Treat 'www' as bare domain
-  if (subdomain === "www") return null;
-
-  return subdomain;
+  return null;
 }
-
-// ── Tenant Resolution ────────────────────────────────────────────────────────
 
 /**
  * Resolve the active Tenant for a given HTTP host and optional URL search params.
  *
  * Returns a Tenant on success, or a TenantResolutionError on failure.
- * Never throws — callers inspect the return type.
+ * Never throws - callers inspect the return type.
  */
 export async function resolveTenantFromHost(
   host: string,
   supabase: TenantQueryClient,
   searchParams?: URLSearchParams,
 ): Promise<Tenant | TenantResolutionError> {
-  // Dev-mode ?_tenant= override
   let slug: string | null = null;
 
-  if (
-    process.env.NODE_ENV === "development" &&
-    searchParams?.has("_tenant")
-  ) {
+  if (process.env.NODE_ENV === "development" && searchParams?.has("_tenant")) {
     slug = searchParams.get("_tenant")!.toLowerCase();
   } else {
     slug = parseSubdomain(host);
   }
 
-  // Bare domain / www fallback
   if (slug === null) {
-    const legacyEnabled =
-      process.env.ENABLE_BARE_DOMAIN_LEGACY !== "false";
+    const legacyEnabled = process.env.ENABLE_BARE_DOMAIN_LEGACY !== "false";
 
     if (!legacyEnabled) {
       return new TenantResolutionError(
@@ -128,7 +164,6 @@ export async function resolveTenantFromHost(
     slug = getLegacyTenantSlug();
   }
 
-  // Reserved slug check — never hit the DB
   if ((RESERVED_SLUGS as readonly string[]).includes(slug)) {
     return new TenantResolutionError(
       "reserved",
@@ -136,7 +171,6 @@ export async function resolveTenantFromHost(
     );
   }
 
-  // DB lookup
   const tenant = await TenantService.getTenantBySlug(slug, supabase);
 
   if (!tenant) {

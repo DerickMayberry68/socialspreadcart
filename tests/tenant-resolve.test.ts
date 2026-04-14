@@ -1,21 +1,20 @@
 /**
  * Unit tests for src/lib/tenant/resolve.ts (Spec 003).
  *
- * parseSubdomain() is pure — no mocks needed.
- * resolveTenantFromHost() calls the DB — tested with a vi.fn() mock client.
+ * parseSubdomain() is pure - no mocks needed.
+ * resolveTenantFromHost() calls the DB - tested with a vi.fn() mock client.
  *
  * These tests do NOT require a running Supabase instance.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { TenantResolutionError } from "../src/lib/tenant/errors";
 import {
   getLegacyTenantSlug,
   parseSubdomain,
   resolveTenantFromHost,
 } from "../src/lib/tenant/resolve";
-import { TenantResolutionError } from "../src/lib/tenant/errors";
-
-// ── parseSubdomain ───────────────────────────────────────────────────────────
 
 describe("parseSubdomain()", () => {
   it("extracts subdomain from production host", () => {
@@ -53,9 +52,17 @@ describe("parseSubdomain()", () => {
   it("strips port before parsing", () => {
     expect(parseSubdomain("joe.socialspreadcart.com:443")).toBe("joe");
   });
-});
 
-// ── resolveTenantFromHost() ──────────────────────────────────────────────────
+  it("treats the Vercel deployment hostname as a bare host", () => {
+    expect(parseSubdomain("socialspreadcart.vercel.app")).toBeNull();
+  });
+
+  it("extracts tenant subdomain from a recognized custom base hostname", () => {
+    expect(
+      parseSubdomain("joe.thesocialspreadcart.com", ["thesocialspreadcart.com"]),
+    ).toBe("joe");
+  });
+});
 
 function makeMockSupabase(result: { data: unknown; error: unknown }) {
   const single = vi.fn().mockResolvedValue(result);
@@ -72,10 +79,11 @@ const activeTenant = {
   status: "active",
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
-};
+} as const;
 
 describe("resolveTenantFromHost()", () => {
   const OLD_ENV = process.env;
+
   const setEnv = (overrides: Partial<NodeJS.ProcessEnv>) => {
     process.env = { ...process.env, ...overrides };
   };
@@ -101,9 +109,8 @@ describe("resolveTenantFromHost()", () => {
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const result = await resolveTenantFromHost("app.socialspreadcart.com", supabase);
     expect(result).toBeInstanceOf(TenantResolutionError);
-    expect((result as TenantResolutionError).code).toBe("reserved");
-    // DB must NOT have been called
     expect((supabase.from as ReturnType<typeof vi.fn>).mock.calls.length).toBe(0);
+    expect((result as TenantResolutionError).code).toBe("reserved");
   });
 
   it("returns TenantResolutionError('reserved') for 'admin' slug", async () => {
@@ -138,7 +145,6 @@ describe("resolveTenantFromHost()", () => {
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const result = await resolveTenantFromHost("socialspreadcart.com", supabase);
     expect(result).toMatchObject({ slug: "sarah" });
-    // Confirm the DB was queried for 'sarah'
     const fromCall = (supabase.from as ReturnType<typeof vi.fn>).mock.calls[0];
     expect(fromCall[0]).toBe("tenants");
   });
@@ -162,22 +168,32 @@ describe("resolveTenantFromHost()", () => {
     expect((result as TenantResolutionError).code).toBe("unknown_slug");
   });
 
+  it("treats the Vercel deployment hostname as bare-domain fallback", async () => {
+    setEnv({
+      ENABLE_BARE_DOMAIN_LEGACY: "true",
+      VERCEL_URL: "socialspreadcart.vercel.app",
+    });
+    const supabase = makeMockSupabase({ data: activeTenant, error: null });
+    const result = await resolveTenantFromHost("socialspreadcart.vercel.app", supabase);
+    expect(result).toMatchObject({ slug: "sarah" });
+  });
+
   it("uses ?_tenant= override in development mode", async () => {
     setEnv({ NODE_ENV: "development" });
-    const supabase = makeMockSupabase({ data: { ...activeTenant, slug: "joe" }, error: null });
+    const supabase = makeMockSupabase({
+      data: { ...activeTenant, slug: "joe" },
+      error: null,
+    });
     const params = new URLSearchParams("_tenant=joe");
     const result = await resolveTenantFromHost("localhost:3000", supabase, params);
     expect(result).toMatchObject({ slug: "joe" });
   });
 
   it("ignores ?_tenant= override in production mode", async () => {
-    setEnv({ NODE_ENV: "production" });
-    // Bare domain with legacy enabled → should resolve to sarah, not joe
-    setEnv({ ENABLE_BARE_DOMAIN_LEGACY: "true" });
+    setEnv({ NODE_ENV: "production", ENABLE_BARE_DOMAIN_LEGACY: "true" });
     const supabase = makeMockSupabase({ data: activeTenant, error: null });
     const params = new URLSearchParams("_tenant=joe");
     const result = await resolveTenantFromHost("socialspreadcart.com", supabase, params);
-    // Should have resolved via legacy fallback to sarah, not the override
     expect(result).toMatchObject({ slug: "sarah" });
   });
 });
