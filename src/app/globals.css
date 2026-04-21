@@ -13,10 +13,10 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 8% 4%, rgba(247, 216, 200, 0.42), transparent 25%),
-    radial-gradient(circle at 92% 0%, rgba(221, 231, 215, 0.7), transparent 30%),
-    linear-gradient(180deg, #fdf8f1 0%, #f6eee2 54%, #f3ebdf 100%);
-  color: #1b231f;
+    radial-gradient(circle at 8% 4%, rgba(184, 86, 46, 0.14), transparent 26%),
+    radial-gradient(circle at 92% 0%, rgba(182, 145, 82, 0.22), transparent 30%),
+    linear-gradient(180deg, #fdf5e6 0%, #f5e8cf 54%, #eedcb7 100%);
+  color: #231a11;
 }
 
 * {
@@ -45,22 +45,27 @@ body {
   content: "";
   position: absolute;
   inset-inline: 0;
-  height: 10px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(91, 115, 60, 0.94) 0,
-    rgba(91, 115, 60, 0.94) 18px,
-    rgba(14, 14, 14, 0.96) 18px,
-    rgba(14, 14, 14, 0.96) 36px
-  );
+  height: 7px;
 }
 
 .section-frame::before {
   top: 0;
+  background:
+    linear-gradient(180deg,
+      #4a2f1d 0,
+      #4a2f1d 6px,
+      #b69152 6px,
+      #b69152 7px);
 }
 
 .section-frame::after {
   bottom: 0;
+  background:
+    linear-gradient(180deg,
+      #b69152 0,
+      #b69152 1px,
+      #4a2f1d 1px,
+      #4a2f1d 7px);
 }
 
 .calendar-shell .react-calendar {
@@ -108,4 +113,37 @@ body {
   width: 0.4rem;
   border-radius: 9999px;
   background: #b69152;
+}
+
+/* Barn-wood texture utilities.
+   Grain comes from SVG feTurbulence with highly anisotropic baseFrequency
+   (high X / low Y) which produces long vertical streaks that actually look
+   like wood grain, not a grid of straight lines. Two filters are layered:
+   a wider warm-tint streak plus a finer dark streak, over a base color
+   and variable-width plank seams at irregular positions. The whole tile
+   repeats horizontally to fill any surface. */
+
+.wood-whitewashed {
+  background-color: #e8dfca;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='2'/><feColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.33 0 0 0 0 0.2 1 0 0 0 -0.55'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.18 0 0 0 0 0.12 0 0 0 0 0.06 1 0 0 0 -0.55'/></filter></defs><rect width='100%25' height='100%25' fill='%23e8dfca'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.6' height='240' fill='rgba(60,40,18,0.32)'/><rect x='132' y='0' width='1.4' height='240' fill='rgba(60,40,18,0.28)'/><rect x='268' y='0' width='1.6' height='240' fill='rgba(60,40,18,0.3)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(60,40,18,0.26)'/></svg>");
+  background-size: 540px 240px;
+  background-repeat: repeat;
+}
+
+.wood-walnut {
+  background-color: #3c2514;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.32 0 0 0 0 0.15 1 0 0 0 -0.25'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.04 0 0 0 0 0.02 1 0 0 0 -0.35'/></filter></defs><rect width='100%25' height='100%25' fill='%233c2514'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.85)'/><rect x='132' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.8)'/><rect x='268' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.85)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(12,6,2,0.8)'/></svg>");
+  background-size: 540px 240px;
+  background-repeat: repeat;
+}
+
+.wood-driftwood {
+  background-color: #b5ac9a;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.22 0 0 0 0 0.17 1 0 0 0 -0.4'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='9'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.93 0 0 0 0 0.86 1 0 0 0 -0.55'/></filter></defs><rect width='100%25' height='100%25' fill='%23b5ac9a'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.55)'/><rect x='132' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.5)'/><rect x='268' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.55)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.5)'/></svg>");
+  background-size: 540px 240px;
+  background-repeat: repeat;
+}
+
+.wood-trim {
+  height: 12px;
 }

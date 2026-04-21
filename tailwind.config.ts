@@ -22,7 +22,31 @@ const config: Config = {
         },
         cream: "#f8f1e3",
         ink: "#171717",
-        gold: "#b69152"
+        gold: "#b69152",
+        linen: "#faf0db",
+        butter: "#fcf3e0",
+        walnut: {
+          DEFAULT: "#4a2f1d",
+          50: "#f3e6d0",
+          100: "#e9d1aa",
+          200: "#d4a97a",
+          300: "#b4844e",
+          400: "#8c5a36",
+          500: "#6b3f22",
+          600: "#4a2f1d",
+          700: "#3c2514",
+          800: "#2a190c",
+          900: "#1a0f07"
+        },
+        cognac: "#8c5a36",
+        ember: "#b8562e",
+        brass: {
+          DEFAULT: "#b69152",
+          100: "#efdfb7",
+          400: "#b69152",
+          600: "#8a6b38",
+          800: "#5e4823"
+        }
       },
       fontFamily: {
         heading: ["var(--font-heading)"],
