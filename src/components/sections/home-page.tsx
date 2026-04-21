@@ -57,7 +57,7 @@ const pathways = [
     copy:
       "Order polished boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
     image: foodMedia.charcuterieBox,
-    accent: "from-[#f5e7d4] to-[#fff7ef]",
+    accent: "from-[#e8c9a6] to-[#fcf3e0]",
     badge: "Fastest path",
   },
   {
@@ -65,7 +65,7 @@ const pathways = [
     copy:
       "A styled setup for showers, weddings, community activations, school events, and private gatherings that deserve a focal point.",
     image: clientMedia.cartUmbrellaWide,
-    accent: "from-[#dfe8d7] to-[#f5faf1]",
+    accent: "from-[#d6e0cb] to-[#f3f7ec]",
     badge: "Event favorite",
   },
   {
@@ -73,7 +73,7 @@ const pathways = [
     copy:
       "Keep an eye on public events for signature sips, grab-and-go bites, and seasonal specials around Northwest Arkansas.",
     image: clientMedia.cartDirtySodaHero,
-    accent: "from-[#f7d7ca] to-[#fff1eb]",
+    accent: "from-[#e8b896] to-[#fef0e0]",
     badge: "Community favorite",
   },
 ];
@@ -85,9 +85,9 @@ const bookingSteps = [
 ];
 
 const colorBands = [
-  "from-[#f4e5d3] to-[#f7f1e7]",
+  "from-[#e5d6b8] to-[#fbf3e1]",
   "from-[#dfe8d8] to-[#eef4ea]",
-  "from-[#f7d8c8] to-[#fcece4]",
+  "from-[#e8c1a0] to-[#fcf0e4]",
 ];
 
 export function HomePage({
@@ -156,7 +156,7 @@ export function HomePage({
             </div>
             {proofQuote ? (
               <div className="mt-8 max-w-2xl rounded-[30px] border border-[#dfd7c5] bg-[#fffaf3] px-6 py-5 shadow-soft">
-                <div className="flex items-center gap-2 text-[#d58f63]">
+                <div className="flex items-center gap-2 text-[#b8562e]">
                   {Array.from({ length: 5 }).map((_, index) => (
                     <Sparkles key={index} className="h-4 w-4 fill-current" />
                   ))}
@@ -172,7 +172,7 @@ export function HomePage({
           </Reveal>
 
           <Reveal delay={0.08} className="relative">
-            <div className="absolute -left-8 top-10 hidden h-40 w-40 rounded-full bg-[#f6d3c7]/70 blur-3xl sm:block" />
+            <div className="absolute -left-8 top-10 hidden h-40 w-40 rounded-full bg-[#f0c4a2]/70 blur-3xl sm:block" />
             <div className="absolute -right-6 bottom-10 hidden h-44 w-44 rounded-full bg-[#dde7d7]/80 blur-3xl sm:block" />
             <div className="relative rounded-[40px] border border-white/70 bg-white/70 p-4 shadow-[0_30px_90px_rgba(72,81,61,0.14)] backdrop-blur">
               <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
@@ -191,7 +191,7 @@ export function HomePage({
                   />
                 </div>
                 <div className="grid gap-4">
-                  <div className="overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#fff8f1_0%,#f9ecdc_100%)] p-4">
+                  <div className="overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#fdf5e6_0%,#f3e6ca_100%)] p-4">
                     <Image
                       src={foodMedia.charcuterieBox}
                       alt="Charcuterie box"
@@ -200,7 +200,7 @@ export function HomePage({
                       className="aspect-[4/3] w-full rounded-[22px] object-cover"
                     />
                     <div className="mt-4">
-                      <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">
+                      <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
                         Best seller
                       </p>
                       <p className="mt-2 font-heading text-3xl text-[#284237]">
@@ -215,8 +215,8 @@ export function HomePage({
                         Pickup, delivery, or full event setup
                       </p>
                     </div>
-                    <div className="rounded-[28px] bg-[linear-gradient(180deg,#fff0e9_0%,#f8ddd1_100%)] p-5">
-                      <Store className="h-8 w-8 text-[#a15e50]" />
+                    <div className="rounded-[28px] bg-[linear-gradient(180deg,#fce1d2_0%,#f2c4a5_100%)] p-5">
+                      <Store className="h-8 w-8 text-[#b8562e]" />
                       <p className="mt-4 font-heading text-2xl text-[#284237]">
                         Colorful cart moments guests remember
                       </p>
@@ -304,7 +304,7 @@ export function HomePage({
           <Reveal delay={0.12}>
             <div className="space-y-6 rounded-[34px] border border-sage/10 bg-[#fffaf4] p-7 shadow-soft">
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-[#ad7a54]">
+                <p className="text-xs uppercase tracking-[0.3em] text-[#8c5a36]">
                   Why this works
                 </p>
                 <h3 className="mt-3 font-heading text-[2.3rem] leading-tight text-[#284237]">
@@ -334,7 +334,7 @@ export function HomePage({
         </div>
       </SectionShell>
 
-      <section className="mt-24 bg-[linear-gradient(180deg,#f3ebdf_0%,#f8f2e7_100%)] py-20">
+      <section className="mt-24 bg-[linear-gradient(180deg,#f3e4c3_0%,#faf0db_100%)] py-20">
         <SectionShell>
           <SectionHeading
             eyebrow="How People Shop Us"
@@ -383,7 +383,7 @@ export function HomePage({
                 key={item}
                 className="rounded-[28px] border border-sage/10 bg-white/80 px-5 py-5 shadow-soft"
               >
-                <p className="text-xs uppercase tracking-[0.28em] text-[#ad7a54]">
+                <p className="text-xs uppercase tracking-[0.28em] text-[#8c5a36]">
                   Step {index + 1}
                 </p>
                 <p className="mt-3 text-base leading-7 text-ink/68">{item}</p>
@@ -405,7 +405,7 @@ export function HomePage({
               </p>
             </Card>
             <Card className="rounded-[32px] p-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0e9] text-[#a15e50]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fce1d2] text-[#b8562e]">
                 <MapPin className="h-6 w-6" />
               </div>
               <h3 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
@@ -416,7 +416,7 @@ export function HomePage({
               </p>
             </Card>
             <Card className="rounded-[32px] p-7 md:col-span-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f5e7d4] text-[#a87955]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f0d1a8] text-[#8c5a36]">
                 <Sparkles className="h-6 w-6" />
               </div>
               <h3 className="mt-5 font-heading text-[2.2rem] leading-tight text-[#284237]">
@@ -465,7 +465,7 @@ export function HomePage({
                   />
                 </div>
                 <div className="p-5">
-                  <p className="text-xs uppercase tracking-[0.26em] text-[#ad7a54]">
+                  <p className="text-xs uppercase tracking-[0.26em] text-[#8c5a36]">
                     {item.eyebrow}
                   </p>
                   <p className="mt-2 font-heading text-2xl text-[#284237]">{item.title}</p>
@@ -476,7 +476,7 @@ export function HomePage({
         </div>
       </SectionShell>
 
-      <section className="mt-24 bg-[linear-gradient(180deg,#f8f1e7_0%,#f3ebdf_100%)] py-20">
+      <section className="mt-24 bg-[linear-gradient(180deg,#faf0db_0%,#f3e4c3_100%)] py-20">
         <SectionShell className="grid gap-10 xl:grid-cols-[0.92fr_1.08fr]">
           <Reveal>
             <SectionHeading
@@ -502,7 +502,7 @@ export function HomePage({
                       </div>
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">
+                      <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
                         {event.location}
                       </p>
                       <h3 className="mt-2 font-heading text-3xl text-[#284237]">
@@ -531,16 +531,16 @@ export function HomePage({
       </SectionShell>
 
       <SectionShell className="mt-24">
-        <div className="overflow-hidden rounded-[40px] border border-sage/10 bg-[linear-gradient(135deg,#284237_0%,#365649_45%,#4f684d_100%)] px-6 py-12 text-[#f7f2ea] shadow-[0_30px_90px_rgba(40,66,55,0.22)] sm:px-10 lg:px-14">
+        <div className="overflow-hidden rounded-[40px] border border-walnut/20 bg-[linear-gradient(135deg,#3c2514_0%,#5a3a22_45%,#8c5a36_100%)] px-6 py-12 text-[#fbf0d6] shadow-[0_30px_90px_rgba(60,37,20,0.3)] sm:px-10 lg:px-14">
           <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
-              <p className="text-xs uppercase tracking-[0.34em] text-[#d9e6d6]">
+              <p className="text-xs uppercase tracking-[0.34em] text-[#efdfb7]">
                 Ready to book?
               </p>
               <h2 className="mt-4 max-w-3xl font-heading text-5xl leading-[0.94]">
                 Build a menu that feels trustworthy, celebratory, and easy to say yes to.
               </h2>
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-[#edf2ec]/82">
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-[#f5e9d2]/85">
                 Whether you need a polished pickup order or a cart that becomes part of the event, the next step is simple.
               </p>
             </div>

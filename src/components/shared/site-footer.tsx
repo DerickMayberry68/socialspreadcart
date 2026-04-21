@@ -6,12 +6,12 @@ import { navigation, siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-24 overflow-hidden border-t border-sage/10 bg-[#f4ecdf]">
+    <footer className="relative mt-24 overflow-hidden border-t border-walnut/20 bg-[#f3e4c3]">
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
-        <div className="rounded-[36px] bg-[linear-gradient(135deg,#284237_0%,#3a5d4f_100%)] px-8 py-10 text-[#f8f4ee] shadow-[0_26px_80px_rgba(40,66,55,0.18)]">
+        <div className="rounded-[36px] bg-[linear-gradient(135deg,#3c2514_0%,#6b3f22_100%)] px-8 py-10 text-[#fbf0d6] shadow-[0_26px_80px_rgba(60,37,20,0.28)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-[0.3em] text-[#d8e3d5]">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#efdfb7]">
                 Let&apos;s make hosting feel lovely
               </p>
               <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
@@ -20,7 +20,7 @@ export function SiteFooter() {
             </div>
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center rounded-full bg-[#f4c28f] px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-[#284237] transition hover:-translate-y-0.5 hover:bg-[#efb97e]"
+              className="inline-flex items-center justify-center rounded-full bg-[#efdfb7] px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-[#3c2514] transition hover:-translate-y-0.5 hover:bg-[#e5cf98]"
             >
               Book the Cart
             </Link>

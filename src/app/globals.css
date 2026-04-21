@@ -13,10 +13,10 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 8% 4%, rgba(247, 216, 200, 0.42), transparent 25%),
-    radial-gradient(circle at 92% 0%, rgba(221, 231, 215, 0.7), transparent 30%),
-    linear-gradient(180deg, #fdf8f1 0%, #f6eee2 54%, #f3ebdf 100%);
-  color: #1b231f;
+    radial-gradient(circle at 8% 4%, rgba(184, 86, 46, 0.14), transparent 26%),
+    radial-gradient(circle at 92% 0%, rgba(182, 145, 82, 0.22), transparent 30%),
+    linear-gradient(180deg, #fdf5e6 0%, #f5e8cf 54%, #eedcb7 100%);
+  color: #231a11;
 }
 
 * {
@@ -45,22 +45,27 @@ body {
   content: "";
   position: absolute;
   inset-inline: 0;
-  height: 10px;
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(91, 115, 60, 0.94) 0,
-    rgba(91, 115, 60, 0.94) 18px,
-    rgba(14, 14, 14, 0.96) 18px,
-    rgba(14, 14, 14, 0.96) 36px
-  );
+  height: 7px;
 }
 
 .section-frame::before {
   top: 0;
+  background:
+    linear-gradient(180deg,
+      #4a2f1d 0,
+      #4a2f1d 6px,
+      #b69152 6px,
+      #b69152 7px);
 }
 
 .section-frame::after {
   bottom: 0;
+  background:
+    linear-gradient(180deg,
+      #b69152 0,
+      #b69152 1px,
+      #4a2f1d 1px,
+      #4a2f1d 7px);
 }
 
 .calendar-shell .react-calendar {
