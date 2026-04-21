@@ -136,20 +136,18 @@ export default function DesignLabPage() {
           ))}
         </div>
 
-        <div className="mt-12 grid gap-6 rounded-[28px] border border-[#4a2f1d]/15 bg-[#fffaf0] p-6 xl:grid-cols-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.18em] text-[#8a4a25]">
-              Wood textures, close up
-            </p>
-            <p className="mt-2 text-sm text-[#2a1e12]/70">
-              The same three utilities applied to full panels so you can
-              judge grain density and contrast on larger surfaces.
-            </p>
-          </div>
-          <div className="wood-whitewashed h-40 rounded-[20px] border border-[#b69152]/20" />
-          <div className="wood-walnut h-40 rounded-[20px] border border-black/10" />
-          <div className="xl:col-span-3 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <div className="wood-driftwood h-40 rounded-[20px] border border-black/10" />
+        <div className="mt-12 rounded-[28px] border border-[#4a2f1d]/15 bg-[#fffaf0] p-6">
+          <p className="text-xs uppercase tracking-[0.18em] text-[#8a4a25]">
+            Wood textures, close up
+          </p>
+          <p className="mt-2 max-w-2xl text-sm text-[#2a1e12]/70">
+            The same three utilities applied to full panels so you can judge
+            grain density and contrast on larger surfaces.
+          </p>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="wood-whitewashed h-44 rounded-[20px] border border-[#b69152]/20" />
+            <div className="wood-driftwood h-44 rounded-[20px] border border-black/10" />
+            <div className="wood-walnut h-44 rounded-[20px] border border-black/10" />
           </div>
         </div>
       </div>

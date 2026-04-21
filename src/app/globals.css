@@ -110,107 +110,35 @@ body {
   background: #b69152;
 }
 
-/* Barn-wood texture utilities. Each class stacks:
-   1. subtle SVG noise for organic grit
-   2. horizontal grain streaks
-   3. vertical plank seams
-   4. a base tint
-   Applied on any surface to suggest reclaimed-wood character.
-   Keep opacity low so type and imagery on top stay readable. */
+/* Barn-wood texture utilities.
+   Grain comes from SVG feTurbulence with highly anisotropic baseFrequency
+   (high X / low Y) which produces long vertical streaks that actually look
+   like wood grain, not a grid of straight lines. Two filters are layered:
+   a wider warm-tint streak plus a finer dark streak, over a base color
+   and variable-width plank seams at irregular positions. The whole tile
+   repeats horizontally to fill any surface. */
 
 .wood-whitewashed {
-  background-color: #ede2ce;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.28  0 0 0 0 0.18  0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
-    repeating-linear-gradient(
-      90deg,
-      rgba(138, 112, 78, 0) 0px,
-      rgba(138, 112, 78, 0) 2px,
-      rgba(138, 112, 78, 0.06) 2px,
-      rgba(138, 112, 78, 0.06) 3px,
-      rgba(138, 112, 78, 0) 3px,
-      rgba(138, 112, 78, 0) 11px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(96, 72, 44, 0.12) 0,
-      rgba(96, 72, 44, 0.12) 1px,
-      rgba(255, 255, 255, 0) 1px,
-      rgba(255, 255, 255, 0) 84px,
-      rgba(96, 72, 44, 0.16) 84px,
-      rgba(96, 72, 44, 0.16) 86px,
-      rgba(255, 255, 255, 0) 86px,
-      rgba(255, 255, 255, 0) 172px
-    ),
-    linear-gradient(180deg, #f2e7d2 0%, #e7d9bf 100%);
-  background-size: 160px 160px, auto, auto, auto;
+  background-color: #e8dfca;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='2'/><feColorMatrix values='0 0 0 0 0.42 0 0 0 0 0.33 0 0 0 0 0.2 1 0 0 0 -0.55'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.18 0 0 0 0 0.12 0 0 0 0 0.06 1 0 0 0 -0.55'/></filter></defs><rect width='100%25' height='100%25' fill='%23e8dfca'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.6' height='240' fill='rgba(60,40,18,0.32)'/><rect x='132' y='0' width='1.4' height='240' fill='rgba(60,40,18,0.28)'/><rect x='268' y='0' width='1.6' height='240' fill='rgba(60,40,18,0.3)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(60,40,18,0.26)'/></svg>");
+  background-size: 540px 240px;
+  background-repeat: repeat;
 }
 
 .wood-walnut {
-  background-color: #4a2f1d;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0 0.03  0 0 0 0.35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
-    repeating-linear-gradient(
-      90deg,
-      rgba(255, 226, 188, 0) 0px,
-      rgba(255, 226, 188, 0) 3px,
-      rgba(255, 226, 188, 0.05) 3px,
-      rgba(255, 226, 188, 0.05) 4px,
-      rgba(255, 226, 188, 0) 4px,
-      rgba(255, 226, 188, 0) 14px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(22, 12, 6, 0.55) 0,
-      rgba(22, 12, 6, 0.55) 1px,
-      rgba(0, 0, 0, 0) 1px,
-      rgba(0, 0, 0, 0) 96px,
-      rgba(22, 12, 6, 0.7) 96px,
-      rgba(22, 12, 6, 0.7) 98px,
-      rgba(0, 0, 0, 0) 98px,
-      rgba(0, 0, 0, 0) 196px
-    ),
-    linear-gradient(180deg, #5a3923 0%, #3c2514 100%);
-  background-size: 180px 180px, auto, auto, auto;
+  background-color: #3c2514;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='4'/><feColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.32 0 0 0 0 0.15 1 0 0 0 -0.25'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='11'/><feColorMatrix values='0 0 0 0 0.08 0 0 0 0 0.04 0 0 0 0 0.02 1 0 0 0 -0.35'/></filter></defs><rect width='100%25' height='100%25' fill='%233c2514'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.85)'/><rect x='132' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.8)'/><rect x='268' y='0' width='1.6' height='240' fill='rgba(12,6,2,0.85)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(12,6,2,0.8)'/></svg>");
+  background-size: 540px 240px;
+  background-repeat: repeat;
 }
 
 .wood-driftwood {
-  background-color: #bfb5a6;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='170' height='170' viewBox='0 0 170 170'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.22  0 0 0 0 0.2  0 0 0 0 0.16  0 0 0 0.22 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
-    repeating-linear-gradient(
-      90deg,
-      rgba(70, 64, 55, 0) 0px,
-      rgba(70, 64, 55, 0) 2px,
-      rgba(70, 64, 55, 0.08) 2px,
-      rgba(70, 64, 55, 0.08) 3px,
-      rgba(70, 64, 55, 0) 3px,
-      rgba(70, 64, 55, 0) 10px
-    ),
-    repeating-linear-gradient(
-      0deg,
-      rgba(60, 52, 40, 0.22) 0,
-      rgba(60, 52, 40, 0.22) 1px,
-      rgba(255, 255, 255, 0) 1px,
-      rgba(255, 255, 255, 0) 90px,
-      rgba(60, 52, 40, 0.28) 90px,
-      rgba(60, 52, 40, 0.28) 92px,
-      rgba(255, 255, 255, 0) 92px,
-      rgba(255, 255, 255, 0) 184px
-    ),
-    linear-gradient(180deg, #c9bfaf 0%, #aea594 100%);
-  background-size: 170px 170px, auto, auto, auto;
-}
-
-/* Thin horizontal trim variants, ~10px tall, suitable for section borders. */
-.wood-trim {
-  height: 10px;
+  background-color: #b5ac9a;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='540' height='240' viewBox='0 0 540 240' preserveAspectRatio='none'><defs><filter id='a' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.22 0.006' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 0.25 0 0 0 0 0.22 0 0 0 0 0.17 1 0 0 0 -0.4'/></filter><filter id='b' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='turbulence' baseFrequency='0.9 0.04' numOctaves='2' seed='9'/><feColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.93 0 0 0 0 0.86 1 0 0 0 -0.55'/></filter></defs><rect width='100%25' height='100%25' fill='%23b5ac9a'/><rect width='100%25' height='100%25' filter='url(%23a)'/><rect width='100%25' height='100%25' filter='url(%23b)'/><rect x='0' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.55)'/><rect x='132' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.5)'/><rect x='268' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.55)'/><rect x='402' y='0' width='1.4' height='240' fill='rgba(40,34,26,0.5)'/></svg>");
+  background-size: 540px 240px;
   background-repeat: repeat;
-  background-size: auto;
 }
 
-.wood-trim.wood-whitewashed,
-.wood-trim.wood-walnut,
-.wood-trim.wood-driftwood {
-  background-size: 160px 10px, auto, auto, auto;
+.wood-trim {
+  height: 12px;
 }

@@ -295,8 +295,7 @@ export function MoodPanel({ mood }: { mood: Mood }) {
           Section trim
         </p>
         <div
-          className={`h-[10px] w-full rounded-full ${mood.woodClass}`}
-          style={{ backgroundSize: "160px 10px, auto, auto, auto" }}
+          className={`h-3 w-full rounded-full ${mood.woodClass}`}
           aria-hidden
         />
         <div
