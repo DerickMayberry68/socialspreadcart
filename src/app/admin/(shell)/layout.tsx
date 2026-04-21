@@ -5,6 +5,7 @@ import {
   ExternalLink,
   FileText,
   LayoutDashboard,
+  Palette,
   ShoppingBag,
   Shield,
   Users,
@@ -14,6 +15,7 @@ import { LogoutButton } from "@/components/admin/logout-button";
 
 const nav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/site-content", label: "Site Content", icon: Palette },
   { href: "/admin/menu-items", label: "Menu", icon: ShoppingBag },
   { href: "/admin/contacts", label: "Contacts", icon: Users },
   { href: "/admin/quotes", label: "Quotes", icon: FileText },

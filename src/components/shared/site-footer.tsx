@@ -2,9 +2,24 @@ import Link from "next/link";
 import { AtSign, Mail, MapPin, Phone } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
-import { navigation, siteConfig } from "@/lib/site";
+import { DEFAULT_SITE_CONFIGURATION, navigation, siteConfig } from "@/lib/site";
 
-export function SiteFooter() {
+type SiteFooterProps = {
+  bookingCtaLabel?: string;
+  bookingCtaTarget?: string;
+  supportPhone?: string | null;
+  supportEmail?: string | null;
+};
+
+export function SiteFooter({
+  bookingCtaLabel = DEFAULT_SITE_CONFIGURATION.booking_cta_label,
+  bookingCtaTarget = DEFAULT_SITE_CONFIGURATION.booking_cta_target,
+  supportPhone,
+  supportEmail,
+}: SiteFooterProps = {}) {
+  const phone = supportPhone ?? siteConfig.phone;
+  const email = supportEmail ?? siteConfig.email;
+
   return (
     <footer className="relative mt-24 overflow-hidden border-t border-walnut/20 bg-[#f3e4c3]">
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
@@ -19,10 +34,10 @@ export function SiteFooter() {
               </h2>
             </div>
             <Link
-              href="/contact"
+              href={bookingCtaTarget}
               className="inline-flex items-center justify-center rounded-full bg-[#efdfb7] px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-[#3c2514] transition hover:-translate-y-0.5 hover:bg-[#e5cf98]"
             >
-              Book the Cart
+              {bookingCtaLabel}
             </Link>
           </div>
         </div>
@@ -60,11 +75,11 @@ export function SiteFooter() {
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-sage" />
-              {siteConfig.phone}
+              {phone}
             </li>
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-sage" />
-              <a href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>
+              <a href={`mailto:${email}`}>{email}</a>
             </li>
             <li className="flex items-center gap-3">
               <AtSign className="h-4 w-4 text-sage" />

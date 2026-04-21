@@ -7,10 +7,18 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/shared/logo";
-import { navigation } from "@/lib/site";
+import { DEFAULT_SITE_CONFIGURATION, navigation } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  bookingCtaLabel?: string;
+  bookingCtaTarget?: string;
+};
+
+export function SiteHeader({
+  bookingCtaLabel = DEFAULT_SITE_CONFIGURATION.booking_cta_label,
+  bookingCtaTarget = DEFAULT_SITE_CONFIGURATION.booking_cta_target,
+}: SiteHeaderProps = {}) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
 
@@ -42,7 +50,7 @@ export function SiteHeader() {
         </nav>
         <div className="hidden lg:block">
           <Button asChild>
-            <Link href="/contact">Book the Cart</Link>
+            <Link href={bookingCtaTarget}>{bookingCtaLabel}</Link>
           </Button>
         </div>
         <button
@@ -71,8 +79,8 @@ export function SiteHeader() {
               </Link>
             ))}
             <Button asChild>
-              <Link href="/contact" onClick={() => setOpen(false)}>
-                Book the Cart
+              <Link href={bookingCtaTarget} onClick={() => setOpen(false)}>
+                {bookingCtaLabel}
               </Link>
             </Button>
           </div>

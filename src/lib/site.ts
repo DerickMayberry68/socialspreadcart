@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 
 import type { ServiceOption } from "@/types/booking";
+import type {
+  HeroContent,
+  PathwayCard,
+  SiteConfiguration,
+} from "@/lib/types/site-content";
 
 export const siteConfig = {
   name: "The Social Spread Cart",
@@ -82,6 +87,75 @@ export const serviceOptions = [
   "Ice Cream Toppings Bar",
   "Other",
 ];
+
+/**
+ * DEFAULT_* constants — last-resort fallbacks used by the
+ * site-content service when the database is unreachable and
+ * no tenant-scoped row can be loaded. Tenant-specific defaults
+ * are seeded into the database itself (see migration
+ * 20260421_site_content.sql) so these are only for catastrophic
+ * outages. Keep them generic and professional.
+ */
+
+export const DEFAULT_SITE_CONFIGURATION: Omit<
+  SiteConfiguration,
+  "tenant_id" | "updated_at" | "updated_by"
+> = {
+  brand_name: "The Social Spread Cart",
+  brand_tagline: "Mobile snacks & sips for unforgettable events",
+  booking_cta_label: "Book the Cart",
+  booking_cta_target: "/contact",
+  support_phone: null,
+  support_email: null,
+};
+
+export const DEFAULT_HERO_CONTENT: Omit<
+  HeroContent,
+  "tenant_id" | "updated_at" | "updated_by"
+> = {
+  headline: "An elevated approach to hosting, designed to be experienced.",
+  sub_line: "Snacks & sips, served your way.",
+  body:
+    "The Social Spread is a luxury mobile cart bringing curated bites and signature sips directly to your event so you can host effortlessly and leave a lasting impression.",
+  primary_cta_label: "Start Your Order",
+  primary_cta_target: "/contact",
+  secondary_cta_label: "Browse the Menu",
+  secondary_cta_target: "/menu",
+};
+
+export const DEFAULT_PATHWAY_CARDS: readonly [
+  Omit<PathwayCard, "tenant_id" | "updated_at" | "updated_by">,
+  Omit<PathwayCard, "tenant_id" | "updated_at" | "updated_by">,
+  Omit<PathwayCard, "tenant_id" | "updated_at" | "updated_by">,
+] = [
+  {
+    display_order: 1,
+    title: "Pickup for gifting and easy hosting",
+    body:
+      "Order polished boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
+    badge: "Fastest path",
+    link_target: "/menu",
+    image_url: "/food/charcuterie-spread.jpg",
+  },
+  {
+    display_order: 2,
+    title: "Cart service that becomes part of the decor",
+    body:
+      "A styled setup for showers, weddings, community activations, school events, and private gatherings that deserve a focal point.",
+    badge: "Event favorite",
+    link_target: "/contact",
+    image_url: "/client/cart-umbrella-wide.jpg",
+  },
+  {
+    display_order: 3,
+    title: "Pop-ups worth planning around",
+    body:
+      "Keep an eye on public events for signature sips, grab-and-go bites, and seasonal specials around Northwest Arkansas.",
+    badge: "Community favorite",
+    link_target: "/events",
+    image_url: "/client/cart-dirty-soda-hero.jpg",
+  },
+] as const;
 
 export const serviceDescriptions: Record<ServiceOption, string> = {
   "Charcuterie Boxes": "Hand-crafted individual grazing boxes for every guest",

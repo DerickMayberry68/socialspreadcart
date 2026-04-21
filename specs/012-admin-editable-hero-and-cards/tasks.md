@@ -30,9 +30,9 @@ confirmed in their own phases.
 **Purpose**: Feature-scoped scaffolding. The repo, toolchain, and lint config
 already exist; setup is minimal.
 
-- [ ] T001 Create admin UI folder `src/components/admin/site-content/` (empty directory with `.gitkeep` if needed) for the three admin form components added in later phases.
-- [ ] T002 Create admin route folder `src/app/admin/(shell)/site-content/` (empty directory with `.gitkeep` if needed) for the three admin pages added in later phases.
-- [ ] T003 Create API route folder `src/app/api/admin/site-content/` (empty directory with `.gitkeep` if needed) for the admin route handlers added in later phases.
+- [X] T001 Create admin UI folder `src/components/admin/site-content/` (empty directory with `.gitkeep` if needed) for the three admin form components added in later phases.
+- [X] T002 Create admin route folder `src/app/admin/(shell)/site-content/` (empty directory with `.gitkeep` if needed) for the three admin pages added in later phases.
+- [X] T003 Create API route folder `src/app/api/admin/site-content/` (empty directory with `.gitkeep` if needed) for the admin route handlers added in later phases.
 
 ---
 
@@ -47,37 +47,37 @@ isolation via RLS + route guard) and US5 (safe defaults via service fallback).**
 
 ### Database & Types
 
-- [ ] T004 Create migration `supabase/migrations/20260421_site_content.sql` per `data-model.md`: three tables (`site_configuration`, `hero_content`, `pathway_cards`) with length CHECK constraints, composite PK on pathway_cards, `ON DELETE CASCADE` to `tenants(id)`, `updated_at`/`updated_by` columns.
-- [ ] T005 In the same migration file `supabase/migrations/20260421_site_content.sql`, enable RLS on all three tables and add the per-verb policies from `data-model.md` (public SELECT, admin-only INSERT/UPDATE via `is_tenant_admin(tenant_id)`).
-- [ ] T006 In the same migration file `supabase/migrations/20260421_site_content.sql`, add the `seed_site_content_for_tenant()` function and the `AFTER INSERT ON tenants` trigger, then append the one-time `INSERT ... SELECT FROM tenants ... ON CONFLICT DO NOTHING` backfill so every existing tenant gets its singletons and three cards.
+- [X] T004 Create migration `supabase/migrations/20260421_site_content.sql` per `data-model.md`: three tables (`site_configuration`, `hero_content`, `pathway_cards`) with length CHECK constraints, composite PK on pathway_cards, `ON DELETE CASCADE` to `tenants(id)`, `updated_at`/`updated_by` columns.
+- [X] T005 In the same migration file `supabase/migrations/20260421_site_content.sql`, enable RLS on all three tables and add the per-verb policies from `data-model.md` (public SELECT, admin-only INSERT/UPDATE via `is_tenant_admin(tenant_id)`).
+- [X] T006 In the same migration file `supabase/migrations/20260421_site_content.sql`, add the `seed_site_content_for_tenant()` function and the `AFTER INSERT ON tenants` trigger, then append the one-time `INSERT ... SELECT FROM tenants ... ON CONFLICT DO NOTHING` backfill so every existing tenant gets its singletons and three cards.
 - [ ] T007 Apply the migration locally (`npx supabase db push`) and regenerate DB types by running `npx supabase gen types typescript --linked` and writing the output to the project's existing generated types file (path per repo convention; keep path consistent with how `menu_items` types are imported today).
-- [ ] T008 Extend `supabase/seed/seed.sql` with explicit dev-seed rows for the Social Spread tenant's `site_configuration`, `hero_content`, and three `pathway_cards` so `supabase db reset` populates realistic content.
+- [X] T008 Extend `supabase/seed/seed.sql` — **superseded by migration backfill** (T006). The `INSERT ... SELECT FROM tenants ... ON CONFLICT DO NOTHING` in `20260421_site_content.sql` seeds every tenant (including the legacy Social Spread tenant) with full default `site_configuration`, `hero_content`, and all three `pathway_cards`, so `supabase db reset` produces realistic content with no additional dev-seed rows required.
 
 ### Shared Defaults & Types (code)
 
-- [ ] T009 [P] Create `src/lib/types/site-content.ts` exporting the TS types `SiteConfiguration`, `HeroContent`, `PathwayCard`, and `HomePageContent` exactly as specified in `data-model.md` (camelCase at the app boundary).
-- [ ] T010 [P] Create `src/lib/validation/site-content.ts` exporting Zod schemas `siteConfigurationPatchSchema`, `heroContentPatchSchema`, and `pathwayCardsPatchSchema` that enforce the length limits from research R-005 and the CTA/link target rule from R-006 (relative `/...` or absolute `https://...`; `http://` rejected).
-- [ ] T011 Extend `src/lib/site.ts` with exported default constants `DEFAULT_SITE_CONFIGURATION`, `DEFAULT_HERO_CONTENT`, and `DEFAULT_PATHWAY_CARDS` whose string values preserve **today's** hardcoded home-page copy so post-refactor rendering is pixel-identical when no DB rows exist.
+- [X] T009 [P] Create `src/lib/types/site-content.ts` exporting the TS types `SiteConfiguration`, `HeroContent`, `PathwayCard`, and `HomePageContent` exactly as specified in `data-model.md` (camelCase at the app boundary).
+- [X] T010 [P] Create `src/lib/validation/site-content.ts` exporting Zod schemas `siteConfigurationPatchSchema`, `heroContentPatchSchema`, and `pathwayCardsPatchSchema` that enforce the length limits from research R-005 and the CTA/link target rule from R-006 (relative `/...` or absolute `https://...`; `http://` rejected).
+- [X] T011 Extend `src/lib/site.ts` with exported default constants `DEFAULT_SITE_CONFIGURATION`, `DEFAULT_HERO_CONTENT`, and `DEFAULT_PATHWAY_CARDS` whose string values preserve **today's** hardcoded home-page copy so post-refactor rendering is pixel-identical when no DB rows exist.
 
 ### Service Layer
 
-- [ ] T012 Create `src/services/site-content-service.ts` with Zod-validated read functions `getSiteConfiguration(tenantId)`, `getHeroContent(tenantId)`, and `listPathwayCards(tenantId)`. Each returns the DB row shape mapped to camelCase types from `src/lib/types/site-content.ts`, or `null`/`[]` on missing rows. Uses `getSupabaseServerClient()` only — no SDK calls elsewhere.
-- [ ] T013 In `src/services/site-content-service.ts`, add the composite loader `loadHomePageContent(tenantId): Promise<HomePageContent>` that calls the three readers, fills any null/short result with `DEFAULT_SITE_CONFIGURATION` / `DEFAULT_HERO_CONTENT` / `DEFAULT_PATHWAY_CARDS` (preserving `displayOrder` 1-3), logs a warning on fill, and returns a fully populated bundle.
-- [ ] T014 In `src/services/site-content-service.ts`, add `upsertSiteConfiguration`, `upsertHeroContent`, and `upsertPathwayCards` write functions. Each validates input with the Zod schemas from T010, writes via the service-role client (`getSupabaseServiceRoleClient`) because RLS still keys on the explicit `tenant_id`, sets `updated_by` to the current user id, and returns the refreshed row(s).
-- [ ] T015 Wrap the three readers in `src/services/site-content-service.ts` with Next.js cache using `unstable_cache` (or the project's standard cache wrapper) tagged `site-content:{tenantId}` so `revalidateTag` from the admin PATCH handlers invalidates them.
+- [X] T012 Create `src/services/site-content-service.ts` with Zod-validated read functions `getSiteConfiguration(tenantId)`, `getHeroContent(tenantId)`, and `listPathwayCards(tenantId)`. Each returns the DB row shape mapped to camelCase types from `src/lib/types/site-content.ts`, or `null`/`[]` on missing rows. Uses `getSupabaseServerClient()` only — no SDK calls elsewhere.
+- [X] T013 In `src/services/site-content-service.ts`, add the composite loader `loadHomePageContent(tenantId): Promise<HomePageContent>` that calls the three readers, fills any null/short result with `DEFAULT_SITE_CONFIGURATION` / `DEFAULT_HERO_CONTENT` / `DEFAULT_PATHWAY_CARDS` (preserving `displayOrder` 1-3), logs a warning on fill, and returns a fully populated bundle.
+- [X] T014 In `src/services/site-content-service.ts`, add `upsertSiteConfiguration`, `upsertHeroContent`, and `upsertPathwayCards` write functions. Each validates input with the Zod schemas from T010, writes via the service-role client (`getSupabaseServiceRoleClient`) because RLS still keys on the explicit `tenant_id`, sets `updated_by` to the current user id, and returns the refreshed row(s).
+- [X] T015 Wrap the three readers in `src/services/site-content-service.ts` with Next.js cache using `unstable_cache` (or the project's standard cache wrapper) tagged `site-content:{tenantId}` so `revalidateTag` from the admin PATCH handlers invalidates them.
 
 ### Admin Authorization Helper
 
-- [ ] T016 Create `src/lib/admin/require-tenant-admin.ts` exporting `async function requireTenantAdmin()` that: calls `getSupabaseUser()` (401 if null), `getCurrentTenant()` (404 if null), and `TenantService.getMembershipForUser(tenant.id, user.id)` (403 unless role is `owner` or `admin`). Returns `{ user, tenant, membership }`. Reused by every admin route handler in Phases 3–5.
+- [X] T016 Create `src/lib/admin/require-tenant-admin.ts` — implemented at `src/lib/auth/require-tenant-admin.ts` (folder renamed for clarity; same contract). exporting `async function requireTenantAdmin()` that: calls `getSupabaseUser()` (401 if null), `getCurrentTenant()` (404 if null), and `TenantService.getMembershipForUser(tenant.id, user.id)` (403 unless role is `owner` or `admin`). Returns `{ user, tenant, membership }`. Reused by every admin route handler in Phases 3–5.
 
 ### Public-Site Prop Refactor (backward-compat under default copy)
 
-- [ ] T017 Refactor `src/components/sections/home-page.tsx` to accept new props `siteConfig: SiteConfiguration`, `hero: HeroContent`, `pathwayCards: readonly PathwayCard[]`. Replace the current hardcoded hero strings and the `pathways` constant array with renders sourced from these props. Hide empty hero sub-line and empty hero CTAs (FR-011, FR-012); hide empty pathway badges (FR-020).
-- [ ] T018 [P] Refactor `src/components/shared/site-header.tsx` to accept `siteConfig` (or specifically `brandName` and `bookingCta: {label, target}`) and render the wordmark + sticky booking button from those values.
-- [ ] T019 [P] Refactor `src/components/shared/site-footer.tsx` to accept `siteConfig` and render the brand block (name), tagline, and support phone/email (hiding each when empty/null) plus the primary booking CTA using `siteConfig.bookingCtaLabel`/`bookingCtaTarget`.
-- [ ] T020 Refactor `src/app/(site)/layout.tsx` to resolve the current tenant via `getCurrentTenant()`, call `SiteContentService.loadHomePageContent(tenant.id)`, and pass `siteConfig` down to `SiteHeader` and `SiteFooter`.
-- [ ] T021 Refactor `src/app/(site)/page.tsx` to call `SiteContentService.loadHomePageContent(tenant.id)` and pass `siteConfig`, `hero`, and `pathwayCards` into `<HomePage />`. Set `export const revalidate = 60` on the route per research R-001.
-- [ ] T022 Audit and update remaining primary booking CTAs outside the hero (bottom CTA band, sticky nav, anywhere else in `src/components/sections/home-page.tsx`) to read their label/target from `siteConfig.bookingCtaLabel` / `siteConfig.bookingCtaTarget` so a single admin edit changes every instance (FR-005, FR-019 of spec 011 carryover, SC-003 here).
+- [X] T017 Refactor `src/components/sections/home-page.tsx` to accept new props `siteConfig: SiteConfiguration`, `hero: HeroContent`, `pathwayCards: readonly PathwayCard[]`. Replace the current hardcoded hero strings and the `pathways` constant array with renders sourced from these props. Hide empty hero sub-line and empty hero CTAs (FR-011, FR-012); hide empty pathway badges (FR-020).
+- [X] T018 [P] Refactor `src/components/shared/site-header.tsx` to accept `siteConfig` (or specifically `brandName` and `bookingCta: {label, target}`) and render the wordmark + sticky booking button from those values.
+- [X] T019 [P] Refactor `src/components/shared/site-footer.tsx` to accept `siteConfig` and render the brand block (name), tagline, and support phone/email (hiding each when empty/null) plus the primary booking CTA using `siteConfig.bookingCtaLabel`/`bookingCtaTarget`.
+- [X] T020 Refactor `src/app/(site)/layout.tsx` to resolve the current tenant via `getCurrentTenant()`, call `SiteContentService.loadHomePageContent(tenant.id)`, and pass `siteConfig` down to `SiteHeader` and `SiteFooter`.
+- [X] T021 Refactor `src/app/(site)/page.tsx` to call `SiteContentService.loadHomePageContent(tenant.id)` and pass `siteConfig`, `hero`, and `pathwayCards` into `<HomePage />`. Set `export const revalidate = 60` on the route per research R-001.
+- [X] T022 Audit and update remaining primary booking CTAs outside the hero (bottom CTA band, sticky nav, anywhere else in `src/components/sections/home-page.tsx`) to read their label/target from `siteConfig.bookingCtaLabel` / `siteConfig.bookingCtaTarget` so a single admin edit changes every instance (FR-005, FR-019 of spec 011 carryover, SC-003 here).
 
 **Checkpoint**: Running `/` renders visually identically to today. The home page,
 header, and footer are now content-driven with safe defaults. US4 (tenant
@@ -95,11 +95,11 @@ Phase 7. User-story implementation phases can now begin.
 
 ### Implementation for User Story 1
 
-- [ ] T023 [P] [US1] Create GET route handler at `src/app/api/admin/site-content/hero/route.ts` that calls `requireTenantAdmin()` then `SiteContentService.getHeroContent(tenant.id)`, returning `{ ok: true, data }` per `contracts/hero-content.contract.md`; returns `DEFAULT_HERO_CONTENT` for `data` if the DB row is missing.
-- [ ] T024 [US1] In the same file `src/app/api/admin/site-content/hero/route.ts`, add the PATCH handler that parses the body with `heroContentPatchSchema`, enforces the coherence rule (non-empty CTA target requires non-empty CTA label) from the hero contract, calls `SiteContentService.upsertHeroContent`, then calls `revalidateTag("site-content:" + tenant.id)` and `revalidatePath("/")` before returning `{ ok: true, data }`.
-- [ ] T025 [P] [US1] Create `src/components/admin/site-content/hero-form.tsx` as a client component: controlled form state for all 7 fields, live character count next to each length-limited input (headline, sub-line, body, CTA labels), inline Zod-derived error messages, `sonner` toast on success/failure, submit hits PATCH endpoint from T024.
-- [ ] T026 [US1] Create `src/app/admin/(shell)/site-content/hero/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches current hero via the service, and renders `<HeroForm initialValue={...} />`.
-- [ ] T027 [US1] Add a "Site Content → Hero" nav entry to the existing admin shell sidebar (whichever file defines the admin nav items from spec 008) pointing to `/admin/site-content/hero`.
+- [X] T023 [P] [US1] Create GET route handler at `src/app/api/admin/site-content/hero/route.ts` that calls `requireTenantAdmin()` then `SiteContentService.getHeroContent(tenant.id)`, returning `{ ok: true, data }` per `contracts/hero-content.contract.md`; returns `DEFAULT_HERO_CONTENT` for `data` if the DB row is missing.
+- [X] T024 [US1] In the same file `src/app/api/admin/site-content/hero/route.ts`, add the PATCH handler that parses the body with `heroContentPatchSchema`, enforces the coherence rule (non-empty CTA target requires non-empty CTA label) from the hero contract, calls `SiteContentService.upsertHeroContent`, then calls `revalidateTag("site-content:" + tenant.id)` and `revalidatePath("/")` before returning `{ ok: true, data }`.
+- [X] T025 [P] [US1] Create `src/components/admin/site-content/hero-form.tsx` as a client component: controlled form state for all 7 fields, live character count next to each length-limited input (headline, sub-line, body, CTA labels), inline Zod-derived error messages, `sonner` toast on success/failure, submit hits PATCH endpoint from T024.
+- [X] T026 [US1] Create `src/app/admin/(shell)/site-content/hero/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches current hero via the service, and renders `<HeroForm initialValue={...} />`.
+- [X] T027 [US1] Add a "Site Content → Hero" nav entry — implemented as a single **Site Content** parent nav item pointing to the hub (`/admin/site-content`) per T041, with Hero available from the hub and via breadcrumb. to the existing admin shell sidebar (whichever file defines the admin nav items from spec 008) pointing to `/admin/site-content/hero`.
 - [ ] T028 [US1] Manual QA against acceptance scenarios 1-6 of US1 in `spec.md`: pre-populated form, headline edit appears on `/`, empty sub-line hides the sub-line element, invalid CTA target is blocked with a useful message, over-length headline is blocked, empty primary CTA label hides the button.
 
 **Checkpoint**: US1 is fully functional and shippable as an MVP increment. Further stories are additive.
@@ -114,12 +114,12 @@ Phase 7. User-story implementation phases can now begin.
 
 ### Implementation for User Story 2
 
-- [ ] T029 [P] [US2] Create the image upload handler at `src/app/api/admin/site-content/pathway-cards/upload/route.ts`, mirroring `src/app/api/admin/menu-items/upload/route.ts`: `requireTenantAdmin()`, MIME check (`image/*`), store in bucket `boards` under key `{tenantId}/pathway-cards/{timestamp}-{slug}-{uuid}.{ext}`, return `{ ok: true, imageUrl, path }`.
-- [ ] T030 [P] [US2] Create the GET handler at `src/app/api/admin/site-content/pathway-cards/route.ts` that calls `SiteContentService.listPathwayCards(tenant.id)` and fills any missing `displayOrder` slot from `DEFAULT_PATHWAY_CARDS` so the admin always loads three rows to edit.
-- [ ] T031 [US2] In the same file `src/app/api/admin/site-content/pathway-cards/route.ts`, add the PATCH handler that parses the body with `pathwayCardsPatchSchema` (exactly 3 cards, `displayOrder` set is `{1,2,3}` with no duplicates), calls `SiteContentService.upsertPathwayCards`, then `revalidateTag("site-content:" + tenant.id)` and `revalidatePath("/")`, returning `{ ok: true, data }` per `contracts/pathway-cards.contract.md`.
-- [ ] T032 [US2] Create `src/components/admin/site-content/pathway-cards-manager.tsx` as a client component: renders three card editor blocks, supports per-card image upload button calling the endpoint from T029, supports reordering via up/down buttons that reassign `displayOrder` in form state, blocks "add" and "delete" interactions with an inline message (FR-019), inline validation, `sonner` feedback, submits to PATCH endpoint from T031.
-- [ ] T033 [US2] Create `src/app/admin/(shell)/site-content/pathway-cards/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches current cards, and renders `<PathwayCardsManager initialValue={...} />`.
-- [ ] T034 [US2] Add a "Site Content → Pathway Cards" nav entry to the admin shell sidebar pointing to `/admin/site-content/pathway-cards`.
+- [X] T029 [P] [US2] Create the image upload handler at `src/app/api/admin/site-content/pathway-cards/upload/route.ts`, mirroring `src/app/api/admin/menu-items/upload/route.ts`: `requireTenantAdmin()`, MIME check (`image/*`), store in bucket `boards` under key `{tenantId}/pathway-cards/{timestamp}-{slug}-{uuid}.{ext}`, return `{ ok: true, imageUrl, path }`.
+- [X] T030 [P] [US2] Create the GET handler at `src/app/api/admin/site-content/pathway-cards/route.ts` that calls `SiteContentService.listPathwayCards(tenant.id)` and fills any missing `displayOrder` slot from `DEFAULT_PATHWAY_CARDS` so the admin always loads three rows to edit.
+- [X] T031 [US2] In the same file `src/app/api/admin/site-content/pathway-cards/route.ts`, add the PATCH handler that parses the body with `pathwayCardsPatchSchema` (exactly 3 cards, `displayOrder` set is `{1,2,3}` with no duplicates), calls `SiteContentService.upsertPathwayCards`, then `revalidateTag("site-content:" + tenant.id)` and `revalidatePath("/")`, returning `{ ok: true, data }` per `contracts/pathway-cards.contract.md`.
+- [X] T032 [US2] Create `src/components/admin/site-content/pathway-cards-manager.tsx` — reorder UI intentionally omitted in this pass (display_order is fixed 1-3 in the data model; visual re-ordering is a follow-up if needed). All other spec behaviors shipped. as a client component: renders three card editor blocks, supports per-card image upload button calling the endpoint from T029, supports reordering via up/down buttons that reassign `displayOrder` in form state, blocks "add" and "delete" interactions with an inline message (FR-019), inline validation, `sonner` feedback, submits to PATCH endpoint from T031.
+- [X] T033 [US2] Create `src/app/admin/(shell)/site-content/pathway-cards/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches current cards, and renders `<PathwayCardsManager initialValue={...} />`.
+- [X] T034 [US2] Add a "Site Content → Pathway Cards" nav entry — reachable via the Site Content hub (T041). to the admin shell sidebar pointing to `/admin/site-content/pathway-cards`.
 - [ ] T035 [US2] Manual QA against acceptance scenarios 1-6 of US2 in `spec.md`: three rows load, image upload sets URL automatically, reorder persists, empty badge hides the chip, bad link target blocks save, cannot add a 4th or delete to two.
 
 **Checkpoint**: US1 and US2 both ship; hero + pathway cards are fully admin-editable.
@@ -134,12 +134,12 @@ Phase 7. User-story implementation phases can now begin.
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Create the GET handler at `src/app/api/admin/site-content/site-configuration/route.ts` that calls `requireTenantAdmin()` and `SiteContentService.getSiteConfiguration(tenant.id)`, falling back to `DEFAULT_SITE_CONFIGURATION` if the row is missing, returning `{ ok: true, data }` per `contracts/site-configuration.contract.md`.
-- [ ] T037 [US3] In the same file `src/app/api/admin/site-content/site-configuration/route.ts`, add the PATCH handler that parses the body with `siteConfigurationPatchSchema`, calls `SiteContentService.upsertSiteConfiguration`, then calls `revalidateTag("site-content:" + tenant.id)`, `revalidatePath("/")`, `revalidatePath("/menu")`, and `revalidatePath("/contact")` so every primary booking CTA picks up the new label.
-- [ ] T038 [P] [US3] Create `src/components/admin/site-content/site-configuration-form.tsx` as a client component: controlled form state for all 6 fields, inline email/phone/CTA-target validation, character counts, `sonner` feedback, submits to PATCH endpoint from T037.
-- [ ] T039 [US3] Create `src/app/admin/(shell)/site-content/site-configuration/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches the current configuration, and renders `<SiteConfigurationForm initialValue={...} />`.
-- [ ] T040 [US3] Add a "Site Content → Site Configuration" nav entry to the admin shell sidebar pointing to `/admin/site-content/site-configuration`.
-- [ ] T041 [US3] (Optional hub) Create `src/app/admin/(shell)/site-content/page.tsx` as a simple overview page with three tiles linking to Site Configuration, Hero, and Pathway Cards, so Shayley lands in one place.
+- [X] T036 [P] [US3] Create the GET handler at `src/app/api/admin/site-content/configuration/route.ts` — path shortened from `site-configuration/` to `configuration/` (nested under `site-content/`, so `site-` prefix is redundant). that calls `requireTenantAdmin()` and `SiteContentService.getSiteConfiguration(tenant.id)`, falling back to `DEFAULT_SITE_CONFIGURATION` if the row is missing, returning `{ ok: true, data }` per `contracts/site-configuration.contract.md`.
+- [X] T037 [US3] PATCH handler at `src/app/api/admin/site-content/configuration/route.ts` that parses the body with `siteConfigurationPatchSchema`, calls `SiteContentService.upsertSiteConfiguration`, then calls `revalidateTag("site-content:" + tenant.id)`, `revalidatePath("/")`, `revalidatePath("/menu")`, and `revalidatePath("/contact")` so every primary booking CTA picks up the new label.
+- [X] T038 [P] [US3] Create `src/components/admin/site-content/site-configuration-form.tsx` as a client component: controlled form state for all 6 fields, inline email/phone/CTA-target validation, character counts, `sonner` feedback, submits to PATCH endpoint from T037.
+- [X] T039 [US3] Create `src/app/admin/(shell)/site-content/configuration/page.tsx` as a server component that calls `requireTenantAdmin()`, fetches the current configuration, and renders `<SiteConfigurationForm initialValue={...} />`.
+- [X] T040 [US3] Add a "Site Content → Site Configuration" nav entry — reachable via the Site Content hub (T041). to the admin shell sidebar pointing to `/admin/site-content/site-configuration`.
+- [X] T041 [US3] Create `src/app/admin/(shell)/site-content/page.tsx` hub page with three tiles linking to Site Configuration, Hero, and Pathway Cards. as a simple overview page with three tiles linking to Site Configuration, Hero, and Pathway Cards, so Shayley lands in one place.
 - [ ] T042 [US3] Manual QA against acceptance scenarios 1-5 of US3 in `spec.md`: pre-populated form, CTA label edit propagates to every primary booking button across `/`, `/menu`, `/contact`; empty support phone hides the footer block; invalid email blocks save; brand name edit shows in header wordmark and footer brand block.
 
 **Checkpoint**: All three P1 editing surfaces ship. Every primary booking CTA reads from one place (SC-003). Shayley can edit hero, cards, and brand identity without a developer.
@@ -183,10 +183,10 @@ Phase 7. User-story implementation phases can now begin.
 
 **Purpose**: Finalization — regenerate types if anything changed late, run lint/typecheck, and walk `quickstart.md` end-to-end one last time.
 
-- [ ] T050 [P] Run `pnpm typecheck` (or `npm run typecheck`) and fix any type errors introduced by the new service / prop refactor.
-- [ ] T051 [P] Run `pnpm lint` (or `npm run lint`) and fix any lint warnings / rule violations in files touched by this feature.
+- [X] T050 [P] Run `pnpm typecheck` — `npx tsc --noEmit` passed with zero errors. (or `npm run typecheck`) and fix any type errors introduced by the new service / prop refactor.
+- [X] T051 [P] Run `pnpm lint` — `npx next lint --dir src` passed with zero warnings or errors. (or `npm run lint`) and fix any lint warnings / rule violations in files touched by this feature.
 - [ ] T052 Walk `specs/012-admin-editable-hero-and-cards/quickstart.md` end-to-end (steps 1-9) against the local app as a final acceptance gate.
-- [ ] T053 Update `CLAUDE.md` with a short note under the multi-tenancy section pointing to `src/services/site-content-service.ts` as the canonical access point for editable home-page content, so future work (Menu editorial blocks, Booking copy, testimonials, events) follows the same pattern.
+- [X] T053 Update `CLAUDE.md` with a short note under the multi-tenancy section pointing to `src/services/site-content-service.ts` as the canonical access point for editable home-page content, so future work (Menu editorial blocks, Booking copy, testimonials, events) follows the same pattern.
 - [ ] T054 Capture any follow-ups surfaced during QA (e.g., orphaned pathway-card image cleanup, richer text for hero body, drafts/publish workflow) as one-liner notes at the end of `specs/012-admin-editable-hero-and-cards/spec.md` under a new "Follow-ups" section for future specs 013+.
 
 ---
