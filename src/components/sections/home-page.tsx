@@ -118,16 +118,16 @@ export function HomePage({
             <p className="mt-7 text-sm uppercase tracking-[0.32em] text-ink/55">
               Charcuterie boxes - dirty soda - styled cart service
             </p>
-            <h1 className="mt-5 max-w-4xl font-heading text-[3.2rem] leading-[0.92] text-[#284237] sm:text-[4.4rem] lg:text-[5.25rem]">
-              A happier way to host snacks, sips, and standout moments.
+            <h1 className="mt-5 max-w-4xl font-heading text-[3rem] leading-[0.95] text-[#284237] sm:text-[4rem] lg:text-[4.75rem]">
+              An elevated approach to hosting, designed to be experienced.
+              <span className="block text-[2.25rem] leading-tight text-[#8c5a36] sm:text-[3rem] lg:text-[3.5rem]">
+                Snacks &amp; sips, served your way.
+              </span>
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-ink/72 sm:text-xl">
-              The Social Spread Cart pairs polished presentation with playful energy so
-              showers, markets, launches, and celebrations feel warm, effortless, and fun.
-            </p>
-            <p className="mt-4 max-w-2xl text-base leading-8 text-ink/62">
-              Think trust-building details up front, colorful favorites on the table, and
-              a booking flow that stays calm from first inquiry to event-day setup.
+              The Social Spread is a luxury mobile cart bringing curated bites
+              and signature sips directly to your event so you can host
+              effortlessly and leave a lasting impression.
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
               <Button size="lg" asChild>
