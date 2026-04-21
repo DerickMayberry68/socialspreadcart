@@ -21,7 +21,13 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { cartHighlights } from "@/lib/fallback-data";
 import { clientMedia, foodMedia } from "@/lib/media";
+import {
+  DEFAULT_HERO_CONTENT,
+  DEFAULT_PATHWAY_CARDS,
+  DEFAULT_SITE_CONFIGURATION,
+} from "@/lib/site";
 import type { EventItem, GalleryItem, MenuItem, Testimonial } from "@/lib/types";
+import type { HomePageContent } from "@/lib/types/site-content";
 import { formatEventDate, formatPrice } from "@/lib/utils";
 
 const proofStats = [
@@ -51,32 +57,11 @@ const pillars = [
   },
 ];
 
-const pathways = [
-  {
-    title: "Pickup for gifting and easy hosting",
-    copy:
-      "Order polished boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
-    image: foodMedia.charcuterieBox,
-    accent: "from-[#e8c9a6] to-[#fcf3e0]",
-    badge: "Fastest path",
-  },
-  {
-    title: "Cart service that becomes part of the decor",
-    copy:
-      "A styled setup for showers, weddings, community activations, school events, and private gatherings that deserve a focal point.",
-    image: clientMedia.cartUmbrellaWide,
-    accent: "from-[#d6e0cb] to-[#f3f7ec]",
-    badge: "Event favorite",
-  },
-  {
-    title: "Pop-ups worth planning around",
-    copy:
-      "Keep an eye on public events for signature sips, grab-and-go bites, and seasonal specials around Northwest Arkansas.",
-    image: clientMedia.cartDirtySodaHero,
-    accent: "from-[#e8b896] to-[#fef0e0]",
-    badge: "Community favorite",
-  },
-];
+const pathwayAccents = [
+  "from-[#e8c9a6] to-[#fcf3e0]",
+  "from-[#d6e0cb] to-[#f3f7ec]",
+  "from-[#e8b896] to-[#fef0e0]",
+] as const;
 
 const bookingSteps = [
   "Choose pickup, delivery, or a full cart service experience.",
@@ -95,16 +80,27 @@ export function HomePage({
   events,
   testimonials,
   gallery,
+  content,
 }: {
   menuItems: MenuItem[];
   events: EventItem[];
   testimonials: Testimonial[];
   gallery: GalleryItem[];
+  content?: HomePageContent;
 }) {
   const featuredItems = menuItems.filter((item) => item.featured);
   const featured = (featuredItems.length > 0 ? featuredItems : menuItems).slice(0, 3);
   const storyGallery = gallery.slice(0, 4);
   const proofQuote = testimonials[0];
+
+  const hero = content?.hero ?? DEFAULT_HERO_CONTENT;
+  const siteConfig = content?.siteConfig ?? DEFAULT_SITE_CONFIGURATION;
+  const pathwayCards = content?.pathwayCards ?? DEFAULT_PATHWAY_CARDS;
+
+  const heroPrimaryLabel = hero.primary_cta_label.trim();
+  const heroPrimaryTarget = hero.primary_cta_target.trim();
+  const heroSecondaryLabel = hero.secondary_cta_label.trim();
+  const heroSecondaryTarget = hero.secondary_cta_target.trim();
 
   return (
     <div className="pb-16">
@@ -119,26 +115,30 @@ export function HomePage({
               Charcuterie boxes - dirty soda - styled cart service
             </p>
             <h1 className="mt-5 max-w-4xl font-heading text-[3rem] leading-[0.95] text-[#284237] sm:text-[4rem] lg:text-[4.75rem]">
-              An elevated approach to hosting, designed to be experienced.
-              <span className="block text-[2.25rem] leading-tight text-[#8c5a36] sm:text-[3rem] lg:text-[3.5rem]">
-                Snacks &amp; sips, served your way.
-              </span>
+              {hero.headline}
+              {hero.sub_line ? (
+                <span className="block text-[2.25rem] leading-tight text-[#8c5a36] sm:text-[3rem] lg:text-[3.5rem]">
+                  {hero.sub_line}
+                </span>
+              ) : null}
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-ink/72 sm:text-xl">
-              The Social Spread is a luxury mobile cart bringing curated bites
-              and signature sips directly to your event so you can host
-              effortlessly and leave a lasting impression.
+              {hero.body}
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row">
-              <Button size="lg" asChild>
-                <Link href="/contact">
-                  Start Your Order
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link href="/menu">Browse the Menu</Link>
-              </Button>
+              {heroPrimaryLabel && heroPrimaryTarget ? (
+                <Button size="lg" asChild>
+                  <Link href={heroPrimaryTarget}>
+                    {heroPrimaryLabel}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              ) : null}
+              {heroSecondaryLabel && heroSecondaryTarget ? (
+                <Button size="lg" variant="outline" asChild>
+                  <Link href={heroSecondaryTarget}>{heroSecondaryLabel}</Link>
+                </Button>
+              ) : null}
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
               {proofStats.map((item) => (
@@ -342,28 +342,35 @@ export function HomePage({
             description="The site now guides customers naturally whether they need a small pickup order, a styled cart service, or a reason to visit a pop-up."
           />
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
-            {pathways.map((item, index) => (
-              <Reveal key={item.title} delay={index * 0.08}>
-                <div className={`h-full overflow-hidden rounded-[34px] bg-gradient-to-br ${item.accent} p-4 shadow-soft`}>
+            {pathwayCards.map((card, index) => (
+              <Reveal key={card.display_order} delay={index * 0.08}>
+                <Link
+                  href={card.link_target}
+                  className={`group block h-full overflow-hidden rounded-[34px] bg-gradient-to-br ${pathwayAccents[index] ?? pathwayAccents[0]} p-4 shadow-soft transition hover:-translate-y-0.5`}
+                >
                   <div className="overflow-hidden rounded-[26px] bg-white/80">
                     <Image
-                      src={item.image}
-                      alt={item.title}
+                      src={card.image_url}
+                      alt={card.title}
                       width={820}
                       height={940}
-                      className="aspect-[4/4.4] h-full w-full object-cover"
+                      className="aspect-[4/4.4] h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                     />
                   </div>
                   <div className="px-2 pb-2 pt-5">
-                    <Badge className="border-white/60 bg-white/70 text-[#5a6d57]">
-                      {item.badge}
-                    </Badge>
+                    {card.badge ? (
+                      <Badge className="border-white/60 bg-white/70 text-[#5a6d57]">
+                        {card.badge}
+                      </Badge>
+                    ) : null}
                     <h3 className="mt-4 font-heading text-[2rem] leading-tight text-[#284237]">
-                      {item.title}
+                      {card.title}
                     </h3>
-                    <p className="mt-4 text-base leading-7 text-ink/68">{item.copy}</p>
+                    <p className="mt-4 text-base leading-7 text-ink/68">
+                      {card.body}
+                    </p>
                   </div>
-                </div>
+                </Link>
               </Reveal>
             ))}
           </div>
@@ -546,7 +553,9 @@ export function HomePage({
             </div>
             <div className="flex flex-col gap-4 sm:flex-row lg:flex-col">
               <Button size="lg" variant="gold" asChild>
-                <Link href="/contact">Book the Cart</Link>
+                <Link href={siteConfig.booking_cta_target}>
+                  {siteConfig.booking_cta_label}
+                </Link>
               </Button>
               <Button
                 size="lg"

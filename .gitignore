@@ -13,3 +13,4 @@ Thumbs.db
 *.tmp
 *.swp
 *.tsbuildinfo
+supabase/.temp/

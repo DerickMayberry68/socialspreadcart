@@ -3,14 +3,16 @@ import { getGalleryItems } from "@/lib/data";
 import { withCurrentTenant } from "@/lib/tenant";
 import { EventService } from "@/services/event-service";
 import { MenuService } from "@/services/menu-service";
+import { SiteContentService } from "@/services/site-content-service";
 import { TestimonialService } from "@/services/testimonial-service";
 
 export default async function IndexPage() {
-  const [menuItems, events, testimonials, gallery] = await Promise.all([
+  const [menuItems, events, testimonials, gallery, content] = await Promise.all([
     withCurrentTenant(MenuService.listMenuItems),
     withCurrentTenant(EventService.listEvents),
     withCurrentTenant(TestimonialService.listTestimonials),
     getGalleryItems(),
+    withCurrentTenant(SiteContentService.loadHomePageContent),
   ]);
 
   return (
@@ -19,6 +21,7 @@ export default async function IndexPage() {
       events={events}
       testimonials={testimonials}
       gallery={gallery}
+      content={content}
     />
   );
 }
