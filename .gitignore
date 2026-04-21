@@ -2,8 +2,7 @@
 node_modules
 .vercel
 .env
-.env.local
-.env.production
+.env.*
 dist
 coverage
 npm-debug.log*
@@ -13,3 +12,4 @@ assets/
 Thumbs.db
 *.tmp
 *.swp
+*.tsbuildinfo

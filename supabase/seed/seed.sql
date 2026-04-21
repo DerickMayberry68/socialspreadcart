@@ -5,7 +5,7 @@ values
     'large-charcuterie-box',
     'Large Charcuterie Box',
     'large-charcuterie-box',
-    'Our largest charcuterie box, styled for gifting, hosting, and easy pickup when you want a polished spread without full-service catering.',
+    'Our largest charcuterie box, styled for gifting, hosting, and easy pickup when you want a polished presentation without full-service catering.',
     12000,
     'Large',
     array['Vegetarian Option', 'Gluten-Free Option'],

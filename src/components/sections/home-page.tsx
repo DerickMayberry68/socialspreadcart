@@ -56,7 +56,7 @@ const pathways = [
     title: "Pickup for gifting and easy hosting",
     copy:
       "Order polished boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
-    image: foodMedia.charcuterieSpread,
+    image: foodMedia.charcuterieBox,
     accent: "from-[#f5e7d4] to-[#fff7ef]",
     badge: "Fastest path",
   },
@@ -193,8 +193,8 @@ export function HomePage({
                 <div className="grid gap-4">
                   <div className="overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#fff8f1_0%,#f9ecdc_100%)] p-4">
                     <Image
-                      src={foodMedia.charcuterieSpread}
-                      alt="Charcuterie spread"
+                      src={foodMedia.charcuterieBox}
+                      alt="Charcuterie box"
                       width={720}
                       height={640}
                       className="aspect-[4/3] w-full rounded-[22px] object-cover"
@@ -538,7 +538,7 @@ export function HomePage({
                 Ready to book?
               </p>
               <h2 className="mt-4 max-w-3xl font-heading text-5xl leading-[0.94]">
-                Build a spread that feels trustworthy, celebratory, and easy to say yes to.
+                Build a menu that feels trustworthy, celebratory, and easy to say yes to.
               </h2>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[#edf2ec]/82">
                 Whether you need a polished pickup order or a cart that becomes part of the event, the next step is simple.

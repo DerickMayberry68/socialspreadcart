@@ -1,5 +1,5 @@
 export const foodMedia = {
-  charcuterieSpread: "/food/charcuterie-spread.jpg",
+  charcuterieBox: "/food/charcuterie-spread.jpg",
   charcuteriePlatter: "/food/charcuterie-platter.jpg",
   miniPancakes: "/food/mini-pancakes.jpg",
   fruitSodaBottles: "/food/fruit-soda-bottles.jpg",
@@ -17,7 +17,7 @@ export const clientMedia = {
 
 export const lifestyleGrid = [
   clientMedia.cartDirtySodaHero,
-  foodMedia.charcuterieSpread,
+  foodMedia.charcuterieBox,
   clientMedia.miniPancakeBar,
   clientMedia.dirtySodaAndCharcuterieBox,
 ] as const;

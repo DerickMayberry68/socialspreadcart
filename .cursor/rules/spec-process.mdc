@@ -1,0 +1,10 @@
+---
+description: Spec-first guidance for tenant onboarding, agency workflow, and domain mapping
+globs:
+alwaysApply: true
+---
+
+- SocialSpreadCart uses one shared multi-tenant database. Do not assume one database per client.
+- New client onboarding is currently an agency-managed Studio X workflow concern, not a self-serve in-app signup requirement.
+- Before implementing tenant provisioning, agency workflow, launch tracking, or custom-domain mapping, follow the SpecKit process and reference `specs/010-agency-managed-tenant-provisioning/`.
+- Treat `studioxconsulting.com` as the future agency-facing onboarding entry point unless project direction changes.
