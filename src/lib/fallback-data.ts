@@ -121,38 +121,63 @@ export const fallbackGallery: GalleryItem[] = [
     title: "Dirty soda service from the cart",
     eyebrow: "Cart Service",
     image_url: clientMedia.cartDirtySodaHero,
+    alt_text: "Dirty soda service from the cart",
+    display_order: 1,
   },
   {
     id: "gallery-2",
     title: "A mini pancake bar styled for brunches, showers, and event-day service",
     eyebrow: "Mini Pancake Bar",
     image_url: clientMedia.miniPancakeBar,
+    alt_text: "A mini pancake bar styled for brunches, showers, and event-day service",
+    display_order: 2,
   },
   {
     id: "gallery-3",
     title: "Grab-and-go charcuterie cups for pop-ups and parties",
     eyebrow: "Charcuterie Cups",
     image_url: clientMedia.charcuterieCupCloseup,
+    alt_text: "Grab-and-go charcuterie cups for pop-ups and parties",
+    display_order: 3,
   },
   {
     id: "gallery-4",
     title: "The cart setup ready for a real event day",
     eyebrow: "Event Setup",
     image_url: clientMedia.cartUmbrellaWide,
+    alt_text: "The cart setup ready for a real event day",
+    display_order: 4,
   },
   {
     id: "gallery-5",
     title: "Snack box styling paired with a bright drink",
     eyebrow: "Snack + Sip",
     image_url: clientMedia.dirtySodaAndCharcuterieBox,
+    alt_text: "Snack box styling paired with a bright drink",
+    display_order: 5,
   },
   {
     id: "gallery-6",
     title: "A close-up charcuterie moment for grazing service",
     eyebrow: "Charcuterie",
     image_url: clientMedia.charcuterieCupDetail,
+    alt_text: "A close-up charcuterie moment for grazing service",
+    display_order: 6,
   },
 ];
+
+export const fallbackGallerySection = {
+  eyebrow: "Gallery",
+  title:
+    "A visual library of real cart service, drinks, grazing, and event-ready moments.",
+  description:
+    "This page leans on actual client photography so the brand feels grounded in the real offering, not just the aesthetic direction.",
+  feature_card_eyebrow: "What the gallery should do",
+  feature_card_title:
+    "Make the product feel real, the events feel joyful, and the brand feel worth trusting.",
+  support_card_body:
+    "The goal is not just to show pretty images. It is to help future clients picture what the menu and the cart will feel like in their own event.",
+} as const;
 
 export const cartHighlights = [
   "Mobile cart service for weddings, showers, school events, launch parties, and corporate receptions across Bentonville and nearby communities",

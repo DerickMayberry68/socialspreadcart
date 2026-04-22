@@ -186,6 +186,7 @@ async function seedBusinessRows(
       id: menuItemId,
       tenant_id: tenantId,
       name: `Menu Item ${suffix}`,
+      slug: slugify(`menu-item-${suffix.toLowerCase()}`, stamp),
       description: "Test item",
       price: 10.0,
       category: "Charcuterie",

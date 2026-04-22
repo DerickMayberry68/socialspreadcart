@@ -92,8 +92,34 @@ export const pathwayCardsPatchSchema = z.object({
     .length(3, "Must provide exactly 3 pathway cards"),
 });
 
+export const gallerySectionPatchSchema = z.object({
+  eyebrow: z.string().trim().max(40),
+  title: z.string().trim().min(1).max(180),
+  description: z.string().trim().min(1).max(500),
+  feature_card_eyebrow: z.string().trim().max(60),
+  feature_card_title: z.string().trim().min(1).max(220),
+  support_card_body: z.string().trim().min(1).max(320),
+});
+
+const galleryImageEntrySchema = z.object({
+  id: z.string().optional(),
+  display_order: z.number().int().positive(),
+  title: z.string().trim().min(1).max(140),
+  eyebrow: z.string().trim().max(60),
+  alt_text: z.string().trim().min(1).max(180),
+  image_url: z.string().trim().min(1).max(2048),
+  storage_path: z.string().max(2048).nullable().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const galleryContentPatchSchema = z.object({
+  section: gallerySectionPatchSchema,
+  images: z.array(galleryImageEntrySchema),
+});
+
 export type SiteConfigurationPatch = z.infer<
   typeof siteConfigurationPatchSchema
 >;
 export type HeroContentPatch = z.infer<typeof heroContentPatchSchema>;
 export type PathwayCardsPatch = z.infer<typeof pathwayCardsPatchSchema>;
+export type GalleryContentPatch = z.infer<typeof galleryContentPatchSchema>;

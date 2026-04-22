@@ -50,6 +50,8 @@ export type GalleryItem = {
   title: string;
   eyebrow: string;
   image_url: string;
+  alt_text?: string;
+  display_order?: number;
 };
 
 export type TenantRole = "owner" | "admin" | "staff";

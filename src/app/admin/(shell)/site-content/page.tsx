@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, LayoutGrid, Sparkles, Type } from "lucide-react";
+import { ArrowRight, Images, LayoutGrid, Sparkles, Type } from "lucide-react";
 
 export const metadata = {
   title: "Site Content",
@@ -29,6 +29,14 @@ const cards = [
     title: "Pathway cards",
     description:
       "The three feature cards below the hero that guide visitors into pickup, cart service, or upcoming events.",
+  },
+  {
+    href: "/admin/site-content/gallery",
+    icon: Images,
+    eyebrow: "Gallery page",
+    title: "Gallery content",
+    description:
+      "The public gallery copy and photos guests use to picture the cart, drinks, food, and event setup.",
   },
 ] as const;
 
