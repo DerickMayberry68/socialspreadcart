@@ -4,6 +4,7 @@ node_modules
 .env
 .env.*
 dist
+build
 coverage
 npm-debug.log*
 assets/
@@ -12,5 +13,7 @@ assets/
 Thumbs.db
 *.tmp
 *.swp
+.vscode/
+.idea/
 *.tsbuildinfo
 supabase/.temp/
