@@ -9,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 
+import { Greeting } from "./greeting";
 import { getSupabaseUser } from "@/lib/supabase/server";
 import { getCurrentTenant } from "@/lib/tenant";
 import { ContactService } from "@/services/contact-service";
@@ -60,13 +61,6 @@ function StatusBadge({ status, styles }: { status: string; styles: Record<string
 export default async function AdminDashboardPage() {
   const [user, data] = await Promise.all([getSupabaseUser(), getDashboardData()]);
 
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h < 12) return "Good morning";
-    if (h < 17) return "Good afternoon";
-    return "Good evening";
-  })();
-
   const name = user?.user_metadata?.full_name ?? user?.email?.split("@")[0] ?? "there";
 
   return (
@@ -77,7 +71,7 @@ export default async function AdminDashboardPage() {
             {data.tenant.name}
           </p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.96]">
-            {greeting}, {name}.
+            <Greeting name={name} />.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-[#eef2ed]/82">
             Here is the operational snapshot for your current tenant, with the clearest next actions surfaced first.
