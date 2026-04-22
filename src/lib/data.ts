@@ -8,6 +8,7 @@ import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { withCurrentTenant } from "@/lib/tenant";
 import { EventService } from "@/services/event-service";
 import { MenuService } from "@/services/menu-service";
+import { SiteContentService } from "@/services/site-content-service";
 import { TestimonialService } from "@/services/testimonial-service";
 import type { EventItem, GalleryItem, MenuItem, Testimonial } from "@/lib/types";
 
@@ -41,5 +42,19 @@ export async function getTestimonials(): Promise<Testimonial[]> {
 }
 
 export async function getGalleryItems(): Promise<GalleryItem[]> {
-  return fallbackGallery;
+  if (!hasSupabaseEnv()) {
+    return fallbackGallery;
+  }
+
+  const content = await withCurrentTenant(
+    SiteContentService.loadGalleryPageContent,
+  );
+  return content.images.map((item) => ({
+    id: item.id,
+    title: item.title,
+    eyebrow: item.eyebrow,
+    image_url: item.image_url,
+    alt_text: item.alt_text,
+    display_order: item.display_order,
+  }));
 }

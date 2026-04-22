@@ -23,17 +23,25 @@ import { z } from "zod";
 
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import {
+  fallbackGallery,
+  fallbackGallerySection as DEFAULT_GALLERY_SECTION,
+} from "@/lib/fallback-data";
+import {
   DEFAULT_HERO_CONTENT,
   DEFAULT_PATHWAY_CARDS,
   DEFAULT_SITE_CONFIGURATION,
 } from "@/lib/site";
 import type {
+  GalleryImage,
+  GalleryPageContent,
+  GallerySectionContent,
   HeroContent,
   HomePageContent,
   PathwayCard,
   SiteConfiguration,
 } from "@/lib/types/site-content";
 import {
+  galleryContentPatchSchema,
   heroContentPatchSchema,
   pathwayCardsPatchSchema,
   siteConfigurationPatchSchema,
@@ -72,6 +80,60 @@ function fallbackPathwayCards(
     updated_at: now,
     updated_by: null,
   })) as [PathwayCard, PathwayCard, PathwayCard];
+}
+
+function fallbackGallerySection(tenantId: string): GallerySectionContent {
+  return {
+    tenant_id: tenantId,
+    ...DEFAULT_GALLERY_SECTION,
+    updated_at: new Date(0).toISOString(),
+    updated_by: null,
+  };
+}
+
+function fallbackGalleryImages(tenantId: string): GalleryImage[] {
+  const now = new Date(0).toISOString();
+  return fallbackGallery.map((item, index) => ({
+    id: item.id,
+    tenant_id: tenantId,
+    display_order: item.display_order ?? index + 1,
+    title: item.title,
+    eyebrow: item.eyebrow,
+    alt_text: item.alt_text ?? item.title,
+    image_url: item.image_url,
+    storage_path: null,
+    is_active: true,
+    created_at: now,
+    updated_at: now,
+    updated_by: null,
+  }));
+}
+
+function isUuid(value: string | undefined): value is string {
+  return !!value && z.string().uuid().safeParse(value).success;
+}
+
+async function readGallerySectionContent(
+  tenantId: string,
+): Promise<{ section: GallerySectionContent; exists: boolean }> {
+  uuid.parse(tenantId);
+  const supabase = await getSupabaseServerClient();
+
+  if (!supabase) {
+    return { section: fallbackGallerySection(tenantId), exists: false };
+  }
+
+  const { data, error } = await supabase
+    .from("gallery_section_content")
+    .select("*")
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+
+  if (error || !data) {
+    return { section: fallbackGallerySection(tenantId), exists: false };
+  }
+
+  return { section: data as GallerySectionContent, exists: true };
 }
 
 // ── Reads ────────────────────────────────────────────────────
@@ -143,6 +205,42 @@ async function getPathwayCards(
   return data as [PathwayCard, PathwayCard, PathwayCard];
 }
 
+async function getGallerySectionContent(
+  tenantId: string,
+): Promise<GallerySectionContent> {
+  const { section } = await readGallerySectionContent(tenantId);
+  return section;
+}
+
+async function getGalleryImages(
+  tenantId: string,
+  options: { useFallbackWhenEmpty?: boolean } = {},
+): Promise<GalleryImage[]> {
+  uuid.parse(tenantId);
+  const supabase = await getSupabaseServerClient();
+
+  if (!supabase) {
+    return fallbackGalleryImages(tenantId);
+  }
+
+  const { data, error } = await supabase
+    .from("gallery_images")
+    .select("*")
+    .eq("tenant_id", tenantId)
+    .eq("is_active", true)
+    .order("display_order", { ascending: true });
+
+  if (error || !data) {
+    return fallbackGalleryImages(tenantId);
+  }
+
+  if (data.length === 0 && options.useFallbackWhenEmpty) {
+    return fallbackGalleryImages(tenantId);
+  }
+
+  return data as GalleryImage[];
+}
+
 const loadHomePageContent = cache(
   async (tenantId: string): Promise<HomePageContent> => {
     uuid.parse(tenantId);
@@ -154,6 +252,19 @@ const loadHomePageContent = cache(
     ]);
 
     return { siteConfig, hero, pathwayCards };
+  },
+);
+
+const loadGalleryPageContent = cache(
+  async (tenantId: string): Promise<GalleryPageContent> => {
+    uuid.parse(tenantId);
+
+    const { section, exists } = await readGallerySectionContent(tenantId);
+    const images = await getGalleryImages(tenantId, {
+      useFallbackWhenEmpty: !exists,
+    });
+
+    return { section, images };
   },
 );
 
@@ -279,12 +390,94 @@ async function updatePathwayCards(
   return data as [PathwayCard, PathwayCard, PathwayCard];
 }
 
+async function updateGalleryContent(
+  tenantId: string,
+  userId: string,
+  patch: unknown,
+): Promise<GalleryPageContent> {
+  uuid.parse(tenantId);
+  uuid.parse(userId);
+  const parsed = galleryContentPatchSchema.parse(patch);
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) {
+    throw new Error("Supabase client unavailable");
+  }
+
+  const now = new Date().toISOString();
+  const sectionRow = {
+    tenant_id: tenantId,
+    ...parsed.section,
+    updated_at: now,
+    updated_by: userId,
+  };
+
+  const { data: section, error: sectionError } = await supabase
+    .from("gallery_section_content")
+    .upsert(sectionRow, { onConflict: "tenant_id" })
+    .select()
+    .single();
+
+  if (sectionError || !section) {
+    throw new Error(sectionError?.message ?? "Failed to update gallery copy");
+  }
+
+  const { error: deleteError } = await supabase
+    .from("gallery_images")
+    .delete()
+    .eq("tenant_id", tenantId);
+
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  const imageRows = parsed.images
+    .filter((image) => image.is_active !== false)
+    .map((image, index) => ({
+      ...(isUuid(image.id) ? { id: image.id } : {}),
+      tenant_id: tenantId,
+      display_order: index + 1,
+      title: image.title,
+      eyebrow: image.eyebrow,
+      alt_text: image.alt_text,
+      image_url: image.image_url,
+      storage_path: image.storage_path ?? null,
+      is_active: true,
+      updated_at: now,
+      updated_by: userId,
+    }));
+
+  let images: GalleryImage[] = [];
+  if (imageRows.length > 0) {
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .insert(imageRows)
+      .select()
+      .order("display_order", { ascending: true });
+
+    if (error || !data) {
+      throw new Error(error?.message ?? "Failed to update gallery images");
+    }
+
+    images = data as GalleryImage[];
+  }
+
+  revalidateTag(SITE_CONTENT_CACHE_TAG(tenantId));
+  revalidatePath("/gallery");
+
+  return { section: section as GallerySectionContent, images };
+}
+
 export const SiteContentService = {
   getSiteConfiguration,
   getHeroContent,
   getPathwayCards,
+  getGallerySectionContent,
+  getGalleryImages,
   loadHomePageContent,
+  loadGalleryPageContent,
   updateSiteConfiguration,
   updateHeroContent,
   updatePathwayCards,
+  updateGalleryContent,
 };

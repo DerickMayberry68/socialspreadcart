@@ -3,6 +3,7 @@
 import * as React from "react";
 import { toast } from "sonner";
 
+import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
 import type { SiteConfiguration } from "@/lib/types/site-content";
 
 const labelClass = "text-xs uppercase tracking-[0.13em] text-ink/45";
@@ -29,6 +30,23 @@ function toFormState(config: SiteConfiguration): FormState {
   };
 }
 
+type ConfigurationResponse = {
+  ok: boolean;
+  config?: SiteConfiguration;
+  message?: string;
+};
+
+async function readJsonResponse<T>(response: Response): Promise<T | null> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
 export function SiteConfigurationForm({
   initial,
 }: {
@@ -36,44 +54,69 @@ export function SiteConfigurationForm({
 }) {
   const [form, setForm] = React.useState<FormState>(() => toFormState(initial));
   const [saving, setSaving] = React.useState(false);
+  const [handledError, setHandledError] = React.useState<{
+    title: string;
+    message: string;
+  } | null>(null);
 
   const update = (key: keyof FormState, value: string) =>
     setForm((current) => ({ ...current, [key]: value }));
+
+  const showHandledError = (title: string, message: string) => {
+    setHandledError({ title, message });
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
 
-    const response = await fetch("/api/admin/site-content/configuration", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const response = await fetch("/api/admin/site-content/configuration", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+        credentials: "same-origin",
+      });
 
-    const result = (await response.json()) as {
-      ok: boolean;
-      config?: SiteConfiguration;
-      message?: string;
-    };
+      const result = await readJsonResponse<ConfigurationResponse>(response);
 
-    setSaving(false);
+      if (!response.ok || !result?.ok || !result.config) {
+        showHandledError(
+          "Configuration save failed",
+          result?.message ??
+            `Failed to update site configuration. Please refresh and try again. (${response.status})`,
+        );
+        return;
+      }
 
-    if (!response.ok || !result.ok || !result.config) {
-      toast.error(result.message ?? "Failed to update site configuration.");
-      return;
+      setForm(toFormState(result.config));
+      toast.success(
+        "Site configuration updated. Header, footer, and CTAs will refresh.",
+      );
+    } catch {
+      showHandledError(
+        "Configuration save unavailable",
+        "Could not reach the configuration save endpoint. Please refresh the admin page and try again.",
+      );
+    } finally {
+      setSaving(false);
     }
-
-    setForm(toFormState(result.config));
-    toast.success(
-      "Site configuration updated. Header, footer, and CTAs will refresh.",
-    );
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid gap-5 rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft"
-    >
+    <>
+      <HandledErrorAlert
+        open={handledError !== null}
+        title={handledError?.title}
+        message={handledError?.message ?? ""}
+        onOpenChange={(open) => {
+          if (!open) setHandledError(null);
+        }}
+      />
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-5 rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft"
+      >
       <div>
         <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
           Site configuration
@@ -172,6 +215,7 @@ export function SiteConfigurationForm({
           {saving ? "Saving..." : "Save configuration"}
         </button>
       </div>
-    </form>
+      </form>
+    </>
   );
 }

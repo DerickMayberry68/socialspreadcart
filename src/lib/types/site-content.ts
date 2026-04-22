@@ -45,6 +45,33 @@ export type PathwayCard = {
   updated_by: string | null;
 };
 
+export type GallerySectionContent = {
+  tenant_id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  feature_card_eyebrow: string;
+  feature_card_title: string;
+  support_card_body: string;
+  updated_at: string;
+  updated_by: string | null;
+};
+
+export type GalleryImage = {
+  id: string;
+  tenant_id: string;
+  display_order: number;
+  title: string;
+  eyebrow: string;
+  alt_text: string;
+  image_url: string;
+  storage_path: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+};
+
 /**
  * Bundle consumed by the public home page. Cards are always returned
  * in a tuple of 3 in display_order 1-2-3 (seeded/validated at DB level).
@@ -53,4 +80,9 @@ export type HomePageContent = {
   siteConfig: SiteConfiguration;
   hero: HeroContent;
   pathwayCards: [PathwayCard, PathwayCard, PathwayCard];
+};
+
+export type GalleryPageContent = {
+  section: GallerySectionContent;
+  images: GalleryImage[];
 };

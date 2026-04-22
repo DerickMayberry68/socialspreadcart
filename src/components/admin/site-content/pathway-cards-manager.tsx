@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 
+import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
 import type { PathwayCard } from "@/lib/types/site-content";
 
 const labelClass = "text-xs uppercase tracking-[0.13em] text-ink/45";
@@ -34,6 +35,29 @@ function toForm(card: PathwayCard): CardFormState {
 
 type CardsTuple = [CardFormState, CardFormState, CardFormState];
 
+type PathwayUploadResponse = {
+  ok: boolean;
+  imageUrl?: string;
+  message?: string;
+};
+
+type PathwaySaveResponse = {
+  ok: boolean;
+  cards?: [PathwayCard, PathwayCard, PathwayCard];
+  message?: string;
+};
+
+async function readJsonResponse<T>(response: Response): Promise<T | null> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
 export function PathwayCardsManager({
   initial,
 }: {
@@ -48,11 +72,19 @@ export function PathwayCardsManager({
   const [uploadingIndex, setUploadingIndex] = React.useState<number | null>(
     null,
   );
+  const [handledError, setHandledError] = React.useState<{
+    title: string;
+    message: string;
+  } | null>(null);
   const fileInputRefs = React.useRef<Array<HTMLInputElement | null>>([
     null,
     null,
     null,
   ]);
+
+  const showHandledError = (title: string, message: string) => {
+    setHandledError({ title, message });
+  };
 
   const updateCard = (
     index: number,
@@ -77,60 +109,84 @@ export function PathwayCardsManager({
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch(
-      "/api/admin/site-content/pathway-cards/upload",
-      { method: "POST", body: formData },
-    );
-    const result = (await response.json()) as {
-      ok: boolean;
-      imageUrl?: string;
-      message?: string;
-    };
+    try {
+      const response = await fetch(
+        "/api/admin/site-content/pathway-cards/upload",
+        { method: "POST", body: formData, credentials: "same-origin" },
+      );
+      const result = await readJsonResponse<PathwayUploadResponse>(response);
 
-    setUploadingIndex(null);
-    event.target.value = "";
+      if (!response.ok || !result?.ok || !result.imageUrl) {
+        showHandledError(
+          "Image upload failed",
+          result?.message ??
+            `Failed to upload image. Please refresh and try again. (${response.status})`,
+        );
+        return;
+      }
 
-    if (!response.ok || !result.ok || !result.imageUrl) {
-      toast.error(result.message ?? "Failed to upload image.");
-      return;
+      updateCard(index, "image_url", result.imageUrl);
+      toast.success("Image uploaded.");
+    } catch {
+      showHandledError(
+        "Image upload unavailable",
+        "Could not reach the pathway image upload endpoint. Please refresh and try again.",
+      );
+    } finally {
+      setUploadingIndex(null);
+      event.target.value = "";
     }
-
-    updateCard(index, "image_url", result.imageUrl);
-    toast.success("Image uploaded.");
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSaving(true);
 
-    const response = await fetch("/api/admin/site-content/pathway-cards", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cards }),
-    });
-    const result = (await response.json()) as {
-      ok: boolean;
-      cards?: [PathwayCard, PathwayCard, PathwayCard];
-      message?: string;
-    };
+    try {
+      const response = await fetch("/api/admin/site-content/pathway-cards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cards }),
+        credentials: "same-origin",
+      });
+      const result = await readJsonResponse<PathwaySaveResponse>(response);
 
-    setSaving(false);
+      if (!response.ok || !result?.ok || !result.cards) {
+        showHandledError(
+          "Pathway cards save failed",
+          result?.message ??
+            `Failed to update pathway cards. Please refresh and try again. (${response.status})`,
+        );
+        return;
+      }
 
-    if (!response.ok || !result.ok || !result.cards) {
-      toast.error(result.message ?? "Failed to update pathway cards.");
-      return;
+      setCards([
+        toForm(result.cards[0]),
+        toForm(result.cards[1]),
+        toForm(result.cards[2]),
+      ]);
+      toast.success("Pathway cards updated. Public home page will refresh.");
+    } catch {
+      showHandledError(
+        "Pathway cards save unavailable",
+        "Could not reach the pathway cards save endpoint. Please refresh the admin page and try again.",
+      );
+    } finally {
+      setSaving(false);
     }
-
-    setCards([
-      toForm(result.cards[0]),
-      toForm(result.cards[1]),
-      toForm(result.cards[2]),
-    ]);
-    toast.success("Pathway cards updated. Public home page will refresh.");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <HandledErrorAlert
+        open={handledError !== null}
+        title={handledError?.title}
+        message={handledError?.message ?? ""}
+        onOpenChange={(open) => {
+          if (!open) setHandledError(null);
+        }}
+      />
+      <form onSubmit={handleSubmit} className="space-y-6">
       <section className="rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft">
         <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
           Pathway cards
@@ -264,6 +320,7 @@ export function PathwayCardsManager({
           {saving ? "Saving..." : "Save pathway cards"}
         </button>
       </div>
-    </form>
+      </form>
+    </>
   );
 }
