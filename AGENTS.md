@@ -21,6 +21,6 @@
 
 ## Active Feature Context
 
-- `001-admin-gallery-content`: Adds admin-editable gallery section copy and gallery images.
-- Stack remains TypeScript 5.6, React 19.2, Next.js 15.5 App Router, Supabase, Tailwind CSS 3.4, Zod 4.3, and `sonner`.
-- Planned storage adds tenant-scoped `gallery_section_content` and `gallery_images` records, plus gallery uploads in the existing `boards` bucket under `{tenantId}/gallery/`.
+- `013-admin-about-content`: Adds admin-editable About page copy, About images, and three About feature cards.
+- Stack remains TypeScript 5.6, React 19.2, Next.js 15.5 App Router, Supabase, Tailwind CSS 3.4, Zod 4.3, Radix Dialog handled error alerts, and `sonner` success/info notifications.
+- Planned storage adds tenant-scoped `about_page_content`, `about_images`, and `about_feature_cards` records, plus About uploads in the existing `boards` bucket under `{tenantId}/about/`.

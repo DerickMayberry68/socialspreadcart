@@ -72,6 +72,41 @@ export type GalleryImage = {
   updated_by: string | null;
 };
 
+export type AboutPageContentRecord = {
+  tenant_id: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  story_badge: string;
+  story_title: string;
+  story_body: string[];
+  updated_at: string;
+  updated_by: string | null;
+};
+
+export type AboutImage = {
+  id: string;
+  tenant_id: string;
+  display_order: number;
+  image_url: string;
+  storage_path: string | null;
+  alt_text: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+  updated_by: string | null;
+};
+
+export type AboutFeatureCard = {
+  tenant_id: string;
+  display_order: 1 | 2 | 3;
+  title: string;
+  body: string;
+  icon_key: "heart-handshake" | "sparkles" | "map-pin";
+  updated_at: string;
+  updated_by: string | null;
+};
+
 /**
  * Bundle consumed by the public home page. Cards are always returned
  * in a tuple of 3 in display_order 1-2-3 (seeded/validated at DB level).
@@ -85,4 +120,10 @@ export type HomePageContent = {
 export type GalleryPageContent = {
   section: GallerySectionContent;
   images: GalleryImage[];
+};
+
+export type AboutPageContent = {
+  content: AboutPageContentRecord;
+  images: AboutImage[];
+  featureCards: [AboutFeatureCard, AboutFeatureCard, AboutFeatureCard];
 };

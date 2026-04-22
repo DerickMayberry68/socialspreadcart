@@ -4,7 +4,7 @@ import type {
   MenuItem,
   Testimonial,
 } from "@/lib/types";
-import { clientMedia, foodMedia } from "@/lib/media";
+import { cartGallery, clientMedia, foodMedia } from "@/lib/media";
 import { slugify } from "@/lib/utils";
 
 export const fallbackMenuItems: MenuItem[] = [
@@ -178,6 +178,56 @@ export const fallbackGallerySection = {
   support_card_body:
     "The goal is not just to show pretty images. It is to help future clients picture what the menu and the cart will feel like in their own event.",
 } as const;
+
+export const fallbackAboutContent = {
+  eyebrow: "About The Brand",
+  title:
+    "A hospitality brand built to feel polished, cheerful, and easy to welcome into the room.",
+  description:
+    "The Social Spread Cart exists for hosts who want the event to feel thoughtful and memorable without adding more stress to the planning process.",
+  story_badge: "Bentonville based",
+  story_title:
+    "Thoughtful presentation, warm hospitality, and a little bit of delight in every setup.",
+  story_body: [
+    "The Social Spread Cart was created for hosts who want something more memorable than standard catering. Every menu and cart setup is designed to feel intentional, approachable, and easy to enjoy.",
+    "From take-home orders to full event setups, the current offer centers on large charcuterie boxes, charcuterie cups, dirty soda, and a small set of cart services including a mini pancake bar, bartending, and event-ready station setups.",
+    "We serve Bentonville and nearby Northwest Arkansas communities with pickup items, local delivery, and on-site cart experiences.",
+  ],
+} as const;
+
+export const fallbackAboutImages = cartGallery.map((image_url, index) => ({
+  id: `about-image-${index + 1}`,
+  display_order: index + 1,
+  image_url,
+  alt_text:
+    [
+      "The Social Spread Cart setup ready for an event day",
+      "Dirty soda service from The Social Spread Cart",
+      "Mini pancake bar styled for a brunch or shower",
+      "Dirty soda and charcuterie box styling",
+    ][index] ?? "The Social Spread Cart brand photography",
+}));
+
+export const fallbackAboutFeatureCards = [
+  {
+    display_order: 1,
+    title: "Approachable service",
+    body: "The experience should feel easy for the host and welcoming for every guest.",
+    icon_key: "heart-handshake",
+  },
+  {
+    display_order: 2,
+    title: "Playful polish",
+    body: "The brand mixes premium presentation with bright, celebratory energy.",
+    icon_key: "sparkles",
+  },
+  {
+    display_order: 3,
+    title: "Locally rooted",
+    body: "Built for Bentonville and the wider Northwest Arkansas event scene.",
+    icon_key: "map-pin",
+  },
+] as const;
 
 export const cartHighlights = [
   "Mobile cart service for weddings, showers, school events, launch parties, and corporate receptions across Bentonville and nearby communities",
