@@ -1,0 +1,31 @@
+---
+description: Git workflow preferences and pre-authorized config changes for this project
+alwaysApply: true
+---
+
+# Git Workflow
+
+## Pre-authorized git config changes
+
+The user has pre-authorized these **specific** `git config` changes. Apply them without asking if missing, but always announce what you're running before you run it:
+
+- `git config --global fetch.prune true` — auto-prune deleted remote branches on every fetch.
+
+Any other `git config` change still requires explicit in-session permission from the user before running.
+
+## Branch hygiene
+
+- GitHub repo has `deleteBranchOnMerge: true` — merged PR branches are deleted on `origin` automatically.
+- Never work on `main` directly. Always create a feature/fix branch.
+- Keep unrelated fixes out of feature PRs. If a drive-by fix appears while working on a feature, stash it, branch off `main`, commit it there, and open a separate PR.
+- Delete local branches once their PR merges:
+  ```powershell
+  git fetch --prune
+  git branch --merged origin/main | Where-Object { $_ -notmatch '^\*|main$' } | ForEach-Object { git branch -d $_.Trim() }
+  ```
+
+## Commit + PR conventions
+
+- Conventional-commit prefixes (`feat(NNN):`, `fix(area):`, `chore:`, `docs:`, `spec(NNN):`, `plan(NNN):`, `tasks(NNN):`) where `NNN` is the spec feature number when applicable.
+- PowerShell is the shell — do **not** use heredoc syntax (`$(cat <<'EOF' ... EOF)`) for commit messages. Use `-m` with backtick-n (`` `n ``) for newlines, or write the message to `.git/COMMIT_MSG_TEMP` and use `git commit -F .git/COMMIT_MSG_TEMP`.
+- PR bodies: use `.git/PR_BODY_TEMP.md` + `gh pr create --body-file` (delete the temp file afterward).
