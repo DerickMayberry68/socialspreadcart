@@ -117,9 +117,61 @@ export const galleryContentPatchSchema = z.object({
   images: z.array(galleryImageEntrySchema),
 });
 
+export const aboutPageContentPatchSchema = z.object({
+  eyebrow: z.string().trim().max(40),
+  title: z.string().trim().min(1).max(220),
+  description: z.string().trim().min(1).max(600),
+  story_badge: z.string().trim().max(60),
+  story_title: z.string().trim().min(1).max(240),
+  story_body: z
+    .array(z.string().trim().min(1).max(700))
+    .min(1, "At least one story paragraph is required")
+    .max(4, "Use 4 story paragraphs or fewer"),
+});
+
+const aboutImageEntrySchema = z.object({
+  id: z.string().optional(),
+  display_order: z.number().int().positive(),
+  image_url: z.string().trim().min(1).max(2048),
+  storage_path: z.string().max(2048).nullable().optional(),
+  alt_text: z.string().trim().min(1).max(180),
+  is_active: z.boolean().optional(),
+});
+
+const aboutFeatureCardEntrySchema = z.object({
+  display_order: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+  title: z.string().trim().min(1).max(80),
+  body: z.string().trim().min(1).max(220),
+  icon_key: z.union([
+    z.literal("heart-handshake"),
+    z.literal("sparkles"),
+    z.literal("map-pin"),
+  ]),
+});
+
+export const aboutContentPatchSchema = z
+  .object({
+    content: aboutPageContentPatchSchema,
+    images: z.array(aboutImageEntrySchema),
+    featureCards: z
+      .array(aboutFeatureCardEntrySchema)
+      .length(3, "Must provide exactly 3 About feature cards"),
+  })
+  .refine(
+    (value) => {
+      const orders = value.featureCards.map((card) => card.display_order);
+      return new Set(orders).size === 3 && [1, 2, 3].every((n) => orders.includes(n as 1 | 2 | 3));
+    },
+    {
+      message: "About feature cards must include display orders 1, 2, and 3",
+      path: ["featureCards"],
+    },
+  );
+
 export type SiteConfigurationPatch = z.infer<
   typeof siteConfigurationPatchSchema
 >;
 export type HeroContentPatch = z.infer<typeof heroContentPatchSchema>;
 export type PathwayCardsPatch = z.infer<typeof pathwayCardsPatchSchema>;
 export type GalleryContentPatch = z.infer<typeof galleryContentPatchSchema>;
+export type AboutContentPatch = z.infer<typeof aboutContentPatchSchema>;
