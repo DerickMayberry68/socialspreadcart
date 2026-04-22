@@ -35,11 +35,11 @@ export default function AdminShellLayout({
           <div className="flex items-center gap-3 border-b border-sage/10 px-6 py-5">
             <div className="w-10 shrink-0 overflow-hidden rounded-full border border-sage/10 bg-white p-1">
               <Image
-                src="/brand/logos/logo-circle.png"
+                src="/icon.png"
                 alt="The Social Spread Cart"
                 width={40}
                 height={40}
-                className="h-auto w-full"
+                className="h-full w-full rounded-full object-cover"
               />
             </div>
             <div>
