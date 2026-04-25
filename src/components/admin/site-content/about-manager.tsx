@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ArrowDown, ArrowUp, ImagePlus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
 import type {
   AboutFeatureCard,
@@ -136,6 +137,9 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
     title: string;
     message: string;
   } | null>(null);
+  const [removeImageIndex, setRemoveImageIndex] = React.useState<number | null>(
+    null,
+  );
   const fileInputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
 
   const showHandledError = (title: string, message: string) => {
@@ -201,8 +205,13 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
     );
   };
 
-  const removeImage = (index: number) => {
-    if (!window.confirm("Remove this image from the About page?")) return;
+  const requestRemoveImage = (index: number) => {
+    setRemoveImageIndex(index);
+  };
+
+  const confirmRemoveImage = () => {
+    if (removeImageIndex === null) return;
+    const index = removeImageIndex;
     setImages((current) => normalizeImages(current.filter((_, i) => i !== index)));
   };
 
@@ -325,6 +334,17 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
         onOpenChange={(open) => {
           if (!open) setHandledError(null);
         }}
+      />
+      <ConfirmDialog
+        open={removeImageIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveImageIndex(null);
+        }}
+        title="Remove About image?"
+        description="Remove this image from the About page?"
+        cancelLabel="Keep image"
+        confirmLabel="Remove"
+        onConfirm={confirmRemoveImage}
       />
       <form onSubmit={handleSubmit} className="space-y-6">
         <section className="rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft">
@@ -487,7 +507,7 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => removeImage(index)}
+                        onClick={() => requestRemoveImage(index)}
                         className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
                         aria-label="Remove image"
                       >

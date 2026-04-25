@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   ArrowDown,
   ArrowUp,
@@ -11,7 +12,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
+import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
 import type {
   GalleryImage,
   GalleryPageContent,
@@ -76,6 +79,23 @@ function normalizeImages(images: ImageFormState[]) {
   }));
 }
 
+function serializeGalleryForm(
+  section: SectionFormState,
+  images: ImageFormState[],
+): string {
+  const normalized = normalizeImages(images);
+  return JSON.stringify({
+    section,
+    images: normalized.map((img) => ({
+      title: img.title,
+      eyebrow: img.eyebrow,
+      alt_text: img.alt_text,
+      image_url: img.image_url,
+      storage_path: img.storage_path,
+    })),
+  });
+}
+
 type GalleryUploadResponse = {
   ok: boolean;
   imageUrl?: string;
@@ -101,12 +121,36 @@ async function readJsonResponse<T>(response: Response): Promise<T | null> {
   }
 }
 
+function historyTopIsGalleryGuard(): boolean {
+  const state = window.history.state;
+  return (
+    typeof state === "object" &&
+    state !== null &&
+    (state as { __galleryUnsavedGuard?: boolean }).__galleryUnsavedGuard ===
+      true
+  );
+}
+
 export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
+  const router = useRouter();
+  const pendingNavigationRef = React.useRef<string | null>(null);
+  const leaveViaHistoryBackRef = React.useRef(false);
+  const historyGuardPushedRef = React.useRef(false);
+  const isDiscardingHistoryGuardRef = React.useRef(false);
+  const isConfirmingLeaveRef = React.useRef(false);
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = React.useState(false);
+
   const [section, setSection] = React.useState<SectionFormState>(() =>
     toSectionForm(initial.section),
   );
   const [images, setImages] = React.useState<ImageFormState[]>(() =>
     normalizeImages(initial.images.map(toImageForm)),
+  );
+  const [baseline, setBaseline] = React.useState(() =>
+    serializeGalleryForm(
+      toSectionForm(initial.section),
+      normalizeImages(initial.images.map(toImageForm)),
+    ),
   );
   const [saving, setSaving] = React.useState(false);
   const [uploadingIndex, setUploadingIndex] = React.useState<number | null>(
@@ -116,7 +160,112 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
     title: string;
     message: string;
   } | null>(null);
+  const [removeImageIndex, setRemoveImageIndex] = React.useState<number | null>(
+    null,
+  );
   const fileInputRefs = React.useRef<Array<HTMLInputElement | null>>([]);
+
+  const isDirty = serializeGalleryForm(section, images) !== baseline;
+  const isDirtyRef = React.useRef(isDirty);
+  isDirtyRef.current = isDirty;
+
+  React.useEffect(() => {
+    if (isDirty) {
+      if (!historyGuardPushedRef.current) {
+        if (historyTopIsGalleryGuard()) {
+          historyGuardPushedRef.current = true;
+        } else {
+          historyGuardPushedRef.current = true;
+          window.history.pushState(
+            { __galleryUnsavedGuard: true },
+            "",
+            `${window.location.pathname}${window.location.search}${window.location.hash}`,
+          );
+        }
+      }
+    } else if (historyGuardPushedRef.current) {
+      if (historyTopIsGalleryGuard()) {
+        isDiscardingHistoryGuardRef.current = true;
+        historyGuardPushedRef.current = false;
+        window.history.back();
+        queueMicrotask(() => {
+          isDiscardingHistoryGuardRef.current = false;
+        });
+      } else {
+        historyGuardPushedRef.current = false;
+      }
+    }
+  }, [isDirty]);
+
+  React.useEffect(() => {
+    const onPopState = () => {
+      if (isDiscardingHistoryGuardRef.current) return;
+      if (!isDirtyRef.current) return;
+
+      historyGuardPushedRef.current = false;
+      pendingNavigationRef.current = null;
+      leaveViaHistoryBackRef.current = true;
+      setUnsavedDialogOpen(true);
+    };
+
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isDirty) return;
+
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [isDirty]);
+
+  React.useEffect(() => {
+    if (!isDirty) return;
+
+    const onClickCapture = (event: MouseEvent) => {
+      if (event.defaultPrevented) return;
+      if (event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+
+      const target = event.target as HTMLElement | null;
+      const anchor = target?.closest?.("a");
+      if (!anchor) return;
+      if (anchor.target === "_blank") return;
+      if (anchor.hasAttribute("download")) return;
+
+      const hrefAttr = anchor.getAttribute("href");
+      if (!hrefAttr || hrefAttr.startsWith("#")) return;
+
+      let url: URL;
+      try {
+        url = new URL(hrefAttr, window.location.origin);
+      } catch {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) return;
+
+      const next = `${url.pathname}${url.search}${url.hash}`;
+      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      if (next === current) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      leaveViaHistoryBackRef.current = false;
+      pendingNavigationRef.current = next;
+      setUnsavedDialogOpen(true);
+    };
+
+    document.addEventListener("click", onClickCapture, true);
+    return () => document.removeEventListener("click", onClickCapture, true);
+  }, [isDirty]);
 
   const updateSection = (key: keyof SectionFormState, value: string) => {
     setSection((current) => ({ ...current, [key]: value }));
@@ -155,10 +304,13 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
     );
   };
 
-  const removeImage = (index: number) => {
-    const image = images[index];
-    const label = image?.title ? `"${image.title}"` : "this image";
-    if (!window.confirm(`Remove ${label} from the gallery?`)) return;
+  const requestRemoveImage = (index: number) => {
+    setRemoveImageIndex(index);
+  };
+
+  const confirmRemoveImage = () => {
+    if (removeImageIndex === null) return;
+    const index = removeImageIndex;
     setImages((current) => normalizeImages(current.filter((_, i) => i !== index)));
   };
 
@@ -236,8 +388,11 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
         return;
       }
 
-      setSection(toSectionForm(result.section));
-      setImages(normalizeImages(result.images.map(toImageForm)));
+      const nextSection = toSectionForm(result.section);
+      const nextImages = normalizeImages(result.images.map(toImageForm));
+      setSection(nextSection);
+      setImages(nextImages);
+      setBaseline(serializeGalleryForm(nextSection, nextImages));
       toast.success("Gallery content updated. Public gallery will refresh.");
     } catch {
       showHandledError(
@@ -257,6 +412,76 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
         message={handledError?.message ?? ""}
         onOpenChange={(open) => {
           if (!open) setHandledError(null);
+        }}
+      />
+      <ConfirmDialog
+        open={removeImageIndex !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveImageIndex(null);
+        }}
+        title="Remove gallery image?"
+        description={
+          removeImageIndex !== null
+            ? `Remove ${
+                images[removeImageIndex]?.title
+                  ? `"${images[removeImageIndex].title}"`
+                  : "this image"
+              } from the gallery?`
+            : "Remove this image from the gallery?"
+        }
+        cancelLabel="Keep image"
+        confirmLabel="Remove"
+        onConfirm={confirmRemoveImage}
+      />
+      <UnsavedChangesDialog
+        open={unsavedDialogOpen}
+        onOpenChange={(open) => {
+          setUnsavedDialogOpen(open);
+          if (!open) {
+            if (isConfirmingLeaveRef.current) {
+              isConfirmingLeaveRef.current = false;
+              pendingNavigationRef.current = null;
+              leaveViaHistoryBackRef.current = false;
+              historyGuardPushedRef.current = false;
+              return;
+            }
+
+            pendingNavigationRef.current = null;
+            leaveViaHistoryBackRef.current = false;
+
+            queueMicrotask(() => {
+              if (!isDirtyRef.current) return;
+              if (historyGuardPushedRef.current) return;
+              if (historyTopIsGalleryGuard()) {
+                historyGuardPushedRef.current = true;
+                return;
+              }
+              historyGuardPushedRef.current = true;
+              window.history.pushState(
+                { __galleryUnsavedGuard: true },
+                "",
+                `${window.location.pathname}${window.location.search}${window.location.hash}`,
+              );
+            });
+          }
+        }}
+        title="Leave gallery editor?"
+        description="You have unsaved gallery changes. Save first, or leave and lose those edits."
+        onLeave={() => {
+          isConfirmingLeaveRef.current = true;
+          const href = pendingNavigationRef.current;
+          const viaBack = leaveViaHistoryBackRef.current;
+          pendingNavigationRef.current = null;
+          leaveViaHistoryBackRef.current = false;
+
+          if (href) {
+            router.push(href);
+            return;
+          }
+
+          if (viaBack) {
+            router.back();
+          }
         }}
       />
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -398,7 +623,7 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => removeImage(index)}
+                      onClick={() => requestRemoveImage(index)}
                       className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
                       aria-label="Remove image"
                     >

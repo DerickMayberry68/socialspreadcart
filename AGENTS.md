@@ -15,6 +15,7 @@
 
 ## Project-Specific Rules
 
+- Never use `window.alert`, `window.confirm`, or `window.prompt`. Use Radix-based modals (see `HandledErrorAlert`, `UnsavedChangesDialog`) or toasts (`sonner`) as appropriate.
 - SocialSpreadCart is a shared multi-tenant platform. New clients are tenant-scoped records in the existing database, not separate databases.
 - Admin-editable public content must go through `SiteContentService` in `src/services/site-content-service.ts`; do not read site content tables directly from pages or components.
 - Admin API routes under `src/app/api/admin/site-content/**` must start with `requireTenantAdmin()` and short-circuit on guard errors.

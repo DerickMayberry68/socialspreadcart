@@ -1,0 +1,16 @@
+---
+description: Use in-app modals for confirmations and messages; never browser alert/confirm/prompt
+alwaysApply: true
+---
+
+# UI: modals instead of browser dialogs
+
+Do **not** use `window.alert`, `window.confirm`, `window.prompt`, or other blocking browser-native dialog APIs. They break visual consistency, accessibility patterns, and embedded/webview contexts.
+
+**Do instead:**
+
+- Use a **modal** built with the project stack (e.g. Radix `Dialog`, matching existing patterns such as `HandledErrorAlert`, `UnsavedChangesDialog`, or shadcn-style `Dialog` + `Button`).
+- For destructive actions, use a clear title, short description, and explicit actions (e.g. **Cancel** / **Continue**).
+- For simple notifications after an action, **`sonner` toasts** are fine when a modal is not required.
+
+When refactoring or reviewing code, replace any `alert` / `confirm` / `prompt` usage with an equivalent modal flow.
