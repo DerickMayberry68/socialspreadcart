@@ -19,43 +19,18 @@ import { SectionHeading, SectionShell } from "@/components/shared/section-shell"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { cartHighlights } from "@/lib/fallback-data";
-import { clientMedia, foodMedia } from "@/lib/media";
+import { DEFAULT_HOME_MARKETING_CONTENT } from "@/lib/page-content-defaults";
 import {
   DEFAULT_HERO_CONTENT,
   DEFAULT_PATHWAY_CARDS,
   DEFAULT_SITE_CONFIGURATION,
 } from "@/lib/site";
 import type { EventItem, GalleryItem, MenuItem, Testimonial } from "@/lib/types";
-import type { HomePageContent } from "@/lib/types/site-content";
+import type {
+  HomePageContent,
+  HomePageMarketingContent,
+} from "@/lib/types/site-content";
 import { formatEventDate, formatPrice } from "@/lib/utils";
-
-const proofStats = [
-  { label: "Pickup Favorites", value: "48 hr", note: "for most best sellers" },
-  { label: "Guest-Friendly", value: "Dietary", note: "clear notes on popular items" },
-  { label: "Serving", value: "NWA", note: "Bentonville and nearby communities" },
-];
-
-const pillars = [
-  {
-    icon: ShieldCheck,
-    title: "Elegant enough to trust",
-    copy:
-      "Clear lead times, polished presentation, and straightforward booking details make the experience feel reassuring from the first scroll.",
-  },
-  {
-    icon: Sparkles,
-    title: "Joyful enough to share",
-    copy:
-      "Colorful drinks, generous grazing, and cheerful photography bring a bright premium energy without losing calm.",
-  },
-  {
-    icon: HeartHandshake,
-    title: "Flexible enough for real hosting",
-    copy:
-      "Pickup, delivery, and full cart service let customers find the right level of support for showers, launches, school events, and parties.",
-  },
-];
 
 const pathwayAccents = [
   "from-[#e8c9a6] to-[#fcf3e0]",
@@ -63,17 +38,14 @@ const pathwayAccents = [
   "from-[#e8b896] to-[#fef0e0]",
 ] as const;
 
-const bookingSteps = [
-  "Choose pickup, delivery, or a full cart service experience.",
-  "Select the menu mix that fits your guest count and the feel of the event.",
-  "We confirm timing, setup, and presentation so hosting feels lighter.",
-];
-
 const colorBands = [
   "from-[#e5d6b8] to-[#fbf3e1]",
   "from-[#dfe8d8] to-[#eef4ea]",
   "from-[#e8c1a0] to-[#fcf0e4]",
 ];
+
+const pillarIcons = [ShieldCheck, Sparkles, HeartHandshake] as const;
+const bookingCardIcons = [Clock3, MapPin, Sparkles] as const;
 
 export function HomePage({
   menuItems,
@@ -81,12 +53,14 @@ export function HomePage({
   testimonials,
   gallery,
   content,
+  marketingContent,
 }: {
   menuItems: MenuItem[];
   events: EventItem[];
   testimonials: Testimonial[];
   gallery: GalleryItem[];
   content?: HomePageContent;
+  marketingContent?: HomePageMarketingContent;
 }) {
   const featuredItems = menuItems.filter((item) => item.featured);
   const featured = (featuredItems.length > 0 ? featuredItems : menuItems).slice(0, 3);
@@ -96,6 +70,7 @@ export function HomePage({
   const hero = content?.hero ?? DEFAULT_HERO_CONTENT;
   const siteConfig = content?.siteConfig ?? DEFAULT_SITE_CONFIGURATION;
   const pathwayCards = content?.pathwayCards ?? DEFAULT_PATHWAY_CARDS;
+  const marketing = marketingContent ?? DEFAULT_HOME_MARKETING_CONTENT;
 
   const heroPrimaryLabel = hero.primary_cta_label.trim();
   const heroPrimaryTarget = hero.primary_cta_target.trim();
@@ -109,10 +84,10 @@ export function HomePage({
         <SectionShell className="relative grid gap-14 py-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:py-20">
           <Reveal>
             <Badge className="border-[#d4ddcb] bg-white/80 text-[#5c7058]">
-              Premium cart hospitality in Northwest Arkansas
+              {marketing.hero_badge}
             </Badge>
             <p className="mt-7 text-sm uppercase tracking-[0.32em] text-ink/55">
-              Charcuterie boxes - dirty soda - styled cart service
+              {marketing.hero_kicker}
             </p>
             <h1 className="mt-5 max-w-4xl font-heading text-[3rem] leading-[0.95] text-[#284237] sm:text-[4rem] lg:text-[4.75rem]">
               {hero.headline}
@@ -141,7 +116,7 @@ export function HomePage({
               ) : null}
             </div>
             <div className="mt-10 grid gap-4 sm:grid-cols-3">
-              {proofStats.map((item) => (
+              {marketing.proof_stats.map((item) => (
                 <div
                   key={item.label}
                   className="rounded-[28px] border border-white/70 bg-white/75 px-5 py-5 shadow-soft backdrop-blur"
@@ -178,12 +153,12 @@ export function HomePage({
               <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative overflow-hidden rounded-[30px] bg-[#f6efe3]">
                   <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between rounded-full bg-white/88 px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#51654f] shadow-soft backdrop-blur">
-                    <span>Host favorite</span>
-                    <span>Bentonville, AR</span>
+                    <span>{marketing.hero_main_image_left_label}</span>
+                    <span>{marketing.hero_main_image_right_label}</span>
                   </div>
                   <Image
-                    src={clientMedia.cartDirtySodaHero}
-                    alt="Dirty soda service from The Social Spread Cart"
+                    src={marketing.hero_main_image.image_url}
+                    alt={marketing.hero_main_image.alt_text}
                     width={900}
                     height={1100}
                     priority
@@ -193,18 +168,18 @@ export function HomePage({
                 <div className="grid gap-4">
                   <div className="overflow-hidden rounded-[28px] bg-[linear-gradient(180deg,#fdf5e6_0%,#f3e6ca_100%)] p-4">
                     <Image
-                      src={foodMedia.charcuterieBox}
-                      alt="Charcuterie box"
+                      src={marketing.hero_feature_image.image_url}
+                      alt={marketing.hero_feature_image.alt_text}
                       width={720}
                       height={640}
                       className="aspect-[4/3] w-full rounded-[22px] object-cover"
                     />
                     <div className="mt-4">
                       <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
-                        Best seller
+                        {marketing.hero_feature_eyebrow}
                       </p>
                       <p className="mt-2 font-heading text-3xl text-[#284237]">
-                        Grazing that feels elevated, abundant, and easy.
+                        {marketing.hero_feature_title}
                       </p>
                     </div>
                   </div>
@@ -212,13 +187,13 @@ export function HomePage({
                     <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef4e9_0%,#dde9d9_100%)] p-5">
                       <Truck className="h-8 w-8 text-[#4f684d]" />
                       <p className="mt-4 font-heading text-2xl text-[#284237]">
-                        Pickup, delivery, or full event setup
+                        {marketing.hero_service_cards[0]}
                       </p>
                     </div>
                     <div className="rounded-[28px] bg-[linear-gradient(180deg,#fce1d2_0%,#f2c4a5_100%)] p-5">
                       <Store className="h-8 w-8 text-[#b8562e]" />
                       <p className="mt-4 font-heading text-2xl text-[#284237]">
-                        Colorful cart moments guests remember
+                        {marketing.hero_service_cards[1]}
                       </p>
                     </div>
                   </div>
@@ -231,27 +206,32 @@ export function HomePage({
 
       <SectionShell className="mt-10">
         <div className="grid gap-5 md:grid-cols-3">
-          {pillars.map((item, index) => (
-            <Reveal key={item.title} delay={index * 0.08}>
-              <Card className="h-full rounded-[30px] bg-white/78 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
-                  <item.icon className="h-6 w-6" />
-                </div>
-                <h2 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
-                  {item.title}
-                </h2>
-                <p className="mt-4 text-base leading-7 text-ink/66">{item.copy}</p>
-              </Card>
-            </Reveal>
-          ))}
+          {marketing.pillars.map((item, index) => {
+            const Icon = pillarIcons[index] ?? ShieldCheck;
+            return (
+              <Reveal key={item.title} delay={index * 0.08}>
+                <Card className="h-full rounded-[30px] bg-white/78 p-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h2 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
+                    {item.title}
+                  </h2>
+                  <p className="mt-4 text-base leading-7 text-ink/66">
+                    {item.body}
+                  </p>
+                </Card>
+              </Reveal>
+            );
+          })}
         </div>
       </SectionShell>
 
       <SectionShell className="mt-24">
         <SectionHeading
-          eyebrow="Signature Favorites"
-          title="Merchandised like a treat, explained like a service you can trust."
-          description="The menu stays intentionally focused: crowd-pleasing charcuterie, colorful drinks, and guest-friendly add-ons that feel special without becoming complicated."
+          eyebrow={marketing.menu_section.eyebrow}
+          title={marketing.menu_section.title}
+          description={marketing.menu_section.description}
         />
         <div className="mt-10 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
           <div className="grid gap-6 md:grid-cols-3">
@@ -305,17 +285,15 @@ export function HomePage({
             <div className="space-y-6 rounded-[34px] border border-sage/10 bg-[#fffaf4] p-7 shadow-soft">
               <div>
                 <p className="text-xs uppercase tracking-[0.3em] text-[#8c5a36]">
-                  Why this works
+                  {marketing.menu_section.support_eyebrow}
                 </p>
                 <h3 className="mt-3 font-heading text-[2.3rem] leading-tight text-[#284237]">
-                  Clear choices, real imagery, and guest-ready expectations.
+                  {marketing.menu_section.support_title}
                 </h3>
               </div>
               <div className="space-y-4">
                 {[
-                  "Real-event photography shows the feeling instead of relying on generic catering tropes.",
-                  "Lead times and dietary notes appear early, which lowers hesitation.",
-                  "Pickup favorites and event service sit side by side so shoppers can self-sort quickly.",
+                  ...marketing.menu_section.support_points,
                 ].map((item) => (
                   <div
                     key={item}
@@ -327,7 +305,9 @@ export function HomePage({
                 ))}
               </div>
               <Button className="w-full" variant="gold" asChild>
-                <Link href="/menu">See the Full Menu</Link>
+                <Link href={marketing.menu_section.cta_target}>
+                  {marketing.menu_section.cta_label}
+                </Link>
               </Button>
             </div>
           </Reveal>
@@ -337,9 +317,9 @@ export function HomePage({
       <section className="mt-24 bg-[linear-gradient(180deg,#f3e4c3_0%,#faf0db_100%)] py-20">
         <SectionShell>
           <SectionHeading
-            eyebrow="How People Shop Us"
-            title="One brand, several easy ways to say yes."
-            description="The site now guides customers naturally whether they need a small pickup order, a styled cart service, or a reason to visit a pop-up."
+            eyebrow={marketing.pathway_section.eyebrow}
+            title={marketing.pathway_section.title}
+            description={marketing.pathway_section.description}
           />
           <div className="mt-10 grid gap-6 lg:grid-cols-3">
             {pathwayCards.map((card, index) => (
@@ -380,12 +360,12 @@ export function HomePage({
       <SectionShell className="mt-24 grid gap-8 xl:grid-cols-[0.92fr_1.08fr]">
         <Reveal>
           <SectionHeading
-            eyebrow="The Booking Feeling"
-            title="Calm enough for planners, colorful enough for guests."
-            description="Borrowing from wellness brands, the experience reduces stress through simple offers, straightforward steps, and copy that answers the question before it becomes friction."
+            eyebrow={marketing.booking_section.eyebrow}
+            title={marketing.booking_section.title}
+            description={marketing.booking_section.description}
           />
           <div className="mt-8 space-y-4">
-            {bookingSteps.map((item, index) => (
+            {marketing.booking_section.steps.map((item, index) => (
               <div
                 key={item}
                 className="rounded-[28px] border border-sage/10 bg-white/80 px-5 py-5 shadow-soft"
@@ -400,39 +380,25 @@ export function HomePage({
         </Reveal>
         <Reveal delay={0.08}>
           <div className="grid gap-6 md:grid-cols-2">
-            <Card className="rounded-[32px] p-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
-                <Clock3 className="h-6 w-6" />
-              </div>
-              <h3 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
-                Transparent lead times
-              </h3>
-              <p className="mt-4 text-base leading-7 text-ink/66">
-                Premium brands feel more trustworthy when timing expectations are visible instead of hidden behind vague inquiry language.
-              </p>
-            </Card>
-            <Card className="rounded-[32px] p-7">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fce1d2] text-[#b8562e]">
-                <MapPin className="h-6 w-6" />
-              </div>
-              <h3 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
-                Local and event-ready
-              </h3>
-              <p className="mt-4 text-base leading-7 text-ink/66">
-                Location cues, event imagery, and clear service formats make the brand feel rooted, real, and easy to picture in a host&apos;s day.
-              </p>
-            </Card>
-            <Card className="rounded-[32px] p-7 md:col-span-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f0d1a8] text-[#8c5a36]">
-                <Sparkles className="h-6 w-6" />
-              </div>
-              <h3 className="mt-5 font-heading text-[2.2rem] leading-tight text-[#284237]">
-                Editorial enough to feel premium without losing approachability.
-              </h3>
-              <p className="mt-4 max-w-3xl text-base leading-7 text-ink/66">
-                More white space, stronger trust framing, and brighter merchandising make the site feel upscale while still playful and easy to shop.
-              </p>
-            </Card>
+            {marketing.booking_section.cards.map((card, index) => {
+              const Icon = bookingCardIcons[index] ?? Sparkles;
+              return (
+                <Card
+                  key={card.title}
+                  className={`rounded-[32px] p-7 ${index === 2 ? "md:col-span-2" : ""}`}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <h3 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
+                    {card.title}
+                  </h3>
+                  <p className="mt-4 text-base leading-7 text-ink/66">
+                    {card.body}
+                  </p>
+                </Card>
+              );
+            })}
           </div>
         </Reveal>
       </SectionShell>
@@ -440,12 +406,12 @@ export function HomePage({
       <SectionShell className="mt-24 grid gap-10 xl:grid-cols-[0.9fr_1.1fr]">
         <Reveal>
           <SectionHeading
-            eyebrow="Cart Experience"
-            title="A mobile cart that feels like part hospitality, part atmosphere."
-            description="This is where the playful energy shows up most: curated menus, upbeat color, and a setup that gives events an instant focal point."
+            eyebrow={marketing.cart_section.eyebrow}
+            title={marketing.cart_section.title}
+            description={marketing.cart_section.description}
           />
           <ul className="mt-8 space-y-4">
-            {cartHighlights.map((item) => (
+            {marketing.cart_section.highlights.map((item) => (
               <li
                 key={item}
                 className="rounded-[26px] border border-sage/10 bg-white/80 px-5 py-4 text-base leading-7 text-ink/68 shadow-soft"
@@ -455,7 +421,9 @@ export function HomePage({
             ))}
           </ul>
           <Button className="mt-8" asChild>
-            <Link href="/cart-service">Explore Cart Service</Link>
+            <Link href={marketing.cart_section.cta_target}>
+              {marketing.cart_section.cta_label}
+            </Link>
           </Button>
         </Reveal>
         <div className="grid gap-5 sm:grid-cols-2">
@@ -487,12 +455,14 @@ export function HomePage({
         <SectionShell className="grid gap-10 xl:grid-cols-[0.92fr_1.08fr]">
           <Reveal>
             <SectionHeading
-              eyebrow="Upcoming Pop-Ups"
-              title="Public events stay easy to scan and easy to remember."
-              description="A cleaner event rhythm keeps the brand feeling alive between private bookings and gives returning customers a reason to check back."
+              eyebrow={marketing.events_section.eyebrow}
+              title={marketing.events_section.title}
+              description={marketing.events_section.description}
             />
             <Button className="mt-8" variant="outline" asChild>
-              <Link href="/events">View Events Calendar</Link>
+              <Link href={marketing.events_section.cta_target}>
+                {marketing.events_section.cta_label}
+              </Link>
             </Button>
           </Reveal>
           <div className="space-y-4">
@@ -527,9 +497,9 @@ export function HomePage({
 
       <SectionShell className="mt-24">
         <SectionHeading
-          eyebrow="Kind Words"
-          title="The trust section should feel as polished as the product."
-          description="Testimonials work harder when the layout gives them space, warmth, and a little ceremony."
+          eyebrow={marketing.testimonials_section.eyebrow}
+          title={marketing.testimonials_section.title}
+          description={marketing.testimonials_section.description}
           align="center"
         />
         <div className="mx-auto mt-10 max-w-4xl">
@@ -542,13 +512,13 @@ export function HomePage({
           <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-end">
             <div>
               <p className="text-xs uppercase tracking-[0.34em] text-[#efdfb7]">
-                Ready to book?
+                {marketing.final_cta.eyebrow}
               </p>
               <h2 className="mt-4 max-w-3xl font-heading text-5xl leading-[0.94]">
-                Build a menu that feels trustworthy, celebratory, and easy to say yes to.
+                {marketing.final_cta.title}
               </h2>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-[#f5e9d2]/85">
-                Whether you need a polished pickup order or a cart that becomes part of the event, the next step is simple.
+                {marketing.final_cta.description}
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row lg:flex-col">
@@ -563,7 +533,9 @@ export function HomePage({
                 className="border-white/20 bg-white/10 text-white hover:bg-white/16"
                 asChild
               >
-                <Link href="/menu">See Menu Options</Link>
+                <Link href={marketing.final_cta.secondary_cta_target}>
+                  {marketing.final_cta.secondary_cta_label}
+                </Link>
               </Button>
             </div>
           </div>

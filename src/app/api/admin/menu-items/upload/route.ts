@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
+import {
+  getSupabaseServiceRoleClient,
+  SUPABASE_SERVICE_ROLE_MISSING_MESSAGE,
+} from "@/lib/supabase/service";
 import { getSupabaseUser } from "@/lib/supabase/server";
 import { getCurrentTenant } from "@/lib/tenant";
 import { slugify } from "@/lib/utils";
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
   const supabase = getSupabaseServiceRoleClient();
   if (!supabase) {
     return NextResponse.json(
-      { ok: false, message: "Supabase storage is not configured." },
+      { ok: false, message: SUPABASE_SERVICE_ROLE_MISSING_MESSAGE },
       { status: 500 },
     );
   }

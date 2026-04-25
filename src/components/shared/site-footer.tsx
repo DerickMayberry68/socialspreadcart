@@ -3,23 +3,35 @@ import { AtSign, Mail, MapPin, Phone } from "lucide-react";
 
 import { Logo } from "@/components/shared/logo";
 import { DEFAULT_SITE_CONFIGURATION, navigation, siteConfig } from "@/lib/site";
+import type { ShellNavigationItem } from "@/lib/types/site-content";
 
 type SiteFooterProps = {
+  navigation?: ShellNavigationItem[];
   bookingCtaLabel?: string;
   bookingCtaTarget?: string;
-  supportPhone?: string | null;
-  supportEmail?: string | null;
+  ctaEyebrow?: string;
+  ctaTitle?: string;
+  description?: string;
+  location?: string;
+  phone?: string;
+  email?: string;
+  instagramLabel?: string;
+  instagramUrl?: string;
 };
 
 export function SiteFooter({
+  navigation: navItems = navigation,
   bookingCtaLabel = DEFAULT_SITE_CONFIGURATION.booking_cta_label,
   bookingCtaTarget = DEFAULT_SITE_CONFIGURATION.booking_cta_target,
-  supportPhone,
-  supportEmail,
+  ctaEyebrow = "Let's make hosting feel lovely",
+  ctaTitle = "Warm hospitality, joyful details, and a setup guests remember.",
+  description = "A mobile snack and beverage cart serving Bentonville and the wider NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini pancake bar service, and polished event setups.",
+  location = siteConfig.location,
+  phone = siteConfig.phone,
+  email = siteConfig.email,
+  instagramLabel = "@thesocialspreadcart",
+  instagramUrl = siteConfig.instagram,
 }: SiteFooterProps = {}) {
-  const phone = supportPhone ?? siteConfig.phone;
-  const email = supportEmail ?? siteConfig.email;
-
   return (
     <footer className="relative mt-24 overflow-hidden border-t border-walnut/20 bg-[#f3e4c3]">
       <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
@@ -27,10 +39,10 @@ export function SiteFooter({
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-xs uppercase tracking-[0.3em] text-[#efdfb7]">
-                Let&apos;s make hosting feel lovely
+                {ctaEyebrow}
               </p>
               <h2 className="mt-4 font-heading text-4xl leading-tight sm:text-5xl">
-                Warm hospitality, joyful details, and a setup guests remember.
+                {ctaTitle}
               </h2>
             </div>
             <Link
@@ -49,15 +61,13 @@ export function SiteFooter({
             <Logo />
           </div>
           <p className="mt-6 max-w-md text-base leading-7 text-ink/70">
-            A mobile snack and beverage cart serving Bentonville and the wider
-            NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini
-            pancake bar service, and polished event setups.
+            {description}
           </p>
         </div>
         <div>
           <h3 className="font-heading text-2xl text-sage">Explore</h3>
           <ul className="mt-4 space-y-3 text-sm uppercase tracking-[0.18em] text-ink/70">
-            {navigation.map((item) => (
+            {navItems.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} className="transition hover:text-sage">
                   {item.title}
@@ -71,7 +81,7 @@ export function SiteFooter({
           <ul className="mt-4 space-y-4 text-sm text-ink/70">
             <li className="flex items-center gap-3">
               <MapPin className="h-4 w-4 text-sage" />
-              {siteConfig.location}
+              {location}
             </li>
             <li className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-sage" />
@@ -83,8 +93,8 @@ export function SiteFooter({
             </li>
             <li className="flex items-center gap-3">
               <AtSign className="h-4 w-4 text-sage" />
-              <a href={siteConfig.instagram} target="_blank" rel="noreferrer">
-                @thesocialspreadcart
+              <a href={instagramUrl} target="_blank" rel="noreferrer">
+                {instagramLabel}
               </a>
             </li>
           </ul>

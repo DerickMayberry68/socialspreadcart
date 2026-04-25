@@ -19,7 +19,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DEFAULT_CONTACT_PAGE_MARKETING_CONTENT } from "@/lib/page-content-defaults";
 import { serviceDescriptions } from "@/lib/site";
+import type { ContactPageMarketingContent } from "@/lib/types/site-content";
 import { EVENT_TYPES, SERVICE_OPTIONS } from "@/types/booking";
 import type { EventType, ServiceOption } from "@/types/booking";
 
@@ -63,7 +65,11 @@ function validate(form: FormState): Partial<Record<keyof FormState, string>> {
   return errors;
 }
 
-export function QuoteForm() {
+export function QuoteForm({
+  content = DEFAULT_CONTACT_PAGE_MARKETING_CONTENT.quote_form,
+}: {
+  content?: ContactPageMarketingContent["quote_form"];
+}) {
   const [form, setForm] = React.useState<FormState>(initialState);
   const [touched, setTouched] = React.useState<TouchedState>({});
   const [submitAttempted, setSubmitAttempted] = React.useState(false);
@@ -131,13 +137,14 @@ export function QuoteForm() {
           <Logo variant="circle" />
         </div>
         <CheckCircle2 className="mx-auto mt-6 h-10 w-10 text-sage" />
-        <h3 className="mt-6 font-heading text-4xl text-[#284237]">Thank you</h3>
+        <h3 className="mt-6 font-heading text-4xl text-[#284237]">
+          {content.success_title}
+        </h3>
         <p className="mx-auto mt-4 max-w-lg text-base leading-7 text-ink/70">
-          We received your inquiry and will follow up with next steps,
-          availability, and a tailored recommendation.
+          {content.success_body}
         </p>
         <Button className="mt-8" onClick={() => setSuccess(false)}>
-          Submit another inquiry
+          {content.success_button_label}
         </Button>
       </Card>
     );
@@ -147,22 +154,26 @@ export function QuoteForm() {
     <Card className="rounded-[36px] border-[#e4dbc9] bg-[#fffaf4] p-6 sm:p-8 lg:p-10">
       <div className="mb-8 grid gap-4 rounded-[28px] border border-[#e5dccd] bg-white px-5 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
         <div>
-          <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">Inquiry details</p>
-          <h3 className="mt-2 font-heading text-3xl text-[#284237]">Tell us what you are planning</h3>
+          <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">
+            {content.header_eyebrow}
+          </p>
+          <h3 className="mt-2 font-heading text-3xl text-[#284237]">
+            {content.header_title}
+          </h3>
           <p className="mt-3 text-sm leading-7 text-ink/64">
-            The more context you share, the better we can recommend the right mix of menu favorites and cart service.
+            {content.header_description}
           </p>
         </div>
         <div className="flex items-center gap-2 rounded-full bg-[#eef4e9] px-4 py-2 text-xs uppercase tracking-[0.2em] text-[#4f684d]">
           <Sparkles className="h-4 w-4" />
-          Response-friendly form
+          {content.header_badge}
         </div>
       </div>
 
       <form id="quote-form" className="grid gap-6" onSubmit={submit} noValidate>
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{content.name_label}</Label>
             <Input
               id="name"
               name="name"
@@ -175,7 +186,7 @@ export function QuoteForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{content.email_label}</Label>
             <Input
               id="email"
               name="email"
@@ -189,7 +200,7 @@ export function QuoteForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone">{content.phone_label}</Label>
             <Input
               id="phone"
               name="phone"
@@ -202,7 +213,7 @@ export function QuoteForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="eventDate">Event Date</Label>
+            <Label htmlFor="eventDate">{content.event_date_label}</Label>
             <Input
               id="eventDate"
               name="eventDate"
@@ -219,7 +230,7 @@ export function QuoteForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="eventType">Event Type</Label>
+            <Label htmlFor="eventType">{content.event_type_label}</Label>
             <Select
               value={form.eventType}
               onValueChange={(value) => {
@@ -228,7 +239,7 @@ export function QuoteForm() {
               }}
             >
               <SelectTrigger id="eventType" aria-invalid={!!showError("eventType")} className="w-full" />
-              <SelectValue placeholder="Select event type" />
+              <SelectValue placeholder={content.event_type_placeholder} />
               <SelectContent>
                 {EVENT_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
@@ -243,7 +254,7 @@ export function QuoteForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="guests">Number of Guests</Label>
+            <Label htmlFor="guests">{content.guests_label}</Label>
             <Input
               id="guests"
               name="guests"
@@ -259,7 +270,7 @@ export function QuoteForm() {
         </div>
 
         <div className="space-y-3">
-          <Label>Services Needed</Label>
+          <Label>{content.services_label}</Label>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICE_OPTIONS.map((option) => (
               <label
@@ -287,19 +298,20 @@ export function QuoteForm() {
 
         <div className="space-y-2">
           <Label htmlFor="message">
-            Message <span className="text-ink/40">(optional)</span>
+            {content.message_label}{" "}
+            <span className="text-ink/40">{content.message_optional_label}</span>
           </Label>
           <Textarea
             id="message"
             name="message"
             value={form.message}
             onChange={updateField}
-            placeholder="Tell us about your venue, timing, guest flow, or the overall mood you are hoping to create."
+            placeholder={content.message_placeholder}
           />
         </div>
 
         <Button size="lg" type="submit" disabled={submitting}>
-          {submitting ? "Sending..." : "Request My Quote"}
+          {submitting ? content.submitting_label : content.submit_label}
         </Button>
       </form>
     </Card>

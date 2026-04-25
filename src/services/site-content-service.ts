@@ -17,6 +17,8 @@
  * research.md for the rationale behind each decision.
  */
 
+import { randomUUID } from "node:crypto";
+
 import { cache } from "react";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
@@ -34,6 +36,10 @@ import {
   DEFAULT_PATHWAY_CARDS,
   DEFAULT_SITE_CONFIGURATION,
 } from "@/lib/site";
+import {
+  DEFAULT_MARKETING_PAGE_CONTENT,
+  MARKETING_PAGE_KEYS,
+} from "@/lib/page-content-defaults";
 import type {
   AboutFeatureCard,
   AboutImage,
@@ -44,6 +50,9 @@ import type {
   GallerySectionContent,
   HeroContent,
   HomePageContent,
+  MarketingPageContentByKey,
+  MarketingPageContentRecord,
+  MarketingPageKey,
   PathwayCard,
   SiteConfiguration,
 } from "@/lib/types/site-content";
@@ -51,11 +60,13 @@ import {
   aboutContentPatchSchema,
   galleryContentPatchSchema,
   heroContentPatchSchema,
+  marketingPageContentSchemas,
   pathwayCardsPatchSchema,
   siteConfigurationPatchSchema,
 } from "@/lib/validation/site-content";
 
 const uuid = z.string().uuid();
+const marketingPageKeySchema = z.enum(MARKETING_PAGE_KEYS);
 
 export const SITE_CONTENT_CACHE_TAG = (tenantId: string) =>
   `site-content:${tenantId}`;
@@ -157,6 +168,86 @@ function fallbackAboutFeatureCards(
 
 function isUuid(value: string | undefined): value is string {
   return !!value && z.string().uuid().safeParse(value).success;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function mergeDefaults<T>(defaults: T, value: unknown): T {
+  if (Array.isArray(defaults)) {
+    return (Array.isArray(value) ? value : defaults) as T;
+  }
+
+  if (isRecord(defaults)) {
+    const source = isRecord(value) ? value : {};
+    const merged = Object.fromEntries(
+      Object.entries(defaults).map(([key, defaultValue]) => [
+        key,
+        mergeDefaults(defaultValue, source[key]),
+      ]),
+    );
+
+    return merged as T;
+  }
+
+  return (value ?? defaults) as T;
+}
+
+function parseMarketingPageContent<TKey extends MarketingPageKey>(
+  pageKey: TKey,
+  value: unknown,
+): MarketingPageContentByKey[TKey] {
+  const fallback = DEFAULT_MARKETING_PAGE_CONTENT[pageKey];
+  const merged = mergeDefaults(fallback, value);
+
+  switch (pageKey) {
+    case "shell":
+      return marketingPageContentSchemas.shell.parse(merged) as MarketingPageContentByKey[TKey];
+    case "home":
+      return marketingPageContentSchemas.home.parse(merged) as MarketingPageContentByKey[TKey];
+    case "menu":
+      return marketingPageContentSchemas.menu.parse(merged) as MarketingPageContentByKey[TKey];
+    case "events":
+      return marketingPageContentSchemas.events.parse(merged) as MarketingPageContentByKey[TKey];
+    case "cart-service":
+      return marketingPageContentSchemas["cart-service"].parse(merged) as MarketingPageContentByKey[TKey];
+    case "contact":
+      return marketingPageContentSchemas.contact.parse(merged) as MarketingPageContentByKey[TKey];
+  }
+
+  throw new Error(`Unsupported marketing page key: ${String(pageKey)}`);
+}
+
+function fallbackMarketingPageContent<TKey extends MarketingPageKey>(
+  tenantId: string,
+  pageKey: TKey,
+): MarketingPageContentRecord<TKey> {
+  return {
+    tenant_id: tenantId,
+    page_key: pageKey,
+    content: DEFAULT_MARKETING_PAGE_CONTENT[pageKey],
+    updated_at: new Date(0).toISOString(),
+    updated_by: null,
+  };
+}
+
+function revalidateMarketingPage(pageKey: MarketingPageKey) {
+  const pathByKey: Record<MarketingPageKey, string> = {
+    shell: "/",
+    home: "/",
+    menu: "/menu",
+    events: "/events",
+    "cart-service": "/cart-service",
+    contact: "/contact",
+  };
+
+  if (pageKey === "shell") {
+    revalidatePath("/", "layout");
+    return;
+  }
+
+  revalidatePath(pathByKey[pageKey]);
 }
 
 function coerceAboutContent(
@@ -292,10 +383,7 @@ async function getGallerySectionContent(
   return section;
 }
 
-async function getGalleryImages(
-  tenantId: string,
-  options: { useFallbackWhenEmpty?: boolean } = {},
-): Promise<GalleryImage[]> {
+async function getGalleryImages(tenantId: string): Promise<GalleryImage[]> {
   uuid.parse(tenantId);
   const supabase = await getSupabaseServerClient();
 
@@ -314,7 +402,9 @@ async function getGalleryImages(
     return fallbackGalleryImages(tenantId);
   }
 
-  if (data.length === 0 && options.useFallbackWhenEmpty) {
+  // If the section row exists but every image row was lost (e.g. failed save after
+  // delete), still show defaults so the public gallery and admin are not blank.
+  if (data.length === 0) {
     return fallbackGalleryImages(tenantId);
   }
 
@@ -328,10 +418,7 @@ async function getAboutPageContent(
   return content;
 }
 
-async function getAboutImages(
-  tenantId: string,
-  options: { useFallbackWhenEmpty?: boolean } = {},
-): Promise<AboutImage[]> {
+async function getAboutImages(tenantId: string): Promise<AboutImage[]> {
   uuid.parse(tenantId);
   const supabase = await getSupabaseServerClient();
 
@@ -350,7 +437,7 @@ async function getAboutImages(
     return fallbackAboutImages(tenantId);
   }
 
-  if (data.length === 0 && options.useFallbackWhenEmpty) {
+  if (data.length === 0) {
     return fallbackAboutImages(tenantId);
   }
 
@@ -398,10 +485,8 @@ const loadGalleryPageContent = cache(
   async (tenantId: string): Promise<GalleryPageContent> => {
     uuid.parse(tenantId);
 
-    const { section, exists } = await readGallerySectionContent(tenantId);
-    const images = await getGalleryImages(tenantId, {
-      useFallbackWhenEmpty: !exists,
-    });
+    const { section } = await readGallerySectionContent(tenantId);
+    const images = await getGalleryImages(tenantId);
 
     return { section, images };
   },
@@ -411,13 +496,47 @@ const loadAboutPageContent = cache(
   async (tenantId: string): Promise<AboutPageContent> => {
     uuid.parse(tenantId);
 
-    const { content, exists } = await readAboutPageContent(tenantId);
+    const { content } = await readAboutPageContent(tenantId);
     const [images, featureCards] = await Promise.all([
-      getAboutImages(tenantId, { useFallbackWhenEmpty: !exists }),
+      getAboutImages(tenantId),
       getAboutFeatureCards(tenantId),
     ]);
 
     return { content, images, featureCards };
+  },
+);
+
+const getMarketingPageContent = cache(
+  async <TKey extends MarketingPageKey>(
+    tenantId: string,
+    pageKey: TKey,
+  ): Promise<MarketingPageContentRecord<TKey>> => {
+    uuid.parse(tenantId);
+    marketingPageKeySchema.parse(pageKey);
+
+    const supabase = await getSupabaseServerClient();
+    if (!supabase) {
+      return fallbackMarketingPageContent(tenantId, pageKey);
+    }
+
+    const { data, error } = await supabase
+      .from("marketing_page_content")
+      .select("*")
+      .eq("tenant_id", tenantId)
+      .eq("page_key", pageKey)
+      .maybeSingle();
+
+    if (error || !data) {
+      return fallbackMarketingPageContent(tenantId, pageKey);
+    }
+
+    return {
+      tenant_id: tenantId,
+      page_key: pageKey,
+      content: parseMarketingPageContent(pageKey, data.content),
+      updated_at: String(data.updated_at),
+      updated_by: (data.updated_by as string | null) ?? null,
+    };
   },
 );
 
@@ -587,7 +706,7 @@ async function updateGalleryContent(
   const imageRows = parsed.images
     .filter((image) => image.is_active !== false)
     .map((image, index) => ({
-      ...(isUuid(image.id) ? { id: image.id } : {}),
+      id: isUuid(image.id) ? image.id : randomUUID(),
       tenant_id: tenantId,
       display_order: index + 1,
       title: image.title,
@@ -665,7 +784,7 @@ async function updateAboutContent(
   const imageRows = parsed.images
     .filter((image) => image.is_active !== false)
     .map((image, index) => ({
-      ...(isUuid(image.id) ? { id: image.id } : {}),
+      id: isUuid(image.id) ? image.id : randomUUID(),
       tenant_id: tenantId,
       display_order: index + 1,
       image_url: image.image_url,
@@ -725,6 +844,54 @@ async function updateAboutContent(
   };
 }
 
+async function updateMarketingPageContent<TKey extends MarketingPageKey>(
+  tenantId: string,
+  userId: string,
+  pageKey: TKey,
+  patch: unknown,
+): Promise<MarketingPageContentRecord<TKey>> {
+  uuid.parse(tenantId);
+  uuid.parse(userId);
+  marketingPageKeySchema.parse(pageKey);
+
+  const content = parseMarketingPageContent(pageKey, patch);
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) {
+    throw new Error("Supabase client unavailable");
+  }
+
+  const now = new Date().toISOString();
+  const row = {
+    tenant_id: tenantId,
+    page_key: pageKey,
+    content,
+    updated_at: now,
+    updated_by: userId,
+  };
+
+  const { data, error } = await supabase
+    .from("marketing_page_content")
+    .upsert(row, { onConflict: "tenant_id,page_key" })
+    .select()
+    .single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to update page content");
+  }
+
+  revalidateTag(SITE_CONTENT_CACHE_TAG(tenantId));
+  revalidateMarketingPage(pageKey);
+
+  return {
+    tenant_id: tenantId,
+    page_key: pageKey,
+    content: parseMarketingPageContent(pageKey, data.content),
+    updated_at: String(data.updated_at),
+    updated_by: (data.updated_by as string | null) ?? null,
+  };
+}
+
 export const SiteContentService = {
   getSiteConfiguration,
   getHeroContent,
@@ -737,9 +904,11 @@ export const SiteContentService = {
   loadHomePageContent,
   loadGalleryPageContent,
   loadAboutPageContent,
+  getMarketingPageContent,
   updateSiteConfiguration,
   updateHeroContent,
   updatePathwayCards,
   updateGalleryContent,
   updateAboutContent,
+  updateMarketingPageContent,
 };

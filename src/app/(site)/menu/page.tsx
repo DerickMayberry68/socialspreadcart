@@ -6,6 +6,8 @@ import { SectionHeading, SectionShell } from "@/components/shared/section-shell"
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { getMenuItems } from "@/lib/data";
+import { withCurrentTenant } from "@/lib/tenant";
+import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
   title: "Menu",
@@ -14,52 +16,46 @@ export const metadata: Metadata = {
 };
 
 export default async function MenuPage() {
-  const items = await getMenuItems();
+  const [items, pageContent] = await Promise.all([
+    getMenuItems(),
+    withCurrentTenant((tenantId) =>
+      SiteContentService.getMarketingPageContent(tenantId, "menu"),
+    ),
+  ]);
+  const content = pageContent.content;
 
   return (
     <div className="py-16">
       <SectionShell>
         <SectionHeading
-          eyebrow="Menu"
-          title="Current pickup offerings for hosts who want something polished, colorful, and easy to order."
-          description="The menu focuses on a few high-confidence favorites so the experience feels curated rather than crowded."
+          eyebrow={content.eyebrow}
+          title={content.title}
+          description={content.description}
         />
 
         <div className="mt-10 grid gap-5 lg:grid-cols-[1.1fr_0.9fr_0.9fr]">
           <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-7">
-            <Badge className="border-[#d4ddcb] bg-white text-[#5c7058]">Designed for quick decisions</Badge>
+            <Badge className="border-[#d4ddcb] bg-white text-[#5c7058]">
+              {content.intro_badge}
+            </Badge>
             <p className="mt-5 font-heading text-4xl leading-tight text-[#284237]">
-              The best version of the menu feels edited, not endless.
+              {content.intro_title}
             </p>
             <p className="mt-4 text-base leading-7 text-ink/68">
-              Most orders require 24 to 48 hours of notice, and the best sellers are
-              built to travel well, photograph beautifully, and make hosting feel easier.
+              {content.intro_body}
             </p>
           </Card>
 
-          {[
-            {
-              icon: PackageCheck,
-              title: "Pickup",
-              copy: "Ideal for hosts who want ready-to-enjoy snacks, drinks, and shareables with a simple handoff.",
-            },
-            {
-              icon: Truck,
-              title: "Delivery",
-              copy: "Available in Bentonville and surrounding areas, with timing coordinated for event-day ease.",
-            },
-            {
-              icon: Clock3,
-              title: "Lead Times",
-              copy: "Cart bookings and larger event orders may require additional planning time beyond standard menu favorites.",
-            },
-          ].map((item) => (
+          {content.cards.map((item, index) => {
+            const Icon = [PackageCheck, Truck, Clock3][index] ?? PackageCheck;
+            return (
             <Card key={item.title} className="rounded-[30px] p-6">
-              <item.icon className="h-7 w-7 text-[#4f684d]" />
+              <Icon className="h-7 w-7 text-[#4f684d]" />
               <h3 className="mt-4 font-heading text-3xl text-[#284237]">{item.title}</h3>
-              <p className="mt-3 text-base leading-7 text-ink/66">{item.copy}</p>
+              <p className="mt-3 text-base leading-7 text-ink/66">{item.body}</p>
             </Card>
-          ))}
+            );
+          })}
         </div>
 
         <MenuBrowser items={items} />

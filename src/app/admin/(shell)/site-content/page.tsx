@@ -1,9 +1,15 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  CalendarDays,
   HeartHandshake,
+  Home,
   Images,
   LayoutGrid,
+  Mail,
+  Menu,
+  Navigation,
+  ShoppingCart,
   Sparkles,
   Type,
 } from "lucide-react";
@@ -22,6 +28,14 @@ const cards = [
       "Brand name, tagline, primary booking call-to-action, and support contact info shown in the header, footer, and across pages.",
   },
   {
+    href: "/admin/site-content/shell",
+    icon: Navigation,
+    eyebrow: "Sitewide",
+    title: "Shared shell content",
+    description:
+      "Navigation labels, header strip copy, footer story copy, contact details, and social links used across the public site.",
+  },
+  {
     href: "/admin/site-content/hero",
     icon: Type,
     eyebrow: "Home page",
@@ -30,12 +44,44 @@ const cards = [
       "The headline, sub-line, body copy, and CTAs that appear above the fold on the public home page.",
   },
   {
+    href: "/admin/site-content/home",
+    icon: Home,
+    eyebrow: "Home page",
+    title: "Home page sections",
+    description:
+      "Proof stats, pillars, section headings, image labels, service copy, booking steps, testimonials framing, and final CTA copy.",
+  },
+  {
     href: "/admin/site-content/pathway-cards",
     icon: LayoutGrid,
     eyebrow: "Home page",
     title: "Pathway cards",
     description:
       "The three feature cards below the hero that guide visitors into pickup, cart service, or upcoming events.",
+  },
+  {
+    href: "/admin/site-content/menu",
+    icon: Menu,
+    eyebrow: "Menu page",
+    title: "Menu page copy",
+    description:
+      "The public Menu page heading, intro card, and support cards that frame the editable menu items.",
+  },
+  {
+    href: "/admin/site-content/events-page",
+    icon: CalendarDays,
+    eyebrow: "Events page",
+    title: "Events page copy",
+    description:
+      "The public Events page heading and explanatory cards that frame the editable event calendar.",
+  },
+  {
+    href: "/admin/site-content/cart-service",
+    icon: ShoppingCart,
+    eyebrow: "Cart Service page",
+    title: "Cart Service content",
+    description:
+      "The public Cart Service page heading, gallery images, included list, service chips, and quote CTA.",
   },
   {
     href: "/admin/site-content/gallery",
@@ -52,6 +98,14 @@ const cards = [
     title: "About content",
     description:
       "The public About page story, supporting photos, and three value cards that introduce the brand.",
+  },
+  {
+    href: "/admin/site-content/contact",
+    icon: Mail,
+    eyebrow: "Contact page",
+    title: "Contact page copy",
+    description:
+      "The public Contact page heading, planning copy, expectation text, and contact-detail cards around the quote form.",
   },
 ] as const;
 

@@ -127,3 +127,194 @@ export type AboutPageContent = {
   images: AboutImage[];
   featureCards: [AboutFeatureCard, AboutFeatureCard, AboutFeatureCard];
 };
+
+export type MarketingPageKey =
+  | "shell"
+  | "home"
+  | "menu"
+  | "events"
+  | "cart-service"
+  | "contact";
+
+export type EditableImage = {
+  image_url: string;
+  alt_text: string;
+};
+
+export type ShellNavigationItem = {
+  title: string;
+  href: string;
+};
+
+export type ShellMarketingContent = {
+  navigation: ShellNavigationItem[];
+  header_top_left: string;
+  header_top_right: string;
+  booking_cta_label: string;
+  booking_cta_target: string;
+  footer_cta_eyebrow: string;
+  footer_cta_title: string;
+  footer_description: string;
+  location: string;
+  phone: string;
+  email: string;
+  instagram_label: string;
+  instagram_url: string;
+};
+
+export type MarketingStat = {
+  label: string;
+  value: string;
+  note: string;
+};
+
+export type MarketingCard = {
+  title: string;
+  body: string;
+};
+
+export type HomePageMarketingContent = {
+  hero_badge: string;
+  hero_kicker: string;
+  hero_main_image: EditableImage;
+  hero_main_image_left_label: string;
+  hero_main_image_right_label: string;
+  hero_feature_image: EditableImage;
+  hero_feature_eyebrow: string;
+  hero_feature_title: string;
+  hero_service_cards: string[];
+  proof_stats: MarketingStat[];
+  pillars: MarketingCard[];
+  menu_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    support_eyebrow: string;
+    support_title: string;
+    support_points: string[];
+    cta_label: string;
+    cta_target: string;
+  };
+  pathway_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+  booking_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    steps: string[];
+    cards: MarketingCard[];
+  };
+  cart_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    highlights: string[];
+    cta_label: string;
+    cta_target: string;
+  };
+  events_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    cta_label: string;
+    cta_target: string;
+  };
+  testimonials_section: {
+    eyebrow: string;
+    title: string;
+    description: string;
+  };
+  final_cta: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    secondary_cta_label: string;
+    secondary_cta_target: string;
+  };
+};
+
+export type MenuPageMarketingContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  intro_badge: string;
+  intro_title: string;
+  intro_body: string;
+  cards: MarketingCard[];
+};
+
+export type EventsPageMarketingContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  cards: Array<{
+    eyebrow: string;
+    body: string;
+  }>;
+};
+
+export type CartServicePageMarketingContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  gallery: EditableImage[];
+  included_title: string;
+  highlights: string[];
+  service_chips: string[];
+  cta_label: string;
+  cta_target: string;
+};
+
+export type ContactPageMarketingContent = {
+  eyebrow: string;
+  title: string;
+  description: string;
+  planning_title: string;
+  planning_body: string;
+  contact_cards: Array<{
+    label: string;
+    value: string;
+  }>;
+  quote_form: {
+    success_title: string;
+    success_body: string;
+    success_button_label: string;
+    header_eyebrow: string;
+    header_title: string;
+    header_description: string;
+    header_badge: string;
+    name_label: string;
+    email_label: string;
+    phone_label: string;
+    event_date_label: string;
+    event_type_label: string;
+    event_type_placeholder: string;
+    guests_label: string;
+    services_label: string;
+    message_label: string;
+    message_optional_label: string;
+    message_placeholder: string;
+    submit_label: string;
+    submitting_label: string;
+  };
+};
+
+export type MarketingPageContentByKey = {
+  shell: ShellMarketingContent;
+  home: HomePageMarketingContent;
+  menu: MenuPageMarketingContent;
+  events: EventsPageMarketingContent;
+  "cart-service": CartServicePageMarketingContent;
+  contact: ContactPageMarketingContent;
+};
+
+export type MarketingPageContentRecord<TKey extends MarketingPageKey = MarketingPageKey> = {
+  tenant_id: string;
+  page_key: TKey;
+  content: MarketingPageContentByKey[TKey];
+  updated_at: string;
+  updated_by: string | null;
+};

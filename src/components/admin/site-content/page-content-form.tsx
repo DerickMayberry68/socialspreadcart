@@ -1,0 +1,376 @@
+"use client";
+
+import * as React from "react";
+import { toast } from "sonner";
+
+import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
+import type {
+  MarketingPageContentByKey,
+  MarketingPageKey,
+} from "@/lib/types/site-content";
+
+type EditableValue =
+  | string
+  | number
+  | boolean
+  | null
+  | EditableValue[]
+  | { [key: string]: EditableValue };
+
+type PageContentResponse<TKey extends MarketingPageKey> = {
+  ok: boolean;
+  content?: MarketingPageContentByKey[TKey];
+  message?: string;
+};
+
+const labelClass = "text-xs uppercase tracking-[0.13em] text-ink/45";
+const inputClass =
+  "w-full rounded-[16px] border border-sage/15 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-sage focus:ring-1 focus:ring-sage";
+const textareaClass = `${inputClass} min-h-28 resize-y`;
+
+function labelize(key: string) {
+  return key.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function cloneValue<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function makeEmptyLike(value: EditableValue): EditableValue {
+  if (typeof value === "string") return "";
+  if (typeof value === "number") return 0;
+  if (typeof value === "boolean") return false;
+  if (Array.isArray(value)) return [];
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [key, makeEmptyLike(entry)]),
+    );
+  }
+  return "";
+}
+
+function setAtPath(
+  value: EditableValue,
+  path: Array<string | number>,
+  nextValue: EditableValue,
+): EditableValue {
+  if (path.length === 0) return nextValue;
+
+  const [head, ...rest] = path;
+  if (Array.isArray(value)) {
+    return value.map((item, index) =>
+      index === head ? setAtPath(item, rest, nextValue) : item,
+    );
+  }
+
+  if (value && typeof value === "object") {
+    return {
+      ...value,
+      [head]: setAtPath(value[String(head)], rest, nextValue),
+    };
+  }
+
+  return value;
+}
+
+function addArrayItem(value: EditableValue, path: Array<string | number>) {
+  const update = (current: EditableValue, remaining: Array<string | number>): EditableValue => {
+    if (remaining.length === 0 && Array.isArray(current)) {
+      const template = current[0] ?? "";
+      return [...current, makeEmptyLike(template)];
+    }
+
+    const [head, ...rest] = remaining;
+    if (Array.isArray(current)) {
+      return current.map((item, index) =>
+        index === head ? update(item, rest) : item,
+      );
+    }
+
+    if (current && typeof current === "object") {
+      return {
+        ...current,
+        [head]: update(current[String(head)], rest),
+      };
+    }
+
+    return current;
+  };
+
+  return update(value, path);
+}
+
+function removeArrayItem(
+  value: EditableValue,
+  path: Array<string | number>,
+  removeIndex: number,
+) {
+  const update = (current: EditableValue, remaining: Array<string | number>): EditableValue => {
+    if (remaining.length === 0 && Array.isArray(current)) {
+      return current.filter((_, index) => index !== removeIndex);
+    }
+
+    const [head, ...rest] = remaining;
+    if (Array.isArray(current)) {
+      return current.map((item, index) =>
+        index === head ? update(item, rest) : item,
+      );
+    }
+
+    if (current && typeof current === "object") {
+      return {
+        ...current,
+        [head]: update(current[String(head)], rest),
+      };
+    }
+
+    return current;
+  };
+
+  return update(value, path);
+}
+
+async function readJsonResponse<T>(response: Response): Promise<T | null> {
+  const text = await response.text();
+  if (!text) return null;
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return null;
+  }
+}
+
+function FieldEditor({
+  name,
+  value,
+  path,
+  onChange,
+  onAddItem,
+  onRemoveItem,
+}: {
+  name: string;
+  value: EditableValue;
+  path: Array<string | number>;
+  onChange: (path: Array<string | number>, value: EditableValue) => void;
+  onAddItem: (path: Array<string | number>) => void;
+  onRemoveItem: (path: Array<string | number>, index: number) => void;
+}) {
+  if (Array.isArray(value)) {
+    return (
+      <div className="space-y-3 rounded-[22px] border border-sage/10 bg-[#fcf8f1] p-4">
+        <div className="flex items-center justify-between gap-4">
+          <span className={labelClass}>{labelize(name)}</span>
+          <button
+            type="button"
+            className="rounded-full border border-sage/20 px-3 py-1 text-xs uppercase tracking-[0.12em] text-sage"
+            onClick={() => onAddItem(path)}
+          >
+            Add
+          </button>
+        </div>
+        <div className="space-y-4">
+          {value.map((item, index) => (
+            <div key={index} className="rounded-[18px] bg-white p-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="text-xs uppercase tracking-[0.16em] text-ink/45">
+                  {labelize(name)} {index + 1}
+                </p>
+                {value.length > 1 ? (
+                  <button
+                    type="button"
+                    className="text-xs uppercase tracking-[0.12em] text-[#a15e50]"
+                    onClick={() => onRemoveItem(path, index)}
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+              <FieldEditor
+                name={`${name}_${index + 1}`}
+                value={item}
+                path={[...path, index]}
+                onChange={onChange}
+                onAddItem={onAddItem}
+                onRemoveItem={onRemoveItem}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (value && typeof value === "object") {
+    return (
+      <fieldset className="grid gap-4 rounded-[22px] border border-sage/10 bg-[#fcf8f1] p-4">
+        <legend className={labelClass}>{labelize(name)}</legend>
+        {Object.entries(value).map(([key, entry]) => (
+          <FieldEditor
+            key={key}
+            name={key}
+            value={entry}
+            path={[...path, key]}
+            onChange={onChange}
+            onAddItem={onAddItem}
+            onRemoveItem={onRemoveItem}
+          />
+        ))}
+      </fieldset>
+    );
+  }
+
+  const stringValue = value == null ? "" : String(value);
+  const isLong =
+    stringValue.length > 90 ||
+    /body|description|title|highlights|steps|points|footer_description/.test(name);
+  const isUrl = /url|target|href/.test(name);
+
+  return (
+    <label className="space-y-2">
+      <span className={labelClass}>{labelize(name)}</span>
+      {isLong && !isUrl ? (
+        <textarea
+          value={stringValue}
+          onChange={(event) => onChange(path, event.target.value)}
+          className={textareaClass}
+        />
+      ) : (
+        <input
+          value={stringValue}
+          onChange={(event) => onChange(path, event.target.value)}
+          className={inputClass}
+        />
+      )}
+    </label>
+  );
+}
+
+export function PageContentForm<TKey extends MarketingPageKey>({
+  pageKey,
+  title,
+  description,
+  initial,
+}: {
+  pageKey: TKey;
+  title: string;
+  description: string;
+  initial: MarketingPageContentByKey[TKey];
+}) {
+  const [form, setForm] = React.useState<EditableValue>(() =>
+    cloneValue(initial) as EditableValue,
+  );
+  const [saving, setSaving] = React.useState(false);
+  const [handledError, setHandledError] = React.useState<{
+    title: string;
+    message: string;
+  } | null>(null);
+
+  const update = React.useCallback(
+    (path: Array<string | number>, value: EditableValue) => {
+      setForm((current) => setAtPath(current, path, value));
+    },
+    [],
+  );
+
+  const addItem = React.useCallback((path: Array<string | number>) => {
+    setForm((current) => addArrayItem(current, path));
+  }, []);
+
+  const removeItem = React.useCallback(
+    (path: Array<string | number>, index: number) => {
+      setForm((current) => removeArrayItem(current, path, index));
+    },
+    [],
+  );
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setSaving(true);
+
+    try {
+      const response = await fetch(`/api/admin/site-content/page-content/${pageKey}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: form }),
+        credentials: "same-origin",
+      });
+
+      const result = await readJsonResponse<PageContentResponse<TKey>>(response);
+
+      if (!response.ok || !result?.ok || !result.content) {
+        setHandledError({
+          title: "Page content save failed",
+          message:
+            result?.message ??
+            `Failed to save page content. Please refresh and try again. (${response.status})`,
+        });
+        return;
+      }
+
+      setForm(cloneValue(result.content) as EditableValue);
+      toast.success(`${title} updated. Public pages will refresh.`);
+    } catch {
+      setHandledError({
+        title: "Page content save unavailable",
+        message:
+          "Could not reach the page content save endpoint. Please refresh the admin page and try again.",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <>
+      <HandledErrorAlert
+        open={handledError !== null}
+        title={handledError?.title}
+        message={handledError?.message ?? ""}
+        onOpenChange={(open) => {
+          if (!open) setHandledError(null);
+        }}
+      />
+      <form
+        onSubmit={handleSubmit}
+        className="grid gap-5 rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft"
+      >
+        <div>
+          <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
+            Page content
+          </p>
+          <h2 className="mt-3 font-heading text-3xl text-[#284237]">{title}</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
+            {description}
+          </p>
+        </div>
+
+        <FieldEditor
+          name={pageKey}
+          value={form}
+          path={[]}
+          onChange={update}
+          onAddItem={addItem}
+          onRemoveItem={removeItem}
+        />
+
+        <p className="text-xs leading-5 text-ink/50">
+          Link fields accept site paths that start with <code>/</code>,{" "}
+          <code>tel:</code>, <code>mailto:</code>, or full{" "}
+          <code>https://</code> URLs. Image fields should include descriptive
+          alt text so the public page stays accessible.
+        </p>
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="submit"
+            disabled={saving}
+            className="rounded-full bg-sage px-6 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-cream transition hover:bg-sage-700 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Save content"}
+          </button>
+        </div>
+      </form>
+    </>
+  );
+}

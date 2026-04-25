@@ -7,12 +7,15 @@ import { SiteContentService } from "@/services/site-content-service";
 import { TestimonialService } from "@/services/testimonial-service";
 
 export default async function IndexPage() {
-  const [menuItems, events, testimonials, gallery, content] = await Promise.all([
+  const [menuItems, events, testimonials, gallery, content, pageContent] = await Promise.all([
     withCurrentTenant(MenuService.listMenuItems),
     withCurrentTenant(EventService.listEvents),
     withCurrentTenant(TestimonialService.listTestimonials),
     getGalleryItems(),
     withCurrentTenant(SiteContentService.loadHomePageContent),
+    withCurrentTenant((tenantId) =>
+      SiteContentService.getMarketingPageContent(tenantId, "home"),
+    ),
   ]);
 
   return (
@@ -22,6 +25,7 @@ export default async function IndexPage() {
       testimonials={testimonials}
       gallery={gallery}
       content={content}
+      marketingContent={pageContent.content}
     />
   );
 }

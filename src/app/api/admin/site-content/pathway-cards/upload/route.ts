@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
 import { requireTenantAdmin } from "@/lib/auth/require-tenant-admin";
-import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
+import {
+  getSupabaseServiceRoleClient,
+  SUPABASE_SERVICE_ROLE_MISSING_MESSAGE,
+} from "@/lib/supabase/service";
 import { slugify } from "@/lib/utils";
 
 const PATHWAY_IMAGE_BUCKET = "boards";
@@ -18,7 +21,7 @@ export async function POST(request: Request) {
   const supabase = getSupabaseServiceRoleClient();
   if (!supabase) {
     return NextResponse.json(
-      { ok: false, message: "Supabase storage is not configured." },
+      { ok: false, message: SUPABASE_SERVICE_ROLE_MISSING_MESSAGE },
       { status: 500 },
     );
   }
