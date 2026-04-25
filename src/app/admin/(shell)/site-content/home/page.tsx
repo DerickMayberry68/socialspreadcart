@@ -38,6 +38,7 @@ export default async function AdminHomePageContentPage() {
         title="Home page sections"
         description="These fields control proof stats, pillars, section headings, service copy, images, and CTA text on the public Home page."
         initial={record.content}
+        floatingSaveButton={true}
       />
     </div>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 
 import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
@@ -9,7 +10,7 @@ import type {
   MarketingPageKey,
 } from "@/lib/types/site-content";
 
-type EditableValue =
+export type EditableValue =
   | string
   | number
   | boolean
@@ -141,10 +142,99 @@ async function readJsonResponse<T>(response: Response): Promise<T | null> {
   }
 }
 
-function FieldEditor({
+type UploadJson = {
+  ok?: boolean;
+  imageUrl?: string;
+  message?: string;
+};
+
+function ImageUrlField({
+  name,
+  stringValue,
+  path,
+  pageKey,
+  onChange,
+}: {
+  name: string;
+  stringValue: string;
+  path: Array<string | number>;
+  pageKey: MarketingPageKey;
+  onChange: (path: Array<string | number>, value: EditableValue) => void;
+}) {
+  const [uploading, setUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("pageKey", pageKey);
+
+    try {
+      const response = await fetch("/api/admin/site-content/page-content/upload", {
+        method: "POST",
+        body: formData,
+        credentials: "same-origin",
+      });
+      const result = await readJsonResponse<UploadJson>(response);
+
+      if (!response.ok || !result?.ok || !result.imageUrl) {
+        toast.error(
+          result?.message ??
+            `Upload failed (${response.status}). Check storage configuration and try again.`,
+        );
+        return;
+      }
+
+      onChange(path, result.imageUrl);
+      toast.success("Image URL filled from upload.");
+    } catch {
+      toast.error("Could not reach the upload endpoint.");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  return (
+    <label className="space-y-2">
+      <span className={labelClass}>{labelize(name)}</span>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
+        <input
+          value={stringValue}
+          onChange={(e) => onChange(path, e.target.value)}
+          className={`${inputClass} min-w-0 sm:flex-1`}
+          placeholder="https://… or upload an image"
+        />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => fileInputRef.current?.click()}
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full border border-sage/20 bg-[#fcf8f1] px-4 py-3 text-xs font-medium uppercase tracking-[0.12em] text-sage transition hover:border-sage/40 hover:bg-sage-50 disabled:opacity-50"
+        >
+          <ImagePlus className="h-4 w-4" aria-hidden="true" />
+          {uploading ? "Uploading…" : "Choose image"}
+        </button>
+      </div>
+    </label>
+  );
+}
+
+export function FieldEditor({
   name,
   value,
   path,
+  pageKey,
   onChange,
   onAddItem,
   onRemoveItem,
@@ -152,6 +242,7 @@ function FieldEditor({
   name: string;
   value: EditableValue;
   path: Array<string | number>;
+  pageKey: MarketingPageKey;
   onChange: (path: Array<string | number>, value: EditableValue) => void;
   onAddItem: (path: Array<string | number>) => void;
   onRemoveItem: (path: Array<string | number>, index: number) => void;
@@ -190,6 +281,7 @@ function FieldEditor({
                 name={`${name}_${index + 1}`}
                 value={item}
                 path={[...path, index]}
+                pageKey={pageKey}
                 onChange={onChange}
                 onAddItem={onAddItem}
                 onRemoveItem={onRemoveItem}
@@ -211,6 +303,7 @@ function FieldEditor({
             name={key}
             value={entry}
             path={[...path, key]}
+            pageKey={pageKey}
             onChange={onChange}
             onAddItem={onAddItem}
             onRemoveItem={onRemoveItem}
@@ -225,6 +318,18 @@ function FieldEditor({
     stringValue.length > 90 ||
     /body|description|title|highlights|steps|points|footer_description/.test(name);
   const isUrl = /url|target|href/.test(name);
+
+  if (name === "image_url") {
+    return (
+      <ImageUrlField
+        name={name}
+        stringValue={stringValue}
+        path={path}
+        pageKey={pageKey}
+        onChange={onChange}
+      />
+    );
+  }
 
   return (
     <label className="space-y-2">
@@ -251,11 +356,20 @@ export function PageContentForm<TKey extends MarketingPageKey>({
   title,
   description,
   initial,
+  floatingSaveButton = true,
+  children,
 }: {
   pageKey: TKey;
   title: string;
   description: string;
   initial: MarketingPageContentByKey[TKey];
+  floatingSaveButton?: boolean;
+  children?: ((props: {
+    form: EditableValue;
+    update: (path: Array<string | number>, value: EditableValue) => void;
+    addItem: (path: Array<string | number>) => void;
+    removeItem: (path: Array<string | number>, index: number) => void;
+  }) => React.ReactNode);
 }) {
   const [form, setForm] = React.useState<EditableValue>(() =>
     cloneValue(initial) as EditableValue,
@@ -345,27 +459,38 @@ export function PageContentForm<TKey extends MarketingPageKey>({
           </p>
         </div>
 
-        <FieldEditor
-          name={pageKey}
-          value={form}
-          path={[]}
-          onChange={update}
-          onAddItem={addItem}
-          onRemoveItem={removeItem}
-        />
+        {children ? (
+          children({ form, update, addItem, removeItem })
+        ) : (
+          <FieldEditor
+            name={pageKey}
+            value={form}
+            path={[]}
+            pageKey={pageKey}
+            onChange={update}
+            onAddItem={addItem}
+            onRemoveItem={removeItem}
+          />
+        )}
 
         <p className="text-xs leading-5 text-ink/50">
           Link fields accept site paths that start with <code>/</code>,{" "}
           <code>tel:</code>, <code>mailto:</code>, or full{" "}
-          <code>https://</code> URLs. Image fields should include descriptive
-          alt text so the public page stays accessible.
+          <code>https://</code> URLs. For <strong>Image url</strong> rows, use{" "}
+          <strong>Choose image</strong> to upload to storage and fill the URL,
+          or paste a URL manually. Add descriptive alt text on the next field
+          for accessibility.
         </p>
 
-        <div className="flex justify-end pt-2">
+        <div className={floatingSaveButton ? "" : "flex justify-end pt-2"}>
           <button
             type="submit"
             disabled={saving}
-            className="rounded-full bg-sage px-6 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-cream transition hover:bg-sage-700 disabled:opacity-50"
+            className={
+              floatingSaveButton
+                ? "fixed bottom-8 right-8 z-50 rounded-full bg-sage px-8 py-4 text-xs font-medium uppercase tracking-[0.15em] text-cream shadow-xl transition hover:-translate-y-1 hover:bg-sage-700 hover:shadow-2xl disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-xl"
+                : "rounded-full bg-sage px-6 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-cream transition hover:bg-sage-700 disabled:opacity-50"
+            }
           >
             {saving ? "Saving..." : "Save content"}
           </button>

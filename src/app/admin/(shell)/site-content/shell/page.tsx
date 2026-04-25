@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { PageContentForm } from "@/components/admin/site-content/page-content-form";
+import { ShellContentForm } from "@/components/admin/site-content/shell-content-form";
 import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
@@ -33,12 +33,7 @@ export default async function AdminShellContentPage() {
         </p>
       </div>
 
-      <PageContentForm
-        pageKey="shell"
-        title="Shared site shell"
-        description="These fields appear on every public marketing page."
-        initial={record.content}
-      />
+      <ShellContentForm initial={record.content} />
     </div>
   );
 }

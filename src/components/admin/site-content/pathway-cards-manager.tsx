@@ -311,15 +311,15 @@ export function PathwayCardsManager({
         ))}
       </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-full bg-sage px-6 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-cream transition hover:bg-sage-700 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save pathway cards"}
-        </button>
-      </div>
+        <div className="">
+          <button
+            type="submit"
+            disabled={saving}
+            className="fixed bottom-8 right-8 z-50 rounded-full bg-sage px-8 py-4 text-xs font-medium uppercase tracking-[0.15em] text-cream shadow-xl transition hover:-translate-y-1 hover:bg-sage-700 hover:shadow-2xl disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-xl"
+          >
+            {saving ? "Saving..." : "Save pathway cards"}
+          </button>
+        </div>
       </form>
     </>
   );
