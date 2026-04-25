@@ -197,7 +197,7 @@ export const DEFAULT_EVENTS_PAGE_MARKETING_CONTENT: EventsPageMarketingContent =
     {
       eyebrow: "Always current",
       body:
-        "Dates are managed through Supabase so future events can be added quickly by the admin team.",
+        "We regularly update our calendar with new dates and locations so you never miss a chance to catch the cart.",
     },
     {
       eyebrow: "Check back anytime",
