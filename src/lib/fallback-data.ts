@@ -184,12 +184,12 @@ export const fallbackAboutContent = {
   title:
     "A Bentonville cart serving cheerful snacks, sips, and event-ready grazing.",
   description:
-    "The Social Spread Cart exists for hosts who want the event to feel thoughtful and memorable without adding more stress to the planning process.",
+    "The Social Spread Cart is here to make your event unforgettable with incredible charcuterie, drinks, and snacks—always stress-free.",
   story_badge: "Bentonville based",
   story_title:
     "Charcuterie, dirty soda, and cart service for hosts across Northwest Arkansas.",
   story_body: [
-    "The Social Spread Cart was created for hosts who want something more personal than standard catering. Menus and cart setups are planned to be approachable, generous, and easy for guests to enjoy.",
+    "The Social Spread Cart brings a personal, premium touch to your event that standard catering can't match. Every order is crafted to delight your guests.",
     "From take-home orders to full event setups, the current offer centers on large charcuterie boxes, charcuterie cups, dirty soda, and a small set of cart services including a mini pancake bar, bartending, and event-ready station setups.",
     "We serve Bentonville and nearby Northwest Arkansas communities with pickup items, local delivery, and on-site cart experiences.",
   ],
@@ -211,14 +211,14 @@ export const fallbackAboutImages = cartGallery.map((image_url, index) => ({
 export const fallbackAboutFeatureCards = [
   {
     display_order: 1,
-    title: "Approachable service",
-    body: "Clear planning and friendly service help hosts feel ready before guests arrive.",
+    title: "Simplified hosting",
+    body: "An easy ordering process and friendly service means you skip the stress before guests arrive.",
     icon_key: "heart-handshake",
   },
   {
     display_order: 2,
-    title: "Bright details",
-    body: "Colorful drinks, generous boards, and cheerful service bring energy to the table.",
+    title: "Premium presentation",
+    body: "Colorful drinks, gourmet boards, and cheerful service bring incredible energy to your table.",
     icon_key: "sparkles",
   },
   {

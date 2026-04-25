@@ -18,7 +18,7 @@ export const DEFAULT_SHELL_MARKETING_CONTENT: ShellMarketingContent = {
   header_top_right: "Host-friendly favorites for gatherings of every size",
   booking_cta_label: "Book the Cart",
   booking_cta_target: "/contact",
-  footer_cta_eyebrow: "Let's make hosting feel lovely",
+  footer_cta_eyebrow: "Host an unforgettable event",
   footer_cta_title:
     "Warm hospitality, joyful details, and a setup guests remember.",
   footer_description:
@@ -56,32 +56,32 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
   ],
   pillars: [
     {
-      title: "Good food, clearly planned",
+      title: "Premium presentation, simplified",
       body:
-        "Clear lead times, thoughtful presentation, and simple booking details help you feel prepared from the start.",
+        "Enjoy clear booking options, beautiful presentation, and an easy ordering process straight from the start.",
     },
     {
-      title: "Easy for guests to enjoy",
+      title: "A favorite for every guest",
       body:
-        "Colorful drinks, generous grazing, and friendly service give guests something fun to gather around.",
+        "Keep the party energized with beautiful charcuterie, refreshing drinks, and an irresistible presentation.",
     },
     {
-      title: "Flexible for real hosting",
+      title: "Perfect for any occasion",
       body:
-        "Choose pickup, local delivery, or full cart service for showers, launches, school events, parties, and more.",
+        "Whether it's a shower, corporate launch, school event, or party, we have the perfect pickup or cart option for you.",
     },
   ],
   menu_section: {
     eyebrow: "Signature Favorites",
     title: "Guest favorites, ready for pickup or event service.",
     description:
-      "Choose from crowd-pleasing charcuterie, colorful drinks, and guest-friendly add-ons that feel special without making hosting complicated.",
+      "Select from our incredibly popular charcuterie, signature drinks, and event-ready snacks that your guests will absolutely love.",
     support_eyebrow: "Made for Easy Hosting",
     support_title: "Favorites that make hosting easier.",
     support_points: [
-      "Grazing and drink options fit showers, parties, launches, and school gatherings.",
-      "Clear lead times and dietary notes help you plan pickup, delivery, or cart service with confidence.",
-      "Guest-friendly portions and flexible add-ons make it easier to choose the right fit for your event.",
+      "Options crafted for showers, parties, launches, and school gatherings.",
+      "Clear ordering options and dietary accommodations make scheduling a breeze.",
+      "Enjoy flexible add-ons and party-sized portions to build exactly what you need.",
     ],
     cta_label: "See the Full Menu",
     cta_target: "/menu",
@@ -157,11 +157,11 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
 export const DEFAULT_MENU_PAGE_MARKETING_CONTENT: MenuPageMarketingContent = {
   eyebrow: "Menu",
   title:
-    "Current pickup offerings for hosts who want something colorful and easy to order.",
+    "Delicious pickup offerings for hosts who want premium local treats and easy ordering.",
   description:
-    "The menu focuses on guest-friendly favorites for pickups, parties, and local events.",
+    "Browse our most popular items and signature drinks, perfect for pickups, parties, and local events.",
   intro_badge: "Easy to choose",
-  intro_title: "A focused menu for simple ordering.",
+  intro_title: "Signature items for quick ordering.",
   intro_body:
     "Most orders require 24 to 48 hours of notice, and the best sellers are built to travel well and make hosting easier.",
   cards: [
