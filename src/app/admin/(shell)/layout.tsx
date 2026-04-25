@@ -89,7 +89,7 @@ export default function AdminShellLayout({
         <div className="flex min-h-screen flex-col">
           <div className="border-b border-sage/10 bg-white/50 px-6 py-4 backdrop-blur sm:px-8">
             <p className="text-xs uppercase tracking-[0.24em] text-ink/45">
-              Calm admin, clear decisions, polished follow-through
+              Calm admin, clear decisions, simple follow-through
             </p>
           </div>
           <main className="flex-1 p-6 sm:p-8">{children}</main>

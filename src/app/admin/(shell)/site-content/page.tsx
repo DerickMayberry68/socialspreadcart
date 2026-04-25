@@ -57,7 +57,7 @@ const cards = [
     eyebrow: "Home page",
     title: "Pathway cards",
     description:
-      "The three feature cards below the hero that guide visitors into pickup, cart service, or upcoming events.",
+      "The three feature cards below the hero for pickup, cart service, or upcoming events.",
   },
   {
     href: "/admin/site-content/menu",

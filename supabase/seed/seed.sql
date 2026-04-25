@@ -5,7 +5,7 @@ values
     'large-charcuterie-box',
     'Large Charcuterie Box',
     'large-charcuterie-box',
-    'Our largest charcuterie box, styled for gifting, hosting, and easy pickup when you want a polished presentation without full-service catering.',
+    'Our largest charcuterie box for gifting, hosting, and easy pickup when you want a generous spread without full-service catering.',
     12000,
     'Large',
     array['Vegetarian Option', 'Gluten-Free Option'],
@@ -19,7 +19,7 @@ values
     'charcuterie-cups',
     'Charcuterie Cups',
     'charcuterie-cups',
-    'Individual charcuterie cups priced per guest and designed for cocktail hours, school events, pop-ups, and grab-and-go hosting.',
+    'Individual charcuterie cups priced per guest for cocktail hours, school events, pop-ups, and grab-and-go hosting.',
     800,
     'Single',
     array['Vegetarian Option'],
@@ -62,7 +62,7 @@ values
     'Argenta Evening Market',
     '2026-05-02T18:00:00-05:00',
     '8th Street Market, Bentonville',
-    'An evening service built around charcuterie, dirty soda, and polished grab-and-go options for shoppers and guests.',
+    'An evening service with charcuterie, dirty soda, and grab-and-go options for shoppers and guests.',
     '/client/cart-dirty-soda-hero.jpg',
     '/contact#quote-form'
   ),
@@ -71,7 +71,7 @@ values
     'Bridal Showcase Tasting',
     '2026-05-23T13:00:00-05:00',
     'Downtown Bentonville Event Loft',
-    'A tasting experience for couples exploring charcuterie, mini pancake bar, bartending, and specialty cart service for wedding weekends.',
+    'A tasting for couples exploring charcuterie, mini pancake bar, bartending, and specialty cart service for wedding weekends.',
     '/client/dirty-soda-and-charcuterie-box.jpg',
     '/contact#quote-form'
   )
@@ -84,13 +84,13 @@ values
     'testimonial-1',
     'Madison R.',
     'Bridal Shower Host',
-    'Every detail felt polished and intentional. The cart became part of the decor and the food disappeared in minutes.'
+    'Everything was ready when guests arrived. The cart became part of the decor and the food disappeared in minutes.'
   ),
   (
     'testimonial-2',
     'Jordan T.',
     'Corporate Event Planner',
-    'Professional, beautiful, and easy to work with. The Social Spread Cart made our client event feel elevated without stress.'
+    'Professional, beautiful, and easy to work with. The Social Spread Cart made our client event feel special without stress.'
   ),
   (
     'testimonial-3',

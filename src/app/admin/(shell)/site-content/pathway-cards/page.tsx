@@ -26,8 +26,8 @@ export default async function AdminPathwayCardsPage() {
           Pathway cards
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
-          The three feature cards that sit below the hero, guiding visitors to
-          pickup, cart service, and events.
+          The three feature cards that sit below the hero for pickup, cart
+          service, and events.
         </p>
       </div>
 

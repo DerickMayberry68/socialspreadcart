@@ -15,14 +15,14 @@ import type {
 export const DEFAULT_SHELL_MARKETING_CONTENT: ShellMarketingContent = {
   navigation: navigation.map((item) => ({ ...item })),
   header_top_left: "Bentonville - Pickup, delivery, and styled cart service",
-  header_top_right: "Host-friendly favorites with playful polish",
+  header_top_right: "Host-friendly favorites for gatherings of every size",
   booking_cta_label: "Book the Cart",
   booking_cta_target: "/contact",
   footer_cta_eyebrow: "Let's make hosting feel lovely",
   footer_cta_title:
     "Warm hospitality, joyful details, and a setup guests remember.",
   footer_description:
-    "A mobile snack and beverage cart serving Bentonville and the wider NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini pancake bar service, and polished event setups.",
+    "A mobile snack and beverage cart serving Bentonville and the wider NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini pancake bar service, and event setups.",
   location: siteConfig.location,
   phone: siteConfig.phone,
   email: siteConfig.email,
@@ -44,7 +44,7 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
     alt_text: "Charcuterie box",
   },
   hero_feature_eyebrow: "Best seller",
-  hero_feature_title: "Grazing that feels elevated, abundant, and easy.",
+  hero_feature_title: "Generous grazing for parties, showers, and local events.",
   hero_service_cards: [
     "Pickup, delivery, or full event setup",
     "Colorful cart moments guests remember",
@@ -56,67 +56,67 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
   ],
   pillars: [
     {
-      title: "Elegant enough to trust",
+      title: "Good food, clearly planned",
       body:
-        "Clear lead times, polished presentation, and straightforward booking details make the experience feel reassuring from the first scroll.",
+        "Clear lead times, thoughtful presentation, and simple booking details help you feel prepared from the start.",
     },
     {
-      title: "Joyful enough to share",
+      title: "Easy for guests to enjoy",
       body:
-        "Colorful drinks, generous grazing, and cheerful photography bring a bright premium energy without losing calm.",
+        "Colorful drinks, generous grazing, and friendly service give guests something fun to gather around.",
     },
     {
-      title: "Flexible enough for real hosting",
+      title: "Flexible for real hosting",
       body:
-        "Pickup, delivery, and full cart service let customers find the right level of support for showers, launches, school events, and parties.",
+        "Choose pickup, local delivery, or full cart service for showers, launches, school events, parties, and more.",
     },
   ],
   menu_section: {
     eyebrow: "Signature Favorites",
-    title: "Merchandised like a treat, explained like a service you can trust.",
+    title: "Guest favorites, ready for pickup or event service.",
     description:
-      "The menu stays intentionally focused: crowd-pleasing charcuterie, colorful drinks, and guest-friendly add-ons that feel special without becoming complicated.",
-    support_eyebrow: "Why this works",
-    support_title: "Clear choices, real imagery, and guest-ready expectations.",
+      "Choose from crowd-pleasing charcuterie, colorful drinks, and guest-friendly add-ons that feel special without making hosting complicated.",
+    support_eyebrow: "Made for Easy Hosting",
+    support_title: "Favorites that make hosting easier.",
     support_points: [
-      "Real-event photography shows the feeling instead of relying on generic catering tropes.",
-      "Lead times and dietary notes appear early, which lowers hesitation.",
-      "Pickup favorites and event service sit side by side so shoppers can self-sort quickly.",
+      "Grazing and drink options fit showers, parties, launches, and school gatherings.",
+      "Clear lead times and dietary notes help you plan pickup, delivery, or cart service with confidence.",
+      "Guest-friendly portions and flexible add-ons make it easier to choose the right fit for your event.",
     ],
     cta_label: "See the Full Menu",
     cta_target: "/menu",
   },
   pathway_section: {
-    eyebrow: "How People Shop Us",
-    title: "One brand, several easy ways to say yes.",
+    eyebrow: "Ways to Order",
+    title: "Choose the service style that fits your plans.",
     description:
-      "The site now guides customers naturally whether they need a small pickup order, a styled cart service, or a reason to visit a pop-up.",
+      "Order pickup, bring the cart to your event, or catch us at a local pop-up around Northwest Arkansas.",
   },
   booking_section: {
-    eyebrow: "The Booking Feeling",
-    title: "Calm enough for planners, colorful enough for guests.",
+    eyebrow: "How It Works",
+    title: "Simple planning for event day.",
     description:
-      "Borrowing from wellness brands, the experience reduces stress through simple offers, straightforward steps, and copy that answers the question before it becomes friction.",
+      "From the first inquiry to the final setup, we keep the next step clear so you can plan with confidence.",
     steps: [
-      "Choose pickup, delivery, or a full cart service experience.",
+      "Choose pickup, delivery, or full cart service.",
       "Select the menu mix that fits your guest count and the feel of the event.",
       "We confirm timing, setup, and presentation so hosting feels lighter.",
     ],
     cards: [
       {
-        title: "Transparent lead times",
+        title: "Clear lead times",
         body:
-          "Premium brands feel more trustworthy when timing expectations are visible instead of hidden behind vague inquiry language.",
+          "Know what needs 24 to 48 hours, what may need more planning, and when to reach out for larger events.",
       },
       {
-        title: "Local and event-ready",
+        title: "Local event support",
         body:
-          "Location cues, event imagery, and clear service formats make the brand feel rooted, real, and easy to picture in a host's day.",
+          "We serve Bentonville and nearby Northwest Arkansas communities with pickup, delivery, and on-site cart service.",
       },
       {
-        title: "Editorial enough to feel premium without losing approachability.",
+        title: "Welcoming and easy to enjoy",
         body:
-          "More white space, stronger trust framing, and brighter merchandising make the site feel upscale while still playful and easy to shop.",
+          "Each setup is arranged for easy serving, clear flow, and a table or cart guests want to visit.",
       },
     ],
   },
@@ -124,31 +124,31 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
     eyebrow: "Cart Experience",
     title: "A mobile cart that feels like part hospitality, part atmosphere.",
     description:
-      "This is where the playful energy shows up most: curated menus, upbeat color, and a setup that gives events an instant focal point.",
+      "Bring the cart on site for colorful drinks, grazing service, and a friendly setup guests can visit throughout the event.",
     highlights: [...cartHighlights],
     cta_label: "Explore Cart Service",
     cta_target: "/cart-service",
   },
   events_section: {
     eyebrow: "Upcoming Pop-Ups",
-    title: "Public events stay easy to scan and easy to remember.",
+    title: "Find us at pop-ups, tastings, and community events.",
     description:
-      "A cleaner event rhythm keeps the brand feeling alive between private bookings and gives returning customers a reason to check back.",
+      "Watch for upcoming dates around Northwest Arkansas where you can grab signature sips, charcuterie cups, and seasonal favorites.",
     cta_label: "View Events Calendar",
     cta_target: "/events",
   },
   testimonials_section: {
     eyebrow: "Kind Words",
-    title: "The trust section should feel as polished as the product.",
+    title: "Hosts remember the details, and guests do too.",
     description:
-      "Testimonials work harder when the layout gives them space, warmth, and a little ceremony.",
+      "Past clients share what made ordering, setup, and serving feel simple.",
   },
   final_cta: {
     eyebrow: "Ready to book?",
     title:
-      "Build a menu that feels trustworthy, celebratory, and easy to say yes to.",
+      "Bring snacks, signature sips, and easy hospitality to your next event.",
     description:
-      "Whether you need a polished pickup order or a cart that becomes part of the event, the next step is simple.",
+      "Whether you need a pickup order or a cart at your event, the next step is simple.",
     secondary_cta_label: "See Menu Options",
     secondary_cta_target: "/menu",
   },
@@ -157,13 +157,13 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
 export const DEFAULT_MENU_PAGE_MARKETING_CONTENT: MenuPageMarketingContent = {
   eyebrow: "Menu",
   title:
-    "Current pickup offerings for hosts who want something polished, colorful, and easy to order.",
+    "Current pickup offerings for hosts who want something colorful and easy to order.",
   description:
-    "The menu focuses on a few high-confidence favorites so the experience feels curated rather than crowded.",
-  intro_badge: "Designed for quick decisions",
-  intro_title: "The best version of the menu feels edited, not endless.",
+    "The menu focuses on guest-friendly favorites for pickups, parties, and local events.",
+  intro_badge: "Easy to choose",
+  intro_title: "A focused menu for simple ordering.",
   intro_body:
-    "Most orders require 24 to 48 hours of notice, and the best sellers are built to travel well, photograph beautifully, and make hosting feel easier.",
+    "Most orders require 24 to 48 hours of notice, and the best sellers are built to travel well and make hosting easier.",
   cards: [
     {
       title: "Pickup",
@@ -187,12 +187,12 @@ export const DEFAULT_EVENTS_PAGE_MARKETING_CONTENT: EventsPageMarketingContent =
   eyebrow: "Events Calendar",
   title: "Keep up with public pop-ups, tastings, and upcoming appearances.",
   description:
-    "A live events rhythm makes the brand feel active between private bookings and gives returning guests a reason to keep checking in.",
+    "Find upcoming pop-ups, tastings, and local events where you can try seasonal favorites.",
   cards: [
     {
       eyebrow: "Easy to scan",
       body:
-        "Public events should feel discoverable at a glance, even for busy hosts planning around family or work schedules.",
+        "Dates, locations, and details are listed up front so you can plan quickly.",
     },
     {
       eyebrow: "Always current",
@@ -200,9 +200,9 @@ export const DEFAULT_EVENTS_PAGE_MARKETING_CONTENT: EventsPageMarketingContent =
         "Dates are managed through Supabase so future events can be added quickly by the admin team.",
     },
     {
-      eyebrow: "Made for return visits",
+      eyebrow: "Check back anytime",
       body:
-        "This page gives loyal customers a simple way to keep tabs on pop-ups, tastings, and seasonal moments.",
+        "Watch for pop-ups, tastings, and seasonal menu moments around Northwest Arkansas.",
     },
   ],
 };
@@ -210,9 +210,9 @@ export const DEFAULT_EVENTS_PAGE_MARKETING_CONTENT: EventsPageMarketingContent =
 export const DEFAULT_CART_SERVICE_PAGE_MARKETING_CONTENT: CartServicePageMarketingContent = {
   eyebrow: "The Cart Service",
   title:
-    "A mobile snack and beverage cart designed to feel like both the service and the scene.",
+    "A mobile snack and beverage cart for parties, school events, markets, and private gatherings.",
   description:
-    "The cart is made for showers, school events, birthdays, open houses, launch events, markets, and corporate socials where the service should feel polished and memorable.",
+    "Book the cart for showers, birthdays, open houses, launch events, markets, and corporate socials across Northwest Arkansas.",
   gallery: cartGallery.map((imageUrl, index) => ({
     image_url: imageUrl,
     alt_text:

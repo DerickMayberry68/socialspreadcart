@@ -38,7 +38,7 @@ const exampleItemTemplate: MenuFormState = {
   id: "",
   name: "Example Signature Charcuterie Box",
   description:
-    "A styled assortment of cheeses, meats, seasonal fruit, crackers, and sweet details designed for gifting, showers, and easy hosting.",
+    "An assortment of cheeses, meats, seasonal fruit, crackers, and sweet details for gifting, showers, and easy hosting.",
   price: "120.00",
   size: "Large",
   dietary: "Vegetarian Option, Gluten-Free Option",

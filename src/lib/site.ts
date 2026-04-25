@@ -113,10 +113,10 @@ export const DEFAULT_HERO_CONTENT: Omit<
   HeroContent,
   "tenant_id" | "updated_at" | "updated_by"
 > = {
-  headline: "An elevated approach to hosting, designed to be experienced.",
+  headline: "Snacks, sips, and cart service for Northwest Arkansas events.",
   sub_line: "Snacks & sips, served your way.",
   body:
-    "The Social Spread is a luxury mobile cart bringing curated bites and signature sips directly to your event so you can host effortlessly and leave a lasting impression.",
+    "The Social Spread Cart brings charcuterie, dirty soda, mini pancakes, bartending, and ice cream toppings to pickups, parties, and local events.",
   primary_cta_label: "Start Your Order",
   primary_cta_target: "/contact",
   secondary_cta_label: "Browse the Menu",
@@ -132,7 +132,7 @@ export const DEFAULT_PATHWAY_CARDS: readonly [
     display_order: 1,
     title: "Pickup for gifting and easy hosting",
     body:
-      "Order polished boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
+      "Order boxes, charcuterie cups, and bundles when you want something special without full-service catering.",
     badge: "Fastest path",
     link_target: "/menu",
     image_url: "/food/charcuterie-spread.jpg",
@@ -161,7 +161,7 @@ export const serviceDescriptions: Record<ServiceOption, string> = {
   "Charcuterie Boxes": "Hand-crafted individual grazing boxes for every guest",
   "Charcuterie Cups": "Portable cups perfect for mingling crowds",
   "Dirty Soda 4-Pack": "Four flavored craft sodas — a crowd favorite",
-  "Charcuterie Cart": "Full cart setup with curated boards and displays",
+  "Charcuterie Cart": "Full cart setup with boards and displays",
   "Dirty Soda Cart": "Mobile dirty soda station served fresh to your guests",
   "Mini Pancake Bar": "Interactive pancake bar with toppings and syrups",
   "Bartending Service": "Professional bartending for your event",

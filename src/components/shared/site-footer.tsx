@@ -25,7 +25,7 @@ export function SiteFooter({
   bookingCtaTarget = DEFAULT_SITE_CONFIGURATION.booking_cta_target,
   ctaEyebrow = "Let's make hosting feel lovely",
   ctaTitle = "Warm hospitality, joyful details, and a setup guests remember.",
-  description = "A mobile snack and beverage cart serving Bentonville and the wider NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini pancake bar service, and polished event setups.",
+  description = "A mobile snack and beverage cart serving Bentonville and the wider NWA area with charcuterie boxes, charcuterie cups, dirty soda, mini pancake bar service, and event setups.",
   location = siteConfig.location,
   phone = siteConfig.phone,
   email = siteConfig.email,

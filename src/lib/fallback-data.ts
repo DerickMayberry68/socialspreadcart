@@ -13,7 +13,7 @@ export const fallbackMenuItems: MenuItem[] = [
     name: "Large Charcuterie Box",
     slug: slugify("Large Charcuterie Box"),
     description:
-      "Our largest charcuterie box, styled for gifting, hosting, and easy pickup when you want a polished presentation without full-service catering.",
+      "Our largest charcuterie box for gifting, hosting, and easy pickup when you want a generous spread without full-service catering.",
     price_cents: 12000,
     size: "Large",
     dietary: ["Vegetarian Option", "Gluten-Free Option"],
@@ -29,7 +29,7 @@ export const fallbackMenuItems: MenuItem[] = [
     name: "Charcuterie Cups",
     slug: slugify("Charcuterie Cups"),
     description:
-      "Individual charcuterie cups priced per guest and designed for cocktail hours, school events, pop-ups, and grab-and-go hosting.",
+      "Individual charcuterie cups priced per guest for cocktail hours, school events, pop-ups, and grab-and-go hosting.",
     price_cents: 800,
     size: "Single",
     dietary: ["Vegetarian Option"],
@@ -75,7 +75,7 @@ export const fallbackEvents: EventItem[] = [
     date: "2026-05-02T18:00:00-05:00",
     location: "8th Street Market, Bentonville",
     description:
-      "An evening service built around charcuterie, dirty soda, and polished grab-and-go options for shoppers and guests.",
+      "An evening service with charcuterie, dirty soda, and grab-and-go options for shoppers and guests.",
     image_url: clientMedia.cartDirtySodaHero,
     join_url: "#quote-form",
   },
@@ -85,7 +85,7 @@ export const fallbackEvents: EventItem[] = [
     date: "2026-05-23T13:00:00-05:00",
     location: "Downtown Bentonville Event Loft",
     description:
-      "A tasting experience for couples exploring charcuterie, bartending, and specialty cart service for wedding weekends.",
+      "A tasting for couples exploring charcuterie, bartending, and specialty cart service for wedding weekends.",
     image_url: clientMedia.dirtySodaAndCharcuterieBox,
     join_url: "#quote-form",
   },
@@ -97,14 +97,14 @@ export const fallbackTestimonials: Testimonial[] = [
     name: "Madison R.",
     occasion: "Bridal Shower Host",
     quote:
-      "Every detail felt polished and intentional. The cart became part of the decor and the food disappeared in minutes.",
+      "Everything was ready when guests arrived. The cart became part of the decor and the food disappeared in minutes.",
   },
   {
     id: "testimonial-2",
     name: "Jordan T.",
     occasion: "Corporate Event Planner",
     quote:
-      "Professional, beautiful, and easy to work with. The Social Spread Cart made our client event feel elevated without stress.",
+      "Professional, beautiful, and easy to work with. The Social Spread Cart made our client event feel special without stress.",
   },
   {
     id: "testimonial-3",
@@ -171,25 +171,25 @@ export const fallbackGallerySection = {
   title:
     "A visual library of real cart service, drinks, grazing, and event-ready moments.",
   description:
-    "This page leans on actual client photography so the brand feels grounded in the real offering, not just the aesthetic direction.",
-  feature_card_eyebrow: "What the gallery should do",
+    "Browse real cart service, drinks, grazing tables, and event setups from The Social Spread Cart.",
+  feature_card_eyebrow: "What you will see",
   feature_card_title:
-    "Make the product feel real, the events feel joyful, and the brand feel worth trusting.",
+    "Real setups, colorful drinks, grazing details, and cart service moments.",
   support_card_body:
-    "The goal is not just to show pretty images. It is to help future clients picture what the menu and the cart will feel like in their own event.",
+    "Use the gallery to picture pickup orders, cart service, and menu details for your own event.",
 } as const;
 
 export const fallbackAboutContent = {
   eyebrow: "About The Brand",
   title:
-    "A hospitality brand built to feel polished, cheerful, and easy to welcome into the room.",
+    "A Bentonville cart serving cheerful snacks, sips, and event-ready grazing.",
   description:
     "The Social Spread Cart exists for hosts who want the event to feel thoughtful and memorable without adding more stress to the planning process.",
   story_badge: "Bentonville based",
   story_title:
-    "Thoughtful presentation, warm hospitality, and a little bit of delight in every setup.",
+    "Charcuterie, dirty soda, and cart service for hosts across Northwest Arkansas.",
   story_body: [
-    "The Social Spread Cart was created for hosts who want something more memorable than standard catering. Every menu and cart setup is designed to feel intentional, approachable, and easy to enjoy.",
+    "The Social Spread Cart was created for hosts who want something more personal than standard catering. Menus and cart setups are planned to be approachable, generous, and easy for guests to enjoy.",
     "From take-home orders to full event setups, the current offer centers on large charcuterie boxes, charcuterie cups, dirty soda, and a small set of cart services including a mini pancake bar, bartending, and event-ready station setups.",
     "We serve Bentonville and nearby Northwest Arkansas communities with pickup items, local delivery, and on-site cart experiences.",
   ],
@@ -212,13 +212,13 @@ export const fallbackAboutFeatureCards = [
   {
     display_order: 1,
     title: "Approachable service",
-    body: "The experience should feel easy for the host and welcoming for every guest.",
+    body: "Clear planning and friendly service help hosts feel ready before guests arrive.",
     icon_key: "heart-handshake",
   },
   {
     display_order: 2,
-    title: "Playful polish",
-    body: "The brand mixes premium presentation with bright, celebratory energy.",
+    title: "Bright details",
+    body: "Colorful drinks, generous boards, and cheerful service bring energy to the table.",
     icon_key: "sparkles",
   },
   {
@@ -233,7 +233,7 @@ export const cartHighlights = [
   "Mobile cart service for weddings, showers, school events, launch parties, and corporate receptions across Bentonville and nearby communities",
   "Pickup menu currently includes large charcuterie boxes, charcuterie cups, and dirty soda 4-packs to go",
   "Cart service offerings include charcuterie, dirty soda, a mini pancake bar, bartending service, and an ice cream toppings bar",
-  "Presentation is styled to feel polished on-site and easy for guests to enjoy throughout the event",
+  "Serving is arranged so guests can move through the cart or table easily throughout the event",
 ];
 
 export const faqItems = [
