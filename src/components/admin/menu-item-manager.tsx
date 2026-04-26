@@ -267,6 +267,14 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
       return;
     }
 
+    if (file.size > 4 * 1024 * 1024) {
+      toast.error(
+        "Please select an image smaller than 4MB. Vercel limits API uploads to 4.5MB.",
+      );
+      event.target.value = "";
+      return;
+    }
+
     setUploading(true);
     const formData = new FormData();
     formData.append("file", file);

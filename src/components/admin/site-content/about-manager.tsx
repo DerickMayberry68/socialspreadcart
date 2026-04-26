@@ -244,6 +244,15 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 4 * 1024 * 1024) {
+      showHandledError(
+        "Image too large",
+        "Please select an image smaller than 4MB. Vercel limits API uploads to 4.5MB.",
+      );
+      event.target.value = "";
+      return;
+    }
+
     setUploadingIndex(index);
     const formData = new FormData();
     formData.append("file", file);
