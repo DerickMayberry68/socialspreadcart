@@ -13,7 +13,11 @@ set
       '{menu_section}',
       jsonb_set(
         jsonb_set(
-          coalesce(content->'menu_section', '{}'::jsonb),
+          jsonb_set(
+            coalesce(content->'menu_section', '{}'::jsonb),
+            '{title}',
+            '"Guest favorites, ready for pickup or event service."'
+          ),
           '{description}',
           '"Select from our incredibly popular charcuterie, signature drinks, and event-ready snacks that your guests will absolutely love."'
         ),
