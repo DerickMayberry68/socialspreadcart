@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { compressUpload } from "@/lib/image-compression";
 import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -168,17 +169,10 @@ function ImageUrlField({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 4 * 1024 * 1024) {
-      toast.error(
-        "Please select an image smaller than 4MB. Vercel limits API uploads to 4.5MB.",
-      );
-      event.target.value = "";
-      return;
-    }
-
     setUploading(true);
+    const compressedFile = await compressUpload(file);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", compressedFile);
     formData.append("pageKey", pageKey);
 
     try {

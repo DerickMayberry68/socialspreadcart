@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { compressUpload } from "@/lib/image-compression";
 import Image from "next/image";
 import { ImagePlus } from "lucide-react";
 import { toast } from "sonner";
@@ -105,18 +106,10 @@ export function PathwayCardsManager({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 4 * 1024 * 1024) {
-      showHandledError(
-        "Image too large",
-        "Please select an image smaller than 4MB. Vercel limits API uploads to 4.5MB.",
-      );
-      event.target.value = "";
-      return;
-    }
-
     setUploadingIndex(index);
+    const compressedFile = await compressUpload(file);
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", compressedFile);
 
     try {
       const response = await fetch(
