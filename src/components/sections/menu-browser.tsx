@@ -5,6 +5,8 @@ import Image from "next/image";
 import * as React from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
+import { AddToOrderButton } from "@/components/order/add-to-order-button";
+import { OrderTrayPanel } from "@/components/order/order-tray-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -121,6 +123,10 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
         >
           Reset Filters
         </Button>
+
+        <div className="mt-6">
+          <OrderTrayPanel mode="summary" />
+        </div>
       </Card>
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -190,9 +196,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
                   ))}
                 </div>
                 <div className="mt-5 flex flex-col gap-3">
-                  <Button className="w-full" asChild>
-                    <Link href="/contact#quote-form">Add to Quote</Link>
-                  </Button>
+                  <AddToOrderButton item={item} />
                   <Button variant="outline" className="w-full" asChild>
                     <Link href="/contact#quote-form">
                       Ask About This
