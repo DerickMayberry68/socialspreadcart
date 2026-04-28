@@ -68,13 +68,17 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-[34px] bg-[linear-gradient(135deg,#284237_0%,#406352_100%)] px-8 py-8 text-[#f8f4ee] shadow-[0_24px_70px_rgba(40,66,55,0.18)]">
           <p className="text-xs uppercase tracking-[0.28em] text-[#d7e2d4]">
-            {data.tenant.name}
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
           </p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.96]">
             <Greeting name={name} />.
           </h1>
           <p className="mt-4 max-w-2xl text-base leading-8 text-[#eef2ed]/82">
-            Here is the operational snapshot for your current tenant, with the clearest next actions surfaced first.
+            Here&apos;s what&apos;s happening at {data.tenant.name} today &mdash; fresh inquiries, upcoming events, and anything that might need a quick follow-up.
           </p>
         </div>
 

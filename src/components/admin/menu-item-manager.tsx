@@ -17,7 +17,7 @@ import { toast } from "sonner";
 
 import type { MenuItem } from "@/lib/types";
 import { clientMedia } from "@/lib/media";
-import { formatPrice, slugify } from "@/lib/utils";
+import { formatPrice, generateUuid, slugify } from "@/lib/utils";
 
 const emptyForm = {
   id: "",
@@ -77,7 +77,7 @@ function toPayload(form: MenuFormState) {
   const price = Number.parseFloat(form.price);
 
   return {
-    id: form.id || crypto.randomUUID(),
+    id: form.id || generateUuid(),
     name: form.name.trim(),
     slug: slugify(form.name),
     description: form.description.trim(),

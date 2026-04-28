@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { EventItem, MenuItem } from "@/lib/types";
+import { generateUuid } from "@/lib/utils";
 
 export function AdminDashboard({
   initialMenuItems,
@@ -155,7 +156,7 @@ export function AdminDashboard({
               event.preventDefault();
               const payload = {
                 ...menuForm,
-                id: crypto.randomUUID(),
+                id: generateUuid(),
                 slug: menuForm.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
                 price_cents: Number(menuForm.price_cents),
                 dietary: menuForm.dietary.split(",").map((item) => item.trim()).filter(Boolean),
@@ -243,7 +244,7 @@ export function AdminDashboard({
               event.preventDefault();
               const payload = {
                 ...eventForm,
-                id: crypto.randomUUID(),
+                id: generateUuid(),
               };
 
               const response = await fetch("/api/admin/events", {

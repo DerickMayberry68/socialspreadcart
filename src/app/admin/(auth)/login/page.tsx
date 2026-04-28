@@ -125,14 +125,14 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
-        <div className="mx-auto mb-8 w-32">
+        <div className="mx-auto mb-8 w-32 overflow-hidden rounded-full border border-sage/10 bg-white p-2 shadow-soft">
           <Image
-            src="/brand/logos/logo-circle.png"
+            src="/icon.png"
             alt="The Social Spread Cart"
             width={128}
             height={128}
             priority
-            className="h-auto w-full"
+            className="h-full w-full rounded-full object-cover"
           />
         </div>
 
