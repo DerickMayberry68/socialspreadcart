@@ -2,9 +2,15 @@
 
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 function LoginForm() {
   const router = useRouter();
@@ -109,13 +115,30 @@ function LoginForm() {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-2 w-full rounded-full bg-sage px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:bg-sage-700 disabled:opacity-50"
-        >
-          {loading ? "Signing in..." : "Sign In"}
-        </button>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-2 w-full rounded-full bg-sage px-6 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:bg-sage-700 disabled:opacity-50"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>Sign in with your admin email and password</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/"
+              className="block w-full rounded-full border border-sage/25 bg-white px-6 py-3 text-center text-sm font-medium uppercase tracking-[0.18em] text-sage transition hover:bg-cream"
+            >
+              Cancel
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent>Return to the home page</TooltipContent>
+        </Tooltip>
       </form>
     </div>
   );

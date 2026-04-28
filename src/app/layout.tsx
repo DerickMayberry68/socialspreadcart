@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 
 import { Analytics } from "@vercel/analytics/next";
 import { defaultMetadata, siteConfig } from "@/lib/site";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
 
 const heading = Cormorant_Garamond({
@@ -40,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${heading.variable} ${sans.variable}`}>
       <body className="font-sans antialiased">
-        {children}
+        <TooltipProvider delayDuration={250}>{children}</TooltipProvider>
         <Analytics />
         <Toaster richColors position="top-right" />
         <Script

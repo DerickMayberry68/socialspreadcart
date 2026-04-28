@@ -13,6 +13,11 @@ import {
 import { toast } from "sonner";
 
 import type { EventItem } from "@/lib/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const empty = {
   title: "",
@@ -215,15 +220,20 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                     : "Add a new public calendar appearance."}
                 </h3>
               </div>
-              <button
-                onClick={() => {
-                  setMode("idle");
-                  setEditing(null);
-                }}
-                className="rounded-full border border-sage/15 bg-white p-2 text-ink/45 transition hover:border-sage/30 hover:text-sage"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={() => {
+                      setMode("idle");
+                      setEditing(null);
+                    }}
+                    className="rounded-full border border-sage/15 bg-white p-2 text-ink/45 transition hover:border-sage/30 hover:text-sage"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Close without saving</TooltipContent>
+              </Tooltip>
             </div>
             <EventForm
               initial={editing ?? undefined}
@@ -305,21 +315,29 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                   </div>
 
                   <div className="flex shrink-0 gap-2">
-                    <button
-                      onClick={() => startEdit(event)}
-                      className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
-                      title="Edit"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(event.id)}
-                      disabled={deleting === event.id}
-                      className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
-                      title="Delete"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => startEdit(event)}
+                          className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Edit event</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() => handleDelete(event.id)}
+                          disabled={deleting === event.id}
+                          className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Permanently delete this event</TooltipContent>
+                    </Tooltip>
                   </div>
                 </li>
               );

@@ -19,6 +19,11 @@ import { toast } from "sonner";
 import type { MenuItem } from "@/lib/types";
 import { clientMedia } from "@/lib/media";
 import { formatPrice, generateUuid, slugify } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const emptyForm = {
   id: "",
@@ -353,12 +358,17 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
                     : "Add a new item to the public menu."}
                 </h3>
               </div>
-              <button
-                onClick={closeForm}
-                className="rounded-full border border-sage/15 bg-white p-2 text-ink/45 transition hover:border-sage/30 hover:text-sage"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={closeForm}
+                    className="rounded-full border border-sage/15 bg-white p-2 text-ink/45 transition hover:border-sage/30 hover:text-sage"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>Close without saving</TooltipContent>
+              </Tooltip>
             </div>
 
             <form onSubmit={handleSubmit} className="grid gap-4">
@@ -632,32 +642,46 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
                 </div>
 
                 <div className="flex shrink-0 gap-2">
-                  <button
-                    onClick={() => handleToggleActive(item)}
-                    className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
-                    title={item.is_active ? "Hide from public menu" : "Show on public menu"}
-                  >
-                    {item.is_active ? (
-                      <EyeOff className="h-3.5 w-3.5" />
-                    ) : (
-                      <Eye className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => openEdit(item)}
-                    className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
-                    title="Edit"
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    disabled={deleting === item.id}
-                    className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
-                    title="Delete"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleToggleActive(item)}
+                        className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
+                      >
+                        {item.is_active ? (
+                          <EyeOff className="h-3.5 w-3.5" />
+                        ) : (
+                          <Eye className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {item.is_active ? "Hide from public menu" : "Show on public menu"}
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => openEdit(item)}
+                        className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit menu item</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deleting === item.id}
+                        className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>Permanently delete this item</TooltipContent>
+                  </Tooltip>
                 </div>
               </li>
             ))}
