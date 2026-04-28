@@ -15,6 +15,11 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { HandledErrorAlert } from "@/components/ui/handled-error-alert";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
 import type {
   GalleryImage,
@@ -605,32 +610,47 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
                     Image {index + 1}
                   </p>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, -1)}
-                      disabled={index === 0}
-                      className="rounded-full border border-sage/15 p-2 text-ink/55 transition hover:border-sage/35 hover:text-sage disabled:opacity-35"
-                      aria-label="Move image up"
-                    >
-                      <ArrowUp className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => moveImage(index, 1)}
-                      disabled={index === images.length - 1}
-                      className="rounded-full border border-sage/15 p-2 text-ink/55 transition hover:border-sage/35 hover:text-sage disabled:opacity-35"
-                      aria-label="Move image down"
-                    >
-                      <ArrowDown className="h-4 w-4" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => requestRemoveImage(index)}
-                      className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
-                      aria-label="Remove image"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(index, -1)}
+                          disabled={index === 0}
+                          className="rounded-full border border-sage/15 p-2 text-ink/55 transition hover:border-sage/35 hover:text-sage disabled:opacity-35"
+                          aria-label="Move image up"
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Move earlier in display order</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => moveImage(index, 1)}
+                          disabled={index === images.length - 1}
+                          className="rounded-full border border-sage/15 p-2 text-ink/55 transition hover:border-sage/35 hover:text-sage disabled:opacity-35"
+                          aria-label="Move image down"
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Move later in display order</TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => requestRemoveImage(index)}
+                          className="rounded-full border border-red-200 p-2 text-red-600 transition hover:bg-red-50"
+                          aria-label="Remove image"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>Remove from gallery</TooltipContent>
+                    </Tooltip>
                   </div>
                 </div>
 
