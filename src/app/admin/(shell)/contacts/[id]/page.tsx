@@ -117,9 +117,6 @@ export default async function ContactDetailPage({
                 <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
                   Relationship status
                 </p>
-                <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-                  Keep the contact details easy to read.
-                </h2>
               </div>
               <div className="inline-flex w-fit items-center gap-2 rounded-full bg-[#eef4e9] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#4f684d]">
                 <Sparkles className="h-3.5 w-3.5" />

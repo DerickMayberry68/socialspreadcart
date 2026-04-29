@@ -17,7 +17,7 @@ export default async function AdminEventsPage() {
         <div className="rounded-[32px] bg-[linear-gradient(135deg,#284237_0%,#406352_100%)] px-7 py-7 text-[#f8f4ee] shadow-[0_24px_70px_rgba(40,66,55,0.16)]">
           <p className="text-xs uppercase tracking-[0.24em] text-[#d7e2d4]">Events</p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.95]">
-            Make every pop-up feel beautifully planned before it goes live.
+            Manage events on your public calendar.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[#eef2ed]/84">
             Schedule public appearances, keep listings current, and present upcoming
@@ -37,7 +37,7 @@ export default async function AdminEventsPage() {
             <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">Total records</p>
             <p className="mt-3 font-heading text-4xl text-[#284237]">{events.length}</p>
             <p className="mt-2 text-sm leading-7 text-ink/62">
-              Live and past events stored for this tenant.
+              All events, past and upcoming.
             </p>
           </div>
         </div>

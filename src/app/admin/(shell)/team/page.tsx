@@ -25,7 +25,7 @@ export default async function AdminTeamPage() {
         <div className="rounded-[32px] border border-[#e4dbc9] bg-[#fffaf4] px-7 py-7 shadow-soft">
           <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">Team access</p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.95] text-[#284237]">
-            Keep the right people close to the work and the wrong people out.
+            Manage who has access to your admin.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/64">
             Invite collaborators, adjust roles, and manage ownership with the same clarity

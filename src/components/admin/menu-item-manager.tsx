@@ -308,7 +308,7 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">Menu manager</p>
             <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-              Add, update, and feature the products clients actually see.
+              Add and edit menu items shown on your public menu.
             </h2>
           </div>
           <div className="flex flex-wrap gap-3">

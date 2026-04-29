@@ -119,7 +119,7 @@ export function HeroForm({ initial }: { initial: HeroContent }) {
           Hero section
         </p>
         <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-          The first thing your visitors read.
+          Hero section text and call-to-action buttons.
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
           Keep the headline short and confident. The sub-line is optional and
