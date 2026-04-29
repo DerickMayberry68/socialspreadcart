@@ -73,7 +73,6 @@ describe("services contract", () => {
         location: "Square",
         description: "Testing",
         image_url: "",
-        join_url: "",
       }),
     ).rejects.toThrow();
 
@@ -101,11 +100,14 @@ describe("services contract", () => {
       location: "Square",
       description: "Updated",
       image_url: "",
-      join_url: "",
     });
 
     expect(query.update).toHaveBeenCalledWith(
-      expect.objectContaining({ tenant_id: TENANT_ID }),
+      expect.objectContaining({
+        tenant_id: TENANT_ID,
+        event_date: "2026-04-20",
+        start_time: "12:00:00",
+      }),
     );
     expect(query.eq).toHaveBeenCalledWith("tenant_id", TENANT_ID);
   });
