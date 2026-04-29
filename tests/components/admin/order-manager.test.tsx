@@ -28,9 +28,9 @@ describe("OrderManager", () => {
             fulfillment_requested_at: null,
             fulfillment_notes: "Front table",
             subtotal_cents: 4500,
-            tax_cents: 0,
-            fee_cents: 0,
-            total_cents: 4500,
+            tax_cents: 438,
+            fee_cents: 132,
+            total_cents: 5070,
             currency: "usd",
             status: "paid",
             payment_status: "paid",
@@ -57,5 +57,8 @@ describe("OrderManager", () => {
     expect(screen.getByText("Jane Guest")).toBeInTheDocument();
     expect(screen.getByText("Classic Tray")).toBeInTheDocument();
     expect(screen.getAllByText("$45.00").length).toBeGreaterThan(0);
+    expect(screen.getByText("Tax $4.38")).toBeInTheDocument();
+    expect(screen.getByText("Processing fee $1.32")).toBeInTheDocument();
+    expect(screen.getByText("$50.70")).toBeInTheDocument();
   });
 });

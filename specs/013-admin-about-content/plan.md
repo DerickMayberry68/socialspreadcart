@@ -102,7 +102,7 @@ src/
 
 supabase/
 `-- migrations/
-    `-- 20260425_admin_about_content.sql         # About tables, policies, seed/backfill
+    `-- 20260425000000_admin_about_content.sql   # About tables, policies, seed/backfill
 ```
 
 **Structure Decision**: Continue as a single Next.js application using the existing admin content boundaries. The feature extends `SiteContentService`, `src/lib/validation/site-content.ts`, and `src/lib/types/site-content.ts` instead of creating a separate About service, because About content is part of the same admin-editable public content domain and shares cache invalidation, tenant scoping, auth, fallback behavior, and handled error patterns.

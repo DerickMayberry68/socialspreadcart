@@ -63,6 +63,13 @@ QUOTE_NOTIFICATION_EMAIL=info@socialspreadcart.com
 PAYMENT_PROVIDER=disabled
 STRIPE_SECRET_KEY=...
 STRIPE_WEBHOOK_SECRET=...
+STRIPE_MENU_ITEM_TAX_CODE=...
+TAX_ORIGIN_ADDRESS_LINE1=...
+TAX_ORIGIN_ADDRESS_LINE2=
+TAX_ORIGIN_ADDRESS_CITY=Bentonville
+TAX_ORIGIN_ADDRESS_STATE=AR
+TAX_ORIGIN_ADDRESS_POSTAL_CODE=...
+TAX_ORIGIN_ADDRESS_COUNTRY=US
 CHECKOUT_SUCCESS_URL=https://thesocialspreadcart.com/checkout/confirmation
 CHECKOUT_CANCEL_URL=https://thesocialspreadcart.com/order-tray
 ```
@@ -96,9 +103,14 @@ Use those for production menu and event photography. The seed content currently 
 - Checkout posts to `src/app/api/checkout/route.ts`, revalidates active tenant menu items server-side, creates a pending guest order, and starts hosted payment through the configured payment provider
 - The payment layer lives in `src/services/payment-service.ts`; leave `PAYMENT_PROVIDER=disabled` while Chase details are pending
 - Set `PAYMENT_PROVIDER=stripe` only when using Stripe test or live keys
+- Stripe Tax must be enabled in the Stripe account before live tax collection
+- Pickup orders use the `TAX_ORIGIN_ADDRESS_*` values for tax calculation; delivery and event handoff orders collect a fulfillment address
+- `STRIPE_MENU_ITEM_TAX_CODE` is optional when the Stripe account has a default product tax code; set it when menu items need an explicit Stripe Tax code
+- The checkout adds a customer-visible, non-taxable processing fee using an exact 2.6% gross-up formula; the fee is sent to Stripe as a separate line item with Stripe's non-taxable tax code
 - Stripe webhooks post to `src/app/api/webhooks/stripe/route.ts`; configure the webhook signing secret as `STRIPE_WEBHOOK_SECRET`
 - Paid orders appear in `/admin/orders` for authorized tenant admins only
 - Run `supabase/migrations/20260428_guest_ordering_payment.sql` before testing checkout persistence
+- Run `supabase/migrations/20260429_order_tax_fee_reconciliation.sql` before testing tax/fee reconciliation
 
 ### Chase payment discovery
 

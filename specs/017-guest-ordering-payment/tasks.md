@@ -138,6 +138,41 @@
 
 ---
 
+## Phase 7: User Story 1 Enhancement - Stripe Tax And Non-Taxable Processing Fee (Priority: P1)
+
+**Goal**: Guest payment totals include Stripe-configured tax and a customer-visible non-taxable 2.6% gross-up processing fee before payment, then confirmation/admin views reconcile to Stripe's confirmed paid total.
+
+**Independent Test**: Start as an unauthenticated visitor, add one active menu item, submit checkout details with tax location data, verify Stripe Checkout shows taxable item lines plus a non-taxable processing fee, complete payment, and confirm the local order stores matching subtotal, tax, fee, total, and paid status.
+
+### Tests for Tax And Fee Enhancement
+
+- [X] T053 [P] [US1] Add service tests for 2.6% gross-up fee calculation and subtotal/tax/fee/total breakdowns in `tests/services/order-service.test.ts`
+- [X] T054 [P] [US1] Add payment service tests for Stripe Tax Calculation requests, taxable item line data, non-taxable fee line data, and webhook total extraction in `tests/services/payment-service.test.ts`
+- [X] T055 [P] [US1] Add checkout route tests for successful totals response and tax calculation failure status in `tests/api/checkout-route.test.ts`
+- [X] T056 [P] [US1] Add confirmation component tests for subtotal, tax, processing fee, and total labels in `tests/components/order/order-confirmation.test.tsx`
+- [X] T057 [P] [US3] Add admin order manager tests for subtotal, tax, non-taxable processing fee, and total display in `tests/components/admin/order-manager.test.tsx`
+
+### Implementation for Tax And Fee Enhancement
+
+- [X] T058 [US1] Create Supabase migration for payment reconciliation fields in `supabase/migrations/20260429_order_tax_fee_reconciliation.sql`
+- [X] T059 [US1] Update order and payment TypeScript types for tax calculation references and provider-confirmed subtotal/tax/fee fields in `src/lib/types/order.ts`
+- [X] T060 [US1] Update checkout validation schemas for fulfillment address/tax location data and total breakdown response shapes in `src/lib/validation/order.ts`
+- [X] T061 [US1] Implement pure 2.6% gross-up processing fee helper and total breakdown helper in `src/services/order-service.ts`
+- [X] T062 [US1] Implement Stripe Tax Calculation helper using tenant order item snapshots and fulfillment/location details in `src/services/payment-service.ts`
+- [X] T063 [US1] Update Stripe Checkout session creation to include taxable menu item line items and one non-taxable processing fee line item in `src/services/payment-service.ts`
+- [X] T064 [US1] Update checkout creation to calculate tax, calculate fee, persist subtotal/tax/fee/total, and save tax calculation references in `src/services/order-service.ts`
+- [X] T065 [US1] Update webhook reconciliation to persist provider-confirmed subtotal, tax, fee, total, session id, and payment intent id in `src/services/order-service.ts`
+- [X] T066 [US1] Update checkout API response and 422 tax calculation failure handling in `src/app/api/checkout/route.ts`
+- [X] T067 [US1] Update checkout form submission data and error handling for tax location requirements in `src/components/order/checkout-form.tsx`
+- [X] T068 [US1] Add pre-payment total review so checkout displays subtotal, tax, non-taxable processing fee, and final total before redirecting to Stripe in `src/components/order/checkout-form.tsx`
+- [X] T069 [US1] Update order confirmation UI to show subtotal, tax, non-taxable processing fee, and total in `src/components/order/order-confirmation.tsx`
+- [X] T070 [US3] Update admin order manager UI to show subtotal, tax, non-taxable processing fee, and total in `src/components/admin/order-manager.tsx`
+- [X] T071 [US1] Update payment setup documentation for Stripe Tax, product tax code, non-taxable processing fee code, and fee policy in `README.md`
+
+**Checkpoint**: Enhancement is complete when a paid live/test order records and displays matching subtotal, tax, non-taxable processing fee, total, and paid status across Stripe, confirmation, and admin orders.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -148,12 +183,14 @@
 - **Phase 4 US2**: Depends on Phase 2; can start after foundation but integrates with US1 Order Tray files.
 - **Phase 5 US3**: Depends on Phase 2 and needs at least one paid order path from US1 for full manual validation.
 - **Phase 6 Polish**: Depends on selected user stories being complete.
+- **Phase 7 US1 Enhancement**: Depends on completed Phase 3 checkout/payment foundation and must finish before final quickstart validation.
 
 ### User Story Dependencies
 
 - **US1 (P1)**: No dependency on US2 or US3 after foundation.
 - **US2 (P2)**: Can be developed after foundation, but edits the same Order Tray and checkout files as US1.
 - **US3 (P3)**: Can start after foundation, but final validation depends on US1 payment confirmation.
+- **US1 Tax/Fee Enhancement (P1)**: Depends on existing US1 payment flow and affects US3 display tasks through shared order totals.
 
 ### Parallel Opportunities
 
@@ -163,6 +200,9 @@
 - T030-T031 can run in parallel for US2.
 - T037-T038 can run in parallel for US3.
 - T046-T047 can run in parallel during polish.
+- T053-T057 can run in parallel before tax/fee implementation.
+- T061-T063 can run after T059-T060 and before T064.
+- T068-T070 can run in parallel after service/API return shapes are stable.
 
 ## Parallel Example: User Story 1
 
@@ -170,6 +210,14 @@
 Task: "Add component tests for adding an item and displaying Order Tray totals in tests/components/order/order-tray-panel.test.tsx"
 Task: "Add API tests for POST /api/checkout validation and pending order creation in tests/api/checkout-route.test.ts"
 Task: "Add confirmation route tests for paid, pending, and missing orders in tests/api/checkout-confirm-route.test.ts"
+```
+
+## Parallel Example: Tax And Fee Enhancement
+
+```text
+Task: "Add service tests for 2.6% gross-up fee calculation and subtotal/tax/fee/total breakdowns in tests/services/order-service.test.ts"
+Task: "Add payment service tests for Stripe Tax Calculation requests, taxable item line data, non-taxable fee line data, and webhook total extraction in tests/services/payment-service.test.ts"
+Task: "Add checkout route tests for successful totals response and tax calculation failure status in tests/api/checkout-route.test.ts"
 ```
 
 ## Implementation Strategy
@@ -187,7 +235,8 @@ Task: "Add confirmation route tests for paid, pending, and missing orders in tes
 1. US1 delivers guest ordering and payment.
 2. US2 improves pre-payment editing accuracy.
 3. US3 gives Shayley operational order visibility.
-4. Polish validates duplicate payment protection, responsive behavior, documentation, and automated checks.
+4. Tax/fee enhancement adds Stripe-configured tax, non-taxable processing fee, and final total reconciliation.
+5. Polish validates duplicate payment protection, responsive behavior, documentation, and automated checks.
 
 ## Notes
 
@@ -195,3 +244,5 @@ Task: "Add confirmation route tests for paid, pending, and missing orders in tes
 - Components and pages must not call Supabase or Stripe directly; use `src/services/order-service.ts` and `src/services/payment-service.ts`.
 - Keep "Order Tray" as the visible customer-facing label unless the spec is amended.
 - Do not store sensitive payment credentials or card details.
+- Processing fee is non-taxable and uses exact 2.6% gross-up unless Shayley changes the policy.
+- Stripe Tax Calculation must happen before Checkout because the processing fee depends on tax.

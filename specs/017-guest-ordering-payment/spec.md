@@ -18,7 +18,7 @@ A guest visiting Shayley's site can choose available food and beverage items, ad
 **Acceptance Scenarios**:
 
 1. **Given** a guest is viewing Shayley's available menu items, **When** they add an item to the Order Tray, **Then** the site shows the selected item, quantity, price, and current order total.
-2. **Given** a guest has one or more items in the Order Tray, **When** they review and pay for the order with valid required details, **Then** the order is recorded as paid and the guest sees a confirmation with order summary and next steps.
+2. **Given** a guest has one or more items in the Order Tray, **When** they review and pay for the order with valid required details, **Then** the order is recorded as paid and the guest sees a confirmation with order summary, taxes, non-taxable processing fee, payment status, and next steps.
 3. **Given** a guest has an empty Order Tray, **When** they attempt to continue to checkout, **Then** the site prevents checkout and clearly asks them to add an item first.
 
 ---
@@ -59,6 +59,8 @@ Shayley or an authorized tenant admin can see paid orders with enough detail to 
 - A duplicate payment submission occurs; the guest must not be charged twice for the same order.
 - A guest enters missing or invalid contact or fulfillment details; checkout must identify the fields that need correction before payment.
 - Order total changes because of item quantity, item availability, taxes, fees, or fulfillment selection; the guest must see the final total before payment.
+- A tax calculation is delayed or unavailable; checkout must either block payment with a clear retry message or fall back to a documented business-approved no-tax behavior rather than silently charging an incorrect total.
+- A processing fee is added to the order; the fee must be displayed before payment, treated as non-taxable, and preserved separately from menu item subtotal and tax.
 
 ## Requirements *(mandatory)*
 
@@ -79,6 +81,10 @@ Shayley or an authorized tenant admin can see paid orders with enough detail to 
 - **FR-013**: The system MUST protect against duplicate payment submission for the same order.
 - **FR-014**: The system MUST preserve enough payment reference information to reconcile paid orders without exposing sensitive payment credentials.
 - **FR-015**: The order flow MUST work on common mobile and desktop screen sizes because guests may order from phones while browsing the public site.
+- **FR-016**: Checkout MUST use the business's configured tax rules to calculate and collect applicable taxes before the guest authorizes payment.
+- **FR-017**: Checkout MUST add a clearly labeled non-taxable processing fee before payment and MUST store that fee separately from subtotal, tax, and final total.
+- **FR-018**: The processing-fee amount MUST use an exact gross-up formula based on a 2.6% customer-paid fee target so the fee accounts for processing on the order subtotal, applicable tax, and the processing fee itself. Shayley may absorb any actual processor cost above the customer-paid 2.6% target.
+- **FR-019**: Confirmation and admin order views MUST show final paid totals that match the payment provider's confirmed amount, including subtotal, tax, non-taxable processing fee, and total.
 
 ### Key Entities
 
@@ -107,3 +113,6 @@ Shayley or an authorized tenant admin can see paid orders with enough detail to 
 - Version 1 focuses on online paid orders for available menu items already published to the public site.
 - Fulfillment is assumed to require customer contact details and a handoff time or instructions; exact pickup, delivery, or event fulfillment options can be refined during planning.
 - Sensitive payment credentials are never stored by the site; only order-safe payment status and reconciliation references are retained.
+- Processing fees are customer-visible, non-taxable, and intended to offset 2.6 percentage points of card processing cost; Shayley is responsible for confirming that this customer-paid fee is allowed for her business, location, and payment setup.
+- Tax calculation is delegated to the payment/tax configuration owned by Shayley's payment account rather than hardcoded into the site.
+- Shayley's prior Chase in-person card cost was reported as 3.6%, with guests charged 2.6% and Shayley absorbing 1%; the online checkout fee should preserve the customer-paid 2.6% policy unless Shayley requests a different visible fee.

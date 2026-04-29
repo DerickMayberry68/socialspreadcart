@@ -49,3 +49,37 @@
 **Alternatives considered**:
 - Client-only checkout state sent directly to payment provider: rejected because prices and availability must be verified server-side.
 - Page-level Supabase/payment calls: rejected by the services-layer mandate.
+
+## Decision: Calculate tax before Checkout with Stripe Tax Calculation
+
+**Rationale**: The customer must see the final payable total before authorizing payment, and the 2.6% gross-up processing fee depends on the tax amount. Stripe Checkout automatic tax can calculate tax during the hosted payment session, but that is too late for an exact pre-payment fee calculation. A server-side tax calculation step lets the app use Shayley's Stripe tax configuration before creating the Checkout session, then create Stripe Checkout with equivalent line items for payment and reconciliation.
+
+**Alternatives considered**:
+- Hardcoded Arkansas/local tax percentage: rejected because the spec requires using the business's configured tax rules and because taxability can vary by location and item treatment.
+- Stripe Checkout automatic tax only: rejected for this change because the processing fee must be known and displayed before payment.
+- Manual tax entry in environment variables: rejected because it would drift from Stripe tax settings and increase operational risk.
+
+## Decision: Use a non-taxable processing-fee line item with exact 2.6% gross-up
+
+**Rationale**: Shayley's existing business policy charges guests 2.6% toward card processing while she absorbs any remaining processor cost. The fee must be visible and non-taxable. An exact gross-up prevents under-collecting the stated 2.6% because the processor percentage applies to the final charged amount, not only the pre-fee subtotal.
+
+**Formula**:
+
+```text
+taxable_total = subtotal_cents + tax_cents
+fee_cents = ceil((taxable_total / (1 - 0.026)) - taxable_total)
+total_cents = taxable_total + fee_cents
+```
+
+**Alternatives considered**:
+- Simple `subtotal * 2.6%`: rejected because it does not cover the fee's contribution to the final charge and ignores tax.
+- Passing through Stripe's actual fee: rejected because actual fee can depend on card mix, fixed per-transaction fees, international cards, and account pricing; the business policy is a customer-paid 2.6%, not a full variable pass-through.
+- Taxing the fee: rejected by product decision; processing fee is explicitly non-taxable.
+
+## Decision: Reconcile final totals from Stripe webhook data
+
+**Rationale**: The local order should store pre-payment totals before redirect, but final paid order views must match the payment provider's confirmed amount. Webhook handling is the authoritative point for marking an order paid and should also update payment amount and any final tax/fee/total fields available from the Checkout Session.
+
+**Alternatives considered**:
+- Trust only pre-payment local totals forever: rejected because provider-confirmed totals are the source of truth for payment reconciliation.
+- Mark paid from the browser redirect: rejected because redirects are not payment proof and can race ahead of webhooks.

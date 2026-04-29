@@ -17,6 +17,15 @@ export type PaymentStatus =
 
 export type FulfillmentType = "pickup" | "delivery" | "event" | "other";
 
+export type FulfillmentAddress = {
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postalCode?: string | null;
+  country?: string | null;
+};
+
 export type OrderTrayItem = {
   menuItemId: string;
   quantity: number;
@@ -64,9 +73,13 @@ export type PaymentRecord = {
   provider_session_id: string | null;
   provider_payment_intent_id: string | null;
   amount_cents: number;
+  amount_subtotal_cents?: number | null;
+  amount_tax_cents?: number | null;
+  amount_fee_cents?: number | null;
   currency: string;
   status: PaymentStatus;
   raw_event_id: string | null;
+  tax_calculation_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -79,5 +92,15 @@ export type GuestOrderSummary = GuestOrder & {
 export type CheckoutSessionResult = {
   orderId: string;
   paymentStatus: PaymentStatus;
+  totals: OrderTotals;
   checkoutUrl: string;
+};
+
+export type OrderTotals = {
+  subtotalCents: number;
+  taxCents: number;
+  feeCents: number;
+  totalCents: number;
+  currency: string;
+  taxCalculationId?: string | null;
 };

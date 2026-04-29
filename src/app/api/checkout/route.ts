@@ -38,6 +38,8 @@ export async function POST(request: Request) {
     const status =
       error instanceof Error && error.name === "OrderReviewRequiredError"
         ? 409
+        : error instanceof Error && error.name === "TaxCalculationError"
+          ? 422
         : error instanceof Error && error.name === "PaymentConfigurationError"
           ? 503
           : 400;
