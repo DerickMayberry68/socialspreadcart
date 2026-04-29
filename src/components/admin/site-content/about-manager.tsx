@@ -359,7 +359,7 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
             About copy
           </p>
           <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-            Shape the brand story.
+            Edit your About page text.
           </h2>
           <div className="mt-6 grid gap-4 lg:grid-cols-2">
             <label className="space-y-2">
@@ -469,7 +469,7 @@ export function AboutManager({ initial }: { initial: AboutPageContent }) {
                 About images
               </p>
               <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-                Choose the photos on the page.
+                About page photos.
               </h2>
             </div>
             <button

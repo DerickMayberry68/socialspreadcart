@@ -497,7 +497,7 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
           Gallery copy
         </p>
         <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-          Set the words around the images.
+          Gallery page text.
         </h2>
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <label className="space-y-2">
@@ -576,7 +576,7 @@ export function GalleryManager({ initial }: { initial: GalleryPageContent }) {
               Gallery images
             </p>
             <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-              Curate the public gallery.
+              Gallery images shown on your site.
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
               Add images, write accessible descriptions, and use the arrow

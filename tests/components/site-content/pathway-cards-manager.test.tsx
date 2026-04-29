@@ -10,8 +10,9 @@ vi.mock("sonner", () => ({
 
 describe("PathwayCardsManager", () => {
   const initialCards = [
-    { display_order: 1, title: "Card 1", eyebrow: "Eye 1", description: "Desc 1", link_target: "/1", link_label: "Link 1", image_url: "img1.png", storage_path: null, alt_text: "Alt 1" },
-    { display_order: 2, title: "Card 2", eyebrow: "Eye 2", description: "Desc 2", link_target: "/2", link_label: "Link 2", image_url: "img2.png", storage_path: null, alt_text: "Alt 2" },
+    { display_order: 1, title: "Card 1", body: "Body 1", badge: "Badge 1", link_target: "/1", image_url: "img1.png" },
+    { display_order: 2, title: "Card 2", body: "Body 2", badge: "Badge 2", link_target: "/2", image_url: "img2.png" },
+    { display_order: 3, title: "Card 3", body: "Body 3", badge: "Badge 3", link_target: "/3", image_url: "img3.png" },
   ];
 
   beforeEach(() => {

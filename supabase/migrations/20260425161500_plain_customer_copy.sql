@@ -30,12 +30,12 @@ where id = 'charcuterie-cups'
 
 update public.events
 set description = 'An evening service with charcuterie, dirty soda, and grab-and-go options for shoppers and guests.'
-where id = 'argenta-evening-market'
+where id::text = 'argenta-evening-market'
   and description = 'An evening service built around charcuterie, dirty soda, and polished grab-and-go options for shoppers and guests.';
 
 update public.events
 set description = 'A tasting for couples exploring charcuterie, mini pancake bar, bartending, and specialty cart service for wedding weekends.'
-where id = 'bridal-showcase'
+where id::text = 'bridal-showcase'
   and description = 'A tasting experience for couples exploring charcuterie, mini pancake bar, bartending, and specialty cart service for wedding weekends.';
 
 update public.testimonials

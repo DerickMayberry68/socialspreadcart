@@ -84,7 +84,7 @@ export default async function ContactsPage({
         <div className="rounded-[32px] border border-[#e4dbc9] bg-[#fffaf4] px-7 py-7 shadow-soft">
           <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">Contacts</p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.95] text-[#284237]">
-            Every lead deserves context, care, and a next step.
+            Manage your contacts and follow-ups.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-ink/64">
             Track inquiries beyond the first form fill. Keep contact history visible, stay
@@ -97,7 +97,7 @@ export default async function ContactsPage({
             <p className="text-xs uppercase tracking-[0.22em] text-[#d7e2d4]">Total contacts</p>
             <p className="mt-3 font-heading text-4xl">{counts.total}</p>
             <p className="mt-2 text-sm leading-7 text-[#eef2ed]/82">
-              The active relationship book for this tenant.
+              All contacts saved for your business.
             </p>
           </div>
           <div className="rounded-[28px] border border-sage/10 bg-white px-6 py-6 shadow-soft">
@@ -150,7 +150,7 @@ export default async function ContactsPage({
               Filter your relationship view
             </p>
             <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-              Find the right person and the right moment fast.
+              Search and filter contacts.
             </h2>
           </div>
           {(params.search || activeStatus) && (

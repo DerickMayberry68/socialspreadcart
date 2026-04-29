@@ -184,7 +184,7 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
           <div>
             <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">Event editor</p>
             <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-              Build the calendar with the same polish as the storefront.
+              Add and edit events.
             </h2>
           </div>
           <div className="flex flex-wrap gap-3">

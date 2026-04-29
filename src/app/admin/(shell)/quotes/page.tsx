@@ -94,7 +94,7 @@ export default async function QuotesPage({
         <div className="rounded-[32px] bg-[linear-gradient(135deg,#284237_0%,#406352_100%)] px-7 py-7 text-[#f8f4ee] shadow-[0_24px_70px_rgba(40,66,55,0.16)]">
           <p className="text-xs uppercase tracking-[0.24em] text-[#d7e2d4]">Quotes</p>
           <h1 className="mt-4 font-heading text-5xl leading-[0.95]">
-            Keep booking momentum calm, quick, and personal.
+            Manage quote requests and follow-ups.
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-[#eef2ed]/84">
             Review incoming requests, prioritize active conversations, and move customers
@@ -107,7 +107,7 @@ export default async function QuotesPage({
             <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">Total pipeline</p>
             <p className="mt-3 font-heading text-4xl text-[#284237]">{counts.total}</p>
             <p className="mt-2 text-sm leading-7 text-ink/62">
-              Quote records currently in your tenant pipeline.
+              Total quote requests in your system.
             </p>
           </div>
           <div className="rounded-[28px] border border-sage/10 bg-white px-6 py-6 shadow-soft">

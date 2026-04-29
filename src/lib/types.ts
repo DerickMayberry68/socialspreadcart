@@ -1,4 +1,5 @@
 import type { EventType, ServiceOption } from "@/types/booking";
+export type * from "@/lib/types/order";
 
 export type MenuItem = {
   id: string;

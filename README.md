@@ -18,6 +18,7 @@ Premium Next.js 15 + Supabase website for The Social Spread Cart, a Bentonville-
 - Official uploaded logos and Instagram templates wired into the UI from `public/brand`
 - Menu filtering UI, events calendar, testimonials carousel, floating CTA, sitemap, and robots
 - Quote API route with Supabase persistence and optional Resend email
+- Guest Order Tray checkout flow with hosted payment and tenant-scoped admin order review
 - Supabase schema + seed content in [`supabase/migrations/20260407_initial_schema.sql`](/workspace/supabase/migrations/20260407_initial_schema.sql) and [`supabase/seed/seed.sql`](/workspace/supabase/seed/seed.sql)
 
 ## Local development
@@ -59,6 +60,11 @@ SUPABASE_SERVICE_ROLE_KEY=...
 RESEND_API_KEY=...
 RESEND_FROM=The Social Spread Cart <info@socialspreadcart.com>
 QUOTE_NOTIFICATION_EMAIL=info@socialspreadcart.com
+PAYMENT_PROVIDER=disabled
+STRIPE_SECRET_KEY=...
+STRIPE_WEBHOOK_SECRET=...
+CHECKOUT_SUCCESS_URL=https://thesocialspreadcart.com/checkout/confirmation
+CHECKOUT_CANCEL_URL=https://thesocialspreadcart.com/order-tray
 ```
 
 ### Storage buckets
@@ -83,6 +89,29 @@ Use those for production menu and event photography. The seed content currently 
 - If `SUPABASE_SERVICE_ROLE_KEY` is present, quotes are persisted to Supabase
 - If `RESEND_API_KEY` is present, a notification email is also sent
 - Without Supabase configured, the route returns a successful demo response so the UI remains usable during design review
+
+## Guest ordering and payment
+
+- Menu items can be added to the customer-facing Order Tray from `/menu`
+- Checkout posts to `src/app/api/checkout/route.ts`, revalidates active tenant menu items server-side, creates a pending guest order, and starts hosted payment through the configured payment provider
+- The payment layer lives in `src/services/payment-service.ts`; leave `PAYMENT_PROVIDER=disabled` while Chase details are pending
+- Set `PAYMENT_PROVIDER=stripe` only when using Stripe test or live keys
+- Stripe webhooks post to `src/app/api/webhooks/stripe/route.ts`; configure the webhook signing secret as `STRIPE_WEBHOOK_SECRET`
+- Paid orders appear in `/admin/orders` for authorized tenant admins only
+- Run `supabase/migrations/20260428_guest_ordering_payment.sql` before testing checkout persistence
+
+### Chase payment discovery
+
+Before switching `PAYMENT_PROVIDER` away from `stripe`, confirm which Chase product Shayley uses:
+
+- Chase Payment Solutions online payments
+- Chase QuickAccept
+- Chase POS
+- Chase Paymentech / Orbital
+- Authorize.net or another Chase-backed gateway
+- Whether Chase has enabled hosted checkout, API credentials, and webhook/payment-status callbacks for her account
+
+The order and admin implementation is provider-neutral; only `src/services/payment-service.ts` and the provider webhook route should need to change once Chase answers are available.
 
 ## Deployment
 

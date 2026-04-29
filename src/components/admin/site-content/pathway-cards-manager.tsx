@@ -194,7 +194,7 @@ export function PathwayCardsManager({
           Pathway cards
         </p>
         <h2 className="mt-3 font-heading text-3xl text-[#284237]">
-          Three ways visitors can say yes.
+          The three cards on your home page.
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-ink/60">
           Edit the three cards that appear below the hero. Each card needs a
