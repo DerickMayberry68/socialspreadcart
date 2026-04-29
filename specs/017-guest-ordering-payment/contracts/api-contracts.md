@@ -27,7 +27,15 @@ Creates a tenant-scoped guest order in `payment_pending` state and starts hosted
   "fulfillment": {
     "type": "pickup",
     "requestedAt": "2026-05-01T17:00:00.000Z",
-    "notes": "Pickup at the front table"
+    "notes": "Pickup at the front table",
+    "address": {
+      "line1": "100 Main St",
+      "line2": null,
+      "city": "Bentonville",
+      "state": "AR",
+      "postalCode": "72712",
+      "country": "US"
+    }
   }
 }
 ```
@@ -38,12 +46,20 @@ Creates a tenant-scoped guest order in `payment_pending` state and starts hosted
 {
   "orderId": "uuid",
   "paymentStatus": "pending",
+  "totals": {
+    "subtotalCents": 4500,
+    "taxCents": 438,
+    "feeCents": 132,
+    "totalCents": 5070,
+    "currency": "usd"
+  },
   "checkoutUrl": "https://payment-provider.example/session"
 }
 ```
 
 **Failure Responses**:
 - `400`: empty Order Tray, invalid guest details, invalid fulfillment details, or unavailable item.
+- `422`: tax/fee calculation could not be completed from the submitted fulfillment/location details.
 - `409`: item price or availability changed and the guest must review the Order Tray again.
 - `500`: checkout could not be started.
 
@@ -58,8 +74,13 @@ Returns the tenant-scoped checkout confirmation state for the guest after paymen
   "orderId": "uuid",
   "status": "paid",
   "paymentStatus": "paid",
-  "totalCents": 4500,
-  "currency": "usd",
+  "totals": {
+    "subtotalCents": 4500,
+    "taxCents": 438,
+    "feeCents": 132,
+    "totalCents": 5070,
+    "currency": "usd"
+  },
   "items": [
     {
       "name": "Classic Spread",
@@ -86,6 +107,7 @@ Receives payment provider events and updates order/payment status idempotently.
 - Verify webhook signature before reading event details.
 - Ignore duplicate event ids already applied to the payment record.
 - Mark matching payment/order paid only when provider status confirms payment completion.
+- Reconcile provider-confirmed subtotal, tax, non-taxable processing fee, and total values to the local order/payment record.
 - Mark matching payment/order failed or cancelled on terminal failure/cancel events.
 
 **Responses**:
@@ -110,7 +132,10 @@ Returns tenant-scoped guest orders for the authenticated admin.
     {
       "id": "uuid",
       "guestName": "Jane Guest",
-      "totalCents": 4500,
+      "subtotalCents": 4500,
+      "taxCents": 438,
+      "feeCents": 132,
+      "totalCents": 5070,
       "paymentStatus": "paid",
       "status": "paid",
       "createdAt": "2026-04-28T15:00:00.000Z",

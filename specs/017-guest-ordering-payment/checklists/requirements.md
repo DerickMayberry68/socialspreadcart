@@ -31,4 +31,5 @@
 
 ## Notes
 
-- Validation passed. The spec uses **Order Tray** as the customer-facing selected-items name and leaves provider/payment implementation choices for planning.
+- 2026-04-29 update: tax and non-taxable processing-fee requirements were added.
+- Clarification resolved: FR-018 uses exact gross-up with a 2.6% customer-paid fee target; Shayley may absorb actual processor cost above 2.6%.

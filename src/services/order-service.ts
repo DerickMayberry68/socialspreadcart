@@ -5,9 +5,11 @@ import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import type { MenuItem } from "@/lib/types";
 import type {
   CheckoutSessionResult,
+  FulfillmentAddress,
   GuestOrder,
   GuestOrderSummary,
   OrderLineItem,
+  OrderTotals,
   OrderStatus,
   OrderTrayItem,
   PaymentRecord,
@@ -21,6 +23,7 @@ import {
 import { PaymentService } from "@/services/payment-service";
 
 const tenantIdSchema = z.string().uuid();
+const PROCESSING_FEE_RATE = 0.026;
 
 type SupabaseClient = NonNullable<ReturnType<typeof getSupabaseServiceRoleClient>>;
 
@@ -60,14 +63,66 @@ function normalizeTrayItems(items: OrderTrayItem[]) {
   return [...byId.values()];
 }
 
-export function calculateOrderTotals(items: Array<Pick<OrderLineItem, "line_total_cents">>) {
+export function calculateProcessingFeeCents(taxableTotalCents: number) {
+  if (taxableTotalCents <= 0) return 0;
+  return Math.ceil(taxableTotalCents / (1 - PROCESSING_FEE_RATE) - taxableTotalCents);
+}
+
+export function calculateOrderTotals(
+  items: Array<Pick<OrderLineItem, "line_total_cents">>,
+  taxCents = 0,
+  taxCalculationId?: string | null,
+): OrderTotals {
   const subtotalCents = items.reduce((total, item) => total + item.line_total_cents, 0);
+  const feeCents = calculateProcessingFeeCents(subtotalCents + taxCents);
   return {
     subtotalCents,
-    taxCents: 0,
-    feeCents: 0,
-    totalCents: subtotalCents,
+    taxCents,
+    feeCents,
+    totalCents: subtotalCents + taxCents + feeCents,
     currency: "usd",
+    taxCalculationId,
+  };
+}
+
+function getBusinessTaxAddress(): FulfillmentAddress {
+  const address = {
+    line1: process.env.TAX_ORIGIN_ADDRESS_LINE1,
+    line2: process.env.TAX_ORIGIN_ADDRESS_LINE2,
+    city: process.env.TAX_ORIGIN_ADDRESS_CITY,
+    state: process.env.TAX_ORIGIN_ADDRESS_STATE,
+    postalCode: process.env.TAX_ORIGIN_ADDRESS_POSTAL_CODE,
+    country: process.env.TAX_ORIGIN_ADDRESS_COUNTRY || "US",
+  };
+
+  if (!address.line1 || !address.city || !address.state || !address.postalCode) {
+    const error = new Error("Business tax address is not configured.");
+    error.name = "TaxCalculationError";
+    throw error;
+  }
+
+  return address;
+}
+
+function getFulfillmentTaxAddress(
+  fulfillment: z.output<typeof checkoutSubmissionSchema>["fulfillment"],
+): FulfillmentAddress {
+  if (fulfillment.type === "pickup") return getBusinessTaxAddress();
+
+  const address = fulfillment.address;
+  if (!address?.line1 || !address.city || !address.state || !address.postalCode) {
+    const error = new Error("Fulfillment address is required for tax calculation.");
+    error.name = "TaxCalculationError";
+    throw error;
+  }
+
+  return {
+    line1: address.line1,
+    line2: address.line2,
+    city: address.city,
+    state: address.state,
+    postalCode: address.postalCode,
+    country: address.country || "US",
   };
 }
 
@@ -168,7 +223,13 @@ async function createCheckout(
   const parsed = checkoutSubmissionSchema.parse(input);
   const supabase = getServiceClient();
   const orderItems = await buildOrderItems(parsed.tenantId, parsed.items, supabase);
-  const totals = calculateOrderTotals(orderItems);
+  const taxAddress = getFulfillmentTaxAddress(parsed.fulfillment);
+  const tax = await PaymentService.calculateTax({
+    items: orderItems,
+    currency: "usd",
+    fulfillmentAddress: taxAddress,
+  });
+  const totals = calculateOrderTotals(orderItems, tax.taxCents, tax.taxCalculationId);
 
   const { data: order, error: orderError } = await supabase
     .from("guest_orders")
@@ -229,8 +290,12 @@ async function createCheckout(
     provider_session_id: checkout.sessionId,
     provider_payment_intent_id: checkout.paymentIntentId,
     amount_cents: totals.totalCents,
+    amount_subtotal_cents: totals.subtotalCents,
+    amount_tax_cents: totals.taxCents,
+    amount_fee_cents: totals.feeCents,
     currency: totals.currency,
     status: "pending",
+    tax_calculation_id: totals.taxCalculationId ?? null,
   });
 
   if (paymentError) {
@@ -240,6 +305,7 @@ async function createCheckout(
   return {
     orderId: guestOrder.id,
     paymentStatus: "pending",
+    totals,
     checkoutUrl: checkout.checkoutUrl,
   };
 }
@@ -354,6 +420,10 @@ async function applyHostedCheckoutEvent(
       provider_session_id: event.id,
       provider_payment_intent_id: event.paymentIntentId,
       amount_cents: event.amountCents ?? existing?.amount_cents ?? 0,
+      amount_subtotal_cents:
+        event.subtotalCents ?? existing?.amount_subtotal_cents ?? null,
+      amount_tax_cents: event.taxCents ?? existing?.amount_tax_cents ?? null,
+      amount_fee_cents: event.feeCents ?? existing?.amount_fee_cents ?? null,
       currency: event.currency ?? existing?.currency ?? "usd",
       status,
       raw_event_id: event.eventId,
@@ -369,6 +439,10 @@ async function applyHostedCheckoutEvent(
     .update({
       status: orderStatus,
       payment_status: status,
+      ...(event.subtotalCents !== null ? { subtotal_cents: event.subtotalCents } : {}),
+      ...(event.taxCents !== null ? { tax_cents: event.taxCents } : {}),
+      ...(event.feeCents !== null ? { fee_cents: event.feeCents } : {}),
+      ...(event.amountCents !== null ? { total_cents: event.amountCents } : {}),
       updated_at: new Date().toISOString(),
     })
     .eq("tenant_id", event.tenantId)
@@ -378,6 +452,7 @@ async function applyHostedCheckoutEvent(
 }
 
 export const OrderService = {
+  calculateProcessingFeeCents,
   calculateOrderTotals,
   createCheckout,
   getCheckoutConfirmation,

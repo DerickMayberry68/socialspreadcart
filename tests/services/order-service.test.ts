@@ -10,6 +10,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("@/services/payment-service", () => ({
   PaymentService: {
+    calculateTax: vi.fn(),
     createCheckoutSession: vi.fn(),
   },
 }));
@@ -22,6 +23,7 @@ const TENANT_ID = "11111111-1111-4111-8111-111111111111";
 const ORDER_ID = "22222222-2222-4222-8222-222222222222";
 
 const getServiceClientMock = vi.mocked(getSupabaseServiceRoleClient);
+const calculateTaxMock = vi.mocked(PaymentService.calculateTax);
 const paymentServiceMock = vi.mocked(PaymentService.createCheckoutSession);
 
 function makeCheckoutClient(menuItems: unknown[]) {
@@ -44,9 +46,9 @@ function makeCheckoutClient(menuItems: unknown[]) {
         fulfillment_requested_at: null,
         fulfillment_notes: null,
         subtotal_cents: 2500,
-        tax_cents: 0,
-        fee_cents: 0,
-        total_cents: 2500,
+        tax_cents: 200,
+        fee_cents: 73,
+        total_cents: 2773,
         currency: "usd",
         status: "payment_pending",
         payment_status: "pending",
@@ -75,6 +77,14 @@ function makeCheckoutClient(menuItems: unknown[]) {
 describe("OrderService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.TAX_ORIGIN_ADDRESS_LINE1 = "100 Main St";
+    process.env.TAX_ORIGIN_ADDRESS_CITY = "Bentonville";
+    process.env.TAX_ORIGIN_ADDRESS_STATE = "AR";
+    process.env.TAX_ORIGIN_ADDRESS_POSTAL_CODE = "72712";
+    calculateTaxMock.mockResolvedValue({
+      taxCents: 200,
+      taxCalculationId: "taxcalc_test",
+    });
   });
 
   it("calculates totals from order item snapshots", () => {
@@ -86,10 +96,15 @@ describe("OrderService", () => {
     ).toEqual({
       subtotalCents: 3000,
       taxCents: 0,
-      feeCents: 0,
-      totalCents: 3000,
+      feeCents: 81,
+      totalCents: 3081,
       currency: "usd",
+      taxCalculationId: undefined,
     });
+  });
+
+  it("calculates exact gross-up processing fees", () => {
+    expect(OrderService.calculateProcessingFeeCents(2700)).toBe(73);
   });
 
   it("creates checkout with tenant-scoped menu lookup and item snapshots", async () => {
@@ -121,10 +136,24 @@ describe("OrderService", () => {
     });
 
     expect(result.checkoutUrl).toBe("https://checkout.test");
+    expect(result.totals).toEqual({
+      subtotalCents: 2500,
+      taxCents: 200,
+      feeCents: 73,
+      totalCents: 2773,
+      currency: "usd",
+      taxCalculationId: "taxcalc_test",
+    });
     expect(menuQuery.eq).toHaveBeenCalledWith("tenant_id", TENANT_ID);
     expect(menuQuery.eq).toHaveBeenCalledWith("is_active", true);
     expect(orderQuery.insert).toHaveBeenCalledWith(
-      expect.objectContaining({ tenant_id: TENANT_ID, total_cents: 2500 }),
+      expect.objectContaining({
+        tenant_id: TENANT_ID,
+        subtotal_cents: 2500,
+        tax_cents: 200,
+        fee_cents: 73,
+        total_cents: 2773,
+      }),
     );
     expect(insertOnlyQuery.insert).toHaveBeenCalledWith(
       expect.arrayContaining([
@@ -183,6 +212,9 @@ describe("OrderService", () => {
         tenantId: TENANT_ID,
         paymentIntentId: "pi_test",
         amountCents: 2500,
+        subtotalCents: 2500,
+        taxCents: 0,
+        feeCents: 0,
         currency: "usd",
         status: "paid",
       },

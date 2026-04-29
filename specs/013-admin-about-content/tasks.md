@@ -11,7 +11,7 @@
 
 **Purpose**: Prepare shared schema, fallbacks, and types used by all About stories.
 
-- [X] T001 Create About content migration in supabase/migrations/20260425_admin_about_content.sql
+- [X] T001 Create About content migration in supabase/migrations/20260425000000_admin_about_content.sql
 - [X] T002 [P] Add About fallback copy, image, and card defaults in src/lib/fallback-data.ts
 - [X] T003 [P] Add About content domain types in src/lib/types/site-content.ts
 - [X] T004 [P] Add About validation schemas in src/lib/validation/site-content.ts

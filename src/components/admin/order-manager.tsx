@@ -94,9 +94,14 @@ export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
             </div>
 
             <div className="min-w-[220px]">
-              <p className="text-right font-heading text-3xl text-[#284237]">
-                {formatPrice(order.total_cents)}
-              </p>
+              <div className="space-y-1 text-right text-sm">
+                <p className="text-ink/50">Subtotal {formatPrice(order.subtotal_cents)}</p>
+                <p className="text-ink/50">Tax {formatPrice(order.tax_cents)}</p>
+                <p className="text-ink/50">Processing fee {formatPrice(order.fee_cents)}</p>
+                <p className="font-heading text-3xl text-[#284237]">
+                  {formatPrice(order.total_cents)}
+                </p>
+              </div>
               <p className="mt-1 text-right text-xs uppercase tracking-[0.14em] text-ink/45">
                 {order.payment_status}
               </p>

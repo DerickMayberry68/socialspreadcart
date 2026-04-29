@@ -34,6 +34,13 @@ describe("POST /api/checkout", () => {
     createCheckoutMock.mockResolvedValue({
       orderId: "22222222-2222-4222-8222-222222222222",
       paymentStatus: "pending",
+      totals: {
+        subtotalCents: 2500,
+        taxCents: 200,
+        feeCents: 73,
+        totalCents: 2773,
+        currency: "usd",
+      },
       checkoutUrl: "https://checkout.test",
     });
 
@@ -49,7 +56,15 @@ describe("POST /api/checkout", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(await response.json()).toMatchObject({ checkoutUrl: "https://checkout.test" });
+    expect(await response.json()).toMatchObject({
+      checkoutUrl: "https://checkout.test",
+      totals: {
+        subtotalCents: 2500,
+        taxCents: 200,
+        feeCents: 73,
+        totalCents: 2773,
+      },
+    });
     expect(createCheckoutMock).toHaveBeenCalledWith(
       expect.objectContaining({
         tenantId: "11111111-1111-4111-8111-111111111111",
@@ -70,5 +85,24 @@ describe("POST /api/checkout", () => {
     );
 
     expect(response.status).toBe(409);
+  });
+
+  it("returns unprocessable entity when tax calculation fails", async () => {
+    const error = new Error("Business tax address is not configured.");
+    error.name = "TaxCalculationError";
+    createCheckoutMock.mockRejectedValue(error);
+
+    const response = await POST(
+      new Request("https://site.test/api/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          items: [{ menuItemId: "menu-1", quantity: 1, notes: "" }],
+          guest: { name: "Guest", email: "guest@example.com", phone: "" },
+          fulfillment: { type: "pickup", requestedAt: null, notes: "" },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(422);
   });
 });

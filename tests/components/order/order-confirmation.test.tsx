@@ -15,9 +15,9 @@ function makeOrder(paymentStatus: GuestOrderSummary["payment_status"]) {
     fulfillment_requested_at: null,
     fulfillment_notes: null,
     subtotal_cents: 100,
-    tax_cents: 0,
-    fee_cents: 0,
-    total_cents: 100,
+    tax_cents: 10,
+    fee_cents: 3,
+    total_cents: 113,
     currency: "usd",
     status: paymentStatus === "paid" ? "paid" : "payment_pending",
     payment_status: paymentStatus,
@@ -55,6 +55,10 @@ describe("OrderConfirmation", () => {
 
     expect(screen.getByText("Order total")).toBeInTheDocument();
     expect(screen.getByText("We are checking payment.")).toBeInTheDocument();
+    expect(screen.getByText("Subtotal")).toBeInTheDocument();
+    expect(screen.getByText("Calculated tax")).toBeInTheDocument();
+    expect(screen.getByText("Non-taxable processing fee")).toBeInTheDocument();
+    expect(screen.getByText("$1.13")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByText("Total paid")).toBeInTheDocument();

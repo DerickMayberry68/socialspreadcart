@@ -110,11 +110,25 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
         ))}
       </div>
 
-      <div className="mt-6 flex items-center justify-between border-t border-sage/10 pt-5">
-        <p className="text-sm uppercase tracking-[0.16em] text-ink/45">
-          {paid ? "Total paid" : "Order total"}
-        </p>
-        <p className="font-heading text-3xl text-[#284237]">{formatPrice(currentOrder.total_cents)}</p>
+      <div className="mt-6 space-y-3 border-t border-sage/10 pt-5 text-sm">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-ink/55">Subtotal</p>
+          <p className="font-medium text-ink">{formatPrice(currentOrder.subtotal_cents)}</p>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-ink/55">Calculated tax</p>
+          <p className="font-medium text-ink">{formatPrice(currentOrder.tax_cents)}</p>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-ink/55">Non-taxable processing fee</p>
+          <p className="font-medium text-ink">{formatPrice(currentOrder.fee_cents)}</p>
+        </div>
+        <div className="flex items-center justify-between gap-4 border-t border-sage/10 pt-4">
+          <p className="text-sm uppercase tracking-[0.16em] text-ink/45">
+            {paid ? "Total paid" : "Order total"}
+          </p>
+          <p className="font-heading text-3xl text-[#284237]">{formatPrice(currentOrder.total_cents)}</p>
+        </div>
       </div>
 
       <Button className="mt-7" asChild>
