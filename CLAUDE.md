@@ -36,4 +36,5 @@ TypeScript 5.6: Follow standard conventions
 - SocialSpreadCart is a shared multi-tenant platform. New clients should be modeled as new tenant-scoped records in the existing database, never as separate databases.
 - Admin-editable public content (site configuration, hero, pathway cards) is accessed exclusively through `SiteContentService` in `src/services/site-content-service.ts`. Do not read `site_configuration`, `hero_content`, or `pathway_cards` tables from pages/components directly; use the service so DB fallbacks, caching, and `revalidateTag` are consistent. Cache tag format: `site-content:<tenant_id>`.
 - Admin API routes under `src/app/api/admin/site-content/**` must start by calling `requireTenantAdmin()` and short-circuit on `'error' in guard`.
+- Do not bypass Spec Kit for admin workflows, data model/schema behavior, tenant behavior, public content behavior, or non-trivial production bug fixes unless the user explicitly confirms it is a hotfix and should proceed outside the spec flow. Default to asking and using Spec Kit.
 <!-- MANUAL ADDITIONS END -->

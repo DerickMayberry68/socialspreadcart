@@ -11,6 +11,7 @@
   - `$speckit-analyze` before implementation when spec, plan, and tasks need consistency checks.
   - `$speckit-implement` only after the spec, plan, and tasks are ready.
 - If the user asks for code changes without mentioning specs, pause long enough to create or update the appropriate spec unless the change is clearly trivial.
+- If the user asks to bypass Spec Kit for an admin workflow, data model/schema behavior, tenant behavior, public content behavior, or any non-trivial production bug fix, ask for explicit confirmation first. Treat production hotfixes as an exception that must be named before proceeding; default to the Spec Kit flow in nearly all cases.
 - Keep `.specify/feature.json` pointed at the active feature directory so downstream Spec Kit steps use the correct spec.
 
 ## Project-Specific Rules

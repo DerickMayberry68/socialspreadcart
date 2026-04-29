@@ -25,7 +25,6 @@ const empty = {
   location: "",
   description: "",
   image_url: "",
-  join_url: "",
 };
 
 function EventForm({
@@ -95,10 +94,7 @@ function EventForm({
         {field("Title", "title")}
         {field("Date and time", "date", "datetime-local")}
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {field("Location", "location")}
-        {field("Join or RSVP URL", "join_url", "url", false)}
-      </div>
+      {field("Location", "location")}
       <label className="space-y-2">
         <span className="text-xs uppercase tracking-[0.13em] text-ink/45">Description *</span>
         <textarea
