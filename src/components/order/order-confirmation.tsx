@@ -9,12 +9,71 @@ import type { GuestOrderSummary } from "@/lib/types/order";
 import { formatPrice } from "@/lib/utils";
 import { clearOrderTray } from "@/components/order/order-tray-panel";
 
-export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
-  React.useEffect(() => {
-    if (order.payment_status === "paid") clearOrderTray();
-  }, [order.payment_status]);
+type CheckoutConfirmResponse = {
+  order?: GuestOrderSummary;
+};
 
-  const paid = order.payment_status === "paid";
+const PAYMENT_POLL_INTERVAL_MS = 3000;
+const PAYMENT_POLL_MAX_ATTEMPTS = 20;
+
+export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
+  const [currentOrder, setCurrentOrder] =
+    React.useState<GuestOrderSummary>(order);
+
+  React.useEffect(() => {
+    clearOrderTray();
+  }, [order.id]);
+
+  React.useEffect(() => {
+    setCurrentOrder(order);
+  }, [order]);
+
+  React.useEffect(() => {
+    if (currentOrder.payment_status === "paid") return;
+
+    let cancelled = false;
+    let attempts = 0;
+
+    async function refreshPaymentStatus() {
+      attempts += 1;
+
+      try {
+        const response = await fetch(
+          `/api/checkout/confirm?orderId=${encodeURIComponent(currentOrder.id)}`,
+          { cache: "no-store" },
+        );
+        const result = (await response.json()) as CheckoutConfirmResponse;
+
+        if (!cancelled && result.order) {
+          setCurrentOrder((previous) =>
+            result.order &&
+            result.order.payment_status !== previous.payment_status
+              ? result.order
+              : previous,
+          );
+        }
+      } catch {
+        // Keep the current pending state; the next interval can retry.
+      }
+
+      if (attempts >= PAYMENT_POLL_MAX_ATTEMPTS) {
+        window.clearInterval(intervalId);
+      }
+    }
+
+    const intervalId = window.setInterval(
+      refreshPaymentStatus,
+      PAYMENT_POLL_INTERVAL_MS,
+    );
+    void refreshPaymentStatus();
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
+  }, [currentOrder.id, currentOrder.payment_status]);
+
+  const paid = currentOrder.payment_status === "paid";
   const Icon = paid ? CheckCircle2 : Clock;
 
   return (
@@ -31,13 +90,13 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
             {paid ? "Your order is in." : "We are checking payment."}
           </h1>
           <p className="mt-3 text-sm leading-7 text-ink/62">
-            Order #{order.id.slice(0, 8)} for {order.guest_name}
+            Order #{currentOrder.id.slice(0, 8)} for {currentOrder.guest_name}
           </p>
         </div>
       </div>
 
       <div className="mt-8 divide-y divide-sage/10 rounded-[24px] border border-sage/10">
-        {order.items.map((item) => (
+        {currentOrder.items.map((item) => (
           <div key={`${item.menu_item_id}-${item.name}`} className="flex justify-between gap-4 px-5 py-4">
             <div>
               <p className="font-medium text-ink">{item.name}</p>
@@ -52,8 +111,10 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
       </div>
 
       <div className="mt-6 flex items-center justify-between border-t border-sage/10 pt-5">
-        <p className="text-sm uppercase tracking-[0.16em] text-ink/45">Total paid</p>
-        <p className="font-heading text-3xl text-[#284237]">{formatPrice(order.total_cents)}</p>
+        <p className="text-sm uppercase tracking-[0.16em] text-ink/45">
+          {paid ? "Total paid" : "Order total"}
+        </p>
+        <p className="font-heading text-3xl text-[#284237]">{formatPrice(currentOrder.total_cents)}</p>
       </div>
 
       <Button className="mt-7" asChild>
