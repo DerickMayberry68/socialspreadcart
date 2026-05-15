@@ -28,6 +28,9 @@ export const defaultMetadata: Metadata = {
     template: "%s | The Social Spread Cart",
   },
   description: siteConfig.description,
+  verification: {
+    google: "bfILi7UfYT-e5pTAZFQRek65zNp41_TIhegIyid2lAc",
+  },
   keywords: [
     "charcuterie Bentonville",
     "dirty soda Bentonville",
