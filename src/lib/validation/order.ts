@@ -7,7 +7,7 @@ export const orderTrayItemSchema = z.object({
   options: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
-const fulfillmentAddressSchema = z.object({
+export const fulfillmentAddressSchema = z.object({
   line1: z.string().trim().max(120).optional().or(z.literal("")),
   line2: z.string().trim().max(120).optional().or(z.literal("")).nullable(),
   city: z.string().trim().max(80).optional().or(z.literal("")),
@@ -45,6 +45,14 @@ export const checkoutSubmissionSchema = z.object({
         });
       }
     }
+
+    if (!fulfillment.requestedAt) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Delivery requests require a requested date and time.",
+        path: ["requestedAt"],
+      });
+    }
   }),
 });
 
@@ -52,6 +60,7 @@ export const orderTotalsSchema = z.object({
   subtotalCents: z.number().int().nonnegative(),
   taxCents: z.number().int().nonnegative(),
   feeCents: z.number().int().nonnegative(),
+  deliveryFeeCents: z.number().int().nonnegative().default(0),
   totalCents: z.number().int().nonnegative(),
   currency: z.string().length(3),
   taxCalculationId: z.string().optional().nullable(),
@@ -66,6 +75,37 @@ export const adminFulfillmentUpdateSchema = z.object({
   tenantId: z.string().uuid(),
   orderId: z.string().uuid(),
   status: z.enum(["paid", "preparing", "fulfilled", "cancelled"]),
+});
+
+export const adminDeliveryDecisionSchema = z.object({
+  tenantId: z.string().uuid(),
+  orderId: z.string().uuid(),
+  adminUserId: z.string().uuid(),
+  decision: z.enum(["approve", "decline", "offer_pickup", "withdraw_approval"]),
+  note: z.string().trim().max(1000).optional().default(""),
+  deliveryFeeCents: z.number().int().nonnegative().max(100000).optional().default(0),
+  approvedFulfillmentRequestedAt: z.string().datetime().optional().nullable(),
+  approvalExpiresAt: z.string().datetime().optional().nullable(),
+}).superRefine((decision, context) => {
+  if (
+    (decision.decision === "decline" ||
+      decision.decision === "offer_pickup" ||
+      decision.decision === "withdraw_approval") &&
+    !decision.note
+  ) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "A customer-visible note is required for this decision.",
+      path: ["note"],
+    });
+  }
+});
+
+export const deliveryPaymentSchema = z.object({
+  tenantId: z.string().uuid(),
+  orderId: z.string().uuid(),
+  successUrl: z.string().url(),
+  cancelUrl: z.string().url(),
 });
 
 export type CheckoutSubmissionInput = z.input<typeof checkoutSubmissionSchema>;

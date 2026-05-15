@@ -67,6 +67,7 @@ function makeCheckoutClient(menuItems: unknown[]) {
       if (table === "guest_orders") return orderQuery;
       if (table === "guest_order_items") return insertOnlyQuery;
       if (table === "payment_records") return insertOnlyQuery;
+      if (table === "order_status_history") return insertOnlyQuery;
       throw new Error(`Unexpected table ${table}`);
     }),
   };
@@ -97,6 +98,7 @@ describe("OrderService", () => {
       subtotalCents: 3000,
       taxCents: 0,
       feeCents: 81,
+      deliveryFeeCents: 0,
       totalCents: 3081,
       currency: "usd",
       taxCalculationId: undefined,
@@ -135,11 +137,13 @@ describe("OrderService", () => {
       cancelUrl: "https://site.test/order-tray",
     });
 
-    expect(result.checkoutUrl).toBe("https://checkout.test");
+    expect(result.mode).toBe("payment");
+    expect(result.mode === "payment" ? result.checkoutUrl : null).toBe("https://checkout.test");
     expect(result.totals).toEqual({
       subtotalCents: 2500,
       taxCents: 200,
       feeCents: 73,
+      deliveryFeeCents: 0,
       totalCents: 2773,
       currency: "usd",
       taxCalculationId: "taxcalc_test",

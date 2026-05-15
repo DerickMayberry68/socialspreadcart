@@ -24,7 +24,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, message: "Order not found." }, { status: 404 });
   }
 
-  if (order.payment_status !== "paid") {
+  if (
+    order.payment_status !== "paid" &&
+    order.fulfillment_type !== "delivery"
+  ) {
     return NextResponse.json(
       { ok: false, message: "Payment has not completed.", order },
       { status: 409 },

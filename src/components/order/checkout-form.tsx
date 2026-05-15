@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard } from "lucide-react";
+import { Clock, CreditCard } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,16 +38,19 @@ const initialState: FormState = {
 };
 
 type CheckoutStartResult = {
+  mode: "payment" | "delivery_request";
   orderId: string;
   paymentStatus: string;
+  message?: string;
   totals: {
     subtotalCents: number;
     taxCents: number;
     feeCents: number;
+    deliveryFeeCents?: number;
     totalCents: number;
     currency: string;
   };
-  checkoutUrl: string;
+  checkoutUrl?: string;
 };
 
 export function CheckoutForm() {
@@ -114,7 +117,7 @@ export function CheckoutForm() {
 
     const result = await response.json().catch(() => null);
 
-    if (!response.ok || !result?.checkoutUrl || !result?.totals) {
+    if (!response.ok || !result?.totals) {
       setIsSubmitting(false);
       setError(result?.message ?? "Checkout could not be started.");
       if (response.status === 409) router.push("/order-tray");
@@ -167,6 +170,13 @@ export function CheckoutForm() {
             <option value="other">Other</option>
           </select>
         </label>
+        {form.fulfillmentType === "delivery" && (
+          <div className="sm:col-span-2 rounded-[18px] border border-[#e4dbc9] bg-[#fffaf4] px-4 py-3 text-sm leading-6 text-ink/62">
+            Delivery requests are reviewed before payment. You will not be
+            charged until Shayley approves the delivery time, location, and any
+            delivery fee.
+          </div>
+        )}
         <label className="space-y-2">
           <span className="text-xs uppercase tracking-[0.14em] text-ink/45">Requested time</span>
           <Input
@@ -234,28 +244,53 @@ export function CheckoutForm() {
               <span className="text-ink/60">Non-taxable processing fee</span>
               <span className="font-medium text-ink">{formatPrice(checkoutResult.totals.feeCents)}</span>
             </div>
+            {(checkoutResult.totals.deliveryFeeCents ?? 0) > 0 && (
+              <div className="flex justify-between gap-4">
+                <span className="text-ink/60">Delivery fee</span>
+                <span className="font-medium text-ink">{formatPrice(checkoutResult.totals.deliveryFeeCents ?? 0)}</span>
+              </div>
+            )}
             <div className="flex justify-between gap-4 border-t border-sage/10 pt-3 font-heading text-2xl text-[#284237]">
               <span>Total</span>
               <span>{formatPrice(checkoutResult.totals.totalCents)}</span>
             </div>
           </div>
-          <Button
-            className="mt-5 w-full"
-            type="button"
-            onClick={() => {
-              window.location.href = checkoutResult.checkoutUrl;
-            }}
-          >
-            <CreditCard className="h-4 w-4" />
-            Continue to Secure Payment
-          </Button>
+          {checkoutResult.mode === "delivery_request" ? (
+            <Button
+              className="mt-5 w-full"
+              type="button"
+              onClick={() => {
+                router.push(`/checkout/confirmation?orderId=${checkoutResult.orderId}`);
+              }}
+            >
+              <Clock className="h-4 w-4" />
+              View Delivery Request
+            </Button>
+          ) : (
+            <Button
+              className="mt-5 w-full"
+              type="button"
+              onClick={() => {
+                if (checkoutResult.checkoutUrl) {
+                  window.location.href = checkoutResult.checkoutUrl;
+                }
+              }}
+            >
+              <CreditCard className="h-4 w-4" />
+              Continue to Secure Payment
+            </Button>
+          )}
         </div>
       )}
 
       {!checkoutResult && (
         <Button className="mt-6 w-full" disabled={isSubmitting}>
           <CreditCard className="h-4 w-4" />
-          {isSubmitting ? "Calculating Total..." : "Review Total"}
+          {isSubmitting
+            ? "Submitting..."
+            : form.fulfillmentType === "delivery"
+              ? "Submit Delivery Request"
+              : "Review Total"}
         </Button>
       )}
     </form>

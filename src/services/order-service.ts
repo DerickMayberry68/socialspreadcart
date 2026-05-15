@@ -16,9 +16,11 @@ import type {
   PaymentStatus,
 } from "@/lib/types/order";
 import {
+  adminDeliveryDecisionSchema,
   adminFulfillmentUpdateSchema,
   checkoutConfirmSchema,
   checkoutSubmissionSchema,
+  deliveryPaymentSchema,
 } from "@/lib/validation/order";
 import { PaymentService } from "@/services/payment-service";
 
@@ -71,15 +73,17 @@ export function calculateProcessingFeeCents(taxableTotalCents: number) {
 export function calculateOrderTotals(
   items: Array<Pick<OrderLineItem, "line_total_cents">>,
   taxCents = 0,
+  deliveryFeeCents = 0,
   taxCalculationId?: string | null,
 ): OrderTotals {
   const subtotalCents = items.reduce((total, item) => total + item.line_total_cents, 0);
-  const feeCents = calculateProcessingFeeCents(subtotalCents + taxCents);
+  const feeCents = calculateProcessingFeeCents(subtotalCents + taxCents + deliveryFeeCents);
   return {
     subtotalCents,
     taxCents,
     feeCents,
-    totalCents: subtotalCents + taxCents + feeCents,
+    deliveryFeeCents,
+    totalCents: subtotalCents + taxCents + deliveryFeeCents + feeCents,
     currency: "usd",
     taxCalculationId,
   };
@@ -217,19 +221,48 @@ async function getOrderSummary(
   };
 }
 
+async function recordStatusHistory(
+  supabase: SupabaseClient,
+  input: {
+    tenantId: string;
+    orderId: string;
+    eventType: string;
+    fromStatus?: string | null;
+    toStatus?: string | null;
+    note?: string | null;
+    customerVisible?: boolean;
+    createdBy?: string | null;
+  },
+) {
+  const { error } = await supabase.from("order_status_history").insert({
+    tenant_id: input.tenantId,
+    order_id: input.orderId,
+    event_type: input.eventType,
+    from_status: input.fromStatus ?? null,
+    to_status: input.toStatus ?? null,
+    note: input.note ?? null,
+    customer_visible: input.customerVisible ?? false,
+    created_by: input.createdBy ?? null,
+  });
+
+  if (error) throw new Error(error.message);
+}
+
 async function createCheckout(
   input: CreateCheckoutInput,
 ): Promise<CheckoutSessionResult> {
   const parsed = checkoutSubmissionSchema.parse(input);
   const supabase = getServiceClient();
   const orderItems = await buildOrderItems(parsed.tenantId, parsed.items, supabase);
-  const taxAddress = getFulfillmentTaxAddress(parsed.fulfillment);
-  const tax = await PaymentService.calculateTax({
-    items: orderItems,
-    currency: "usd",
-    fulfillmentAddress: taxAddress,
-  });
-  const totals = calculateOrderTotals(orderItems, tax.taxCents, tax.taxCalculationId);
+  const isDeliveryRequest = parsed.fulfillment.type === "delivery";
+  const tax = isDeliveryRequest
+    ? { taxCents: 0, taxCalculationId: null }
+    : await PaymentService.calculateTax({
+        items: orderItems,
+        currency: "usd",
+        fulfillmentAddress: getFulfillmentTaxAddress(parsed.fulfillment),
+      });
+  const totals = calculateOrderTotals(orderItems, tax.taxCents, 0, tax.taxCalculationId);
 
   const { data: order, error: orderError } = await supabase
     .from("guest_orders")
@@ -241,13 +274,16 @@ async function createCheckout(
       fulfillment_type: parsed.fulfillment.type,
       fulfillment_requested_at: parsed.fulfillment.requestedAt || null,
       fulfillment_notes: parsed.fulfillment.notes || null,
+      fulfillment_address: parsed.fulfillment.address ?? null,
       subtotal_cents: totals.subtotalCents,
       tax_cents: totals.taxCents,
       fee_cents: totals.feeCents,
+      delivery_fee_cents: totals.deliveryFeeCents,
       total_cents: totals.totalCents,
       currency: totals.currency,
-      status: "payment_pending",
-      payment_status: "pending",
+      status: isDeliveryRequest ? "delivery_requested" : "payment_pending",
+      payment_status: isDeliveryRequest ? "not_started" : "pending",
+      delivery_status: isDeliveryRequest ? "requested" : "not_required",
     })
     .select("*")
     .single();
@@ -269,6 +305,26 @@ async function createCheckout(
 
   if (itemError) {
     throw new Error(itemError.message);
+  }
+
+  await recordStatusHistory(supabase, {
+    tenantId: parsed.tenantId,
+    orderId: guestOrder.id,
+    eventType: isDeliveryRequest ? "delivery_requested" : "submitted",
+    toStatus: guestOrder.status,
+    customerVisible: isDeliveryRequest,
+  });
+
+  if (isDeliveryRequest) {
+    return {
+      mode: "delivery_request",
+      orderId: guestOrder.id,
+      status: "delivery_requested",
+      deliveryStatus: "requested",
+      paymentStatus: "not_started",
+      message: "Delivery requested. Shayley will approve delivery before payment.",
+      totals,
+    };
   }
 
   const summary: GuestOrderSummary = {
@@ -303,9 +359,215 @@ async function createCheckout(
   }
 
   return {
+    mode: "payment",
     orderId: guestOrder.id,
     paymentStatus: "pending",
     totals,
+    checkoutUrl: checkout.checkoutUrl,
+  };
+}
+
+function defaultApprovalExpiration() {
+  const date = new Date();
+  date.setHours(date.getHours() + 48);
+  return date.toISOString();
+}
+
+async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>) {
+  const parsed = adminDeliveryDecisionSchema.parse(input);
+  const supabase = getServiceClient();
+  const order = await getOrderSummary(parsed.tenantId, parsed.orderId, supabase);
+
+  if (!order) {
+    const error = new Error("Order not found.");
+    error.name = "OrderNotFoundError";
+    throw error;
+  }
+
+  if (order.fulfillment_type !== "delivery") {
+    const error = new Error("Only delivery requests can receive delivery decisions.");
+    error.name = "OrderStateError";
+    throw error;
+  }
+
+  if (order.payment_status === "paid") {
+    const error = new Error("Paid orders cannot receive delivery decisions.");
+    error.name = "OrderStateError";
+    throw error;
+  }
+
+  const now = new Date().toISOString();
+  let update: Partial<GuestOrder> = {};
+  let eventType = "";
+  let customerVisible = true;
+
+  if (parsed.decision === "approve") {
+    if (
+      order.delivery_status !== "requested" &&
+      order.delivery_status !== "expired" &&
+      order.delivery_status !== "approval_withdrawn"
+    ) {
+      const error = new Error("This delivery request is not ready for approval.");
+      error.name = "OrderStateError";
+      throw error;
+    }
+
+    const tax = await PaymentService.calculateTax({
+      items: order.items,
+      currency: order.currency,
+      fulfillmentAddress: order.fulfillment_address ?? {},
+    });
+    const totals = calculateOrderTotals(
+      order.items,
+      tax.taxCents,
+      parsed.deliveryFeeCents,
+      tax.taxCalculationId,
+    );
+
+    update = {
+      status: "delivery_approved_payment_needed",
+      payment_status: "not_started",
+      delivery_status: "approved_payment_needed",
+      fulfillment_requested_at:
+        parsed.approvedFulfillmentRequestedAt ?? order.fulfillment_requested_at,
+      tax_cents: totals.taxCents,
+      fee_cents: totals.feeCents,
+      delivery_fee_cents: totals.deliveryFeeCents,
+      total_cents: totals.totalCents,
+      approved_total_cents: totals.totalCents,
+      delivery_decision_note: parsed.note || "Delivery approved. Payment is needed to confirm the order.",
+      delivery_approved_at: now,
+      delivery_approval_expires_at: parsed.approvalExpiresAt ?? defaultApprovalExpiration(),
+      delivery_decided_by: parsed.adminUserId,
+      updated_at: now,
+    };
+    eventType = "delivery_approved";
+  } else if (parsed.decision === "decline") {
+    update = {
+      status: "delivery_declined",
+      delivery_status: "declined",
+      payment_status: "not_started",
+      delivery_decision_note: parsed.note,
+      delivery_decided_by: parsed.adminUserId,
+      updated_at: now,
+    };
+    eventType = "delivery_declined";
+  } else if (parsed.decision === "offer_pickup") {
+    update = {
+      status: "pickup_offered",
+      delivery_status: "pickup_offered",
+      payment_status: "not_started",
+      delivery_decision_note: parsed.note,
+      delivery_decided_by: parsed.adminUserId,
+      updated_at: now,
+    };
+    eventType = "pickup_offered";
+  } else {
+    if (order.delivery_status !== "approved_payment_needed") {
+      const error = new Error("Only approved unpaid delivery requests can be withdrawn.");
+      error.name = "OrderStateError";
+      throw error;
+    }
+    update = {
+      status: "approval_withdrawn",
+      delivery_status: "approval_withdrawn",
+      payment_status: "not_started",
+      delivery_decision_note: parsed.note,
+      delivery_decided_by: parsed.adminUserId,
+      updated_at: now,
+    };
+    eventType = "approval_withdrawn";
+  }
+
+  const { error } = await supabase
+    .from("guest_orders")
+    .update(update)
+    .eq("tenant_id", parsed.tenantId)
+    .eq("id", parsed.orderId);
+
+  if (error) throw new Error(error.message);
+
+  await recordStatusHistory(supabase, {
+    tenantId: parsed.tenantId,
+    orderId: parsed.orderId,
+    eventType,
+    fromStatus: order.status,
+    toStatus: update.status ?? null,
+    note: parsed.note,
+    customerVisible,
+    createdBy: parsed.adminUserId,
+  });
+
+  return getOrderSummary(parsed.tenantId, parsed.orderId, supabase);
+}
+
+async function createDeliveryPayment(input: z.input<typeof deliveryPaymentSchema>) {
+  const parsed = deliveryPaymentSchema.parse(input);
+  const supabase = getServiceClient();
+  const order = await getOrderSummary(parsed.tenantId, parsed.orderId, supabase);
+
+  if (!order) {
+    const error = new Error("Order not found.");
+    error.name = "OrderNotFoundError";
+    throw error;
+  }
+
+  PaymentService.assertOrderPaymentEligible(order);
+
+  const checkout = await PaymentService.createCheckoutSession({
+    order,
+    successUrl: parsed.successUrl,
+    cancelUrl: parsed.cancelUrl,
+  });
+
+  const { error: paymentError } = await supabase.from("payment_records").insert({
+    tenant_id: parsed.tenantId,
+    order_id: order.id,
+    provider: checkout.provider,
+    provider_session_id: checkout.sessionId,
+    provider_payment_intent_id: checkout.paymentIntentId,
+    amount_cents: order.total_cents,
+    amount_subtotal_cents: order.subtotal_cents,
+    amount_tax_cents: order.tax_cents,
+    amount_fee_cents: order.fee_cents,
+    currency: order.currency,
+    status: "pending",
+  });
+
+  if (paymentError) throw new Error(paymentError.message);
+
+  const { error: orderError } = await supabase
+    .from("guest_orders")
+    .update({
+      payment_status: "pending",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("tenant_id", parsed.tenantId)
+    .eq("id", order.id);
+
+  if (orderError) throw new Error(orderError.message);
+
+  await recordStatusHistory(supabase, {
+    tenantId: parsed.tenantId,
+    orderId: order.id,
+    eventType: "payment_started",
+    fromStatus: order.status,
+    toStatus: order.status,
+    customerVisible: false,
+  });
+
+  return {
+    mode: "payment" as const,
+    orderId: order.id,
+    paymentStatus: "pending" as const,
+    totals: {
+      subtotalCents: order.subtotal_cents,
+      taxCents: order.tax_cents,
+      feeCents: order.fee_cents,
+      deliveryFeeCents: order.delivery_fee_cents ?? 0,
+      totalCents: order.total_cents,
+      currency: order.currency,
+    },
     checkoutUrl: checkout.checkoutUrl,
   };
 }
@@ -434,11 +696,34 @@ async function applyHostedCheckoutEvent(
 
   if (paymentError) throw new Error(paymentError.message);
 
+  const { data: orderBefore, error: orderLookupError } = await supabase
+    .from("guest_orders")
+    .select("*")
+    .eq("tenant_id", event.tenantId)
+    .eq("id", event.orderId)
+    .maybeSingle();
+
+  if (orderLookupError) throw new Error(orderLookupError.message);
+
+  const currentOrder = orderBefore as GuestOrder | null;
+  if (
+    status === "paid" &&
+    currentOrder?.fulfillment_type === "delivery" &&
+    currentOrder.delivery_status !== "approved_payment_needed"
+  ) {
+    const error = new Error("Delivery order is not approved for payment.");
+    error.name = "OrderStateError";
+    throw error;
+  }
+
   const { error: orderError } = await supabase
     .from("guest_orders")
     .update({
       status: orderStatus,
       payment_status: status,
+      ...(status === "paid" && currentOrder?.fulfillment_type === "delivery"
+        ? { delivery_status: "paid" }
+        : {}),
       ...(event.subtotalCents !== null ? { subtotal_cents: event.subtotalCents } : {}),
       ...(event.taxCents !== null ? { tax_cents: event.taxCents } : {}),
       ...(event.feeCents !== null ? { fee_cents: event.feeCents } : {}),
@@ -449,6 +734,15 @@ async function applyHostedCheckoutEvent(
     .eq("id", event.orderId);
 
   if (orderError) throw new Error(orderError.message);
+
+  await recordStatusHistory(supabase, {
+    tenantId: event.tenantId,
+    orderId: event.orderId,
+    eventType: status === "paid" ? "payment_paid" : "payment_failed",
+    fromStatus: currentOrder?.status ?? null,
+    toStatus: orderStatus,
+    customerVisible: true,
+  });
 }
 
 export const OrderService = {
@@ -458,5 +752,7 @@ export const OrderService = {
   getCheckoutConfirmation,
   listOrders,
   updateFulfillmentStatus,
+  decideDelivery,
+  createDeliveryPayment,
   applyHostedCheckoutEvent,
 };

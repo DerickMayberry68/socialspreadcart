@@ -9,6 +9,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-29
 - Supabase Postgres tables for guest orders, order items, and payment records; existing `menu_items` table remains the source for orderable items (017-guest-ordering-payment)
 - TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/Server Actions, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK 22.1.0, Stripe Checkout, Stripe Tax Calculation (fix/admin-event-schema-cache)
 - Supabase Postgres tables for guest orders, order items, and payment records; existing `menu_items` table remains the source for orderable items; guest orders must persist `subtotal_cents`, `tax_cents`, `fee_cents`, and `total_cents` as separate values (fix/admin-event-schema-cache)
+- TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/API routes, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK 22.1.0 (018-delivery-approval)
+- Supabase Postgres tables for `guest_orders`, `guest_order_items`, `payment_records`; new delivery approval metadata and status history stored in tenant-scoped tables/columns (018-delivery-approval)
 
 - TypeScript 5.6 + Next.js 15.5 (App Router), React 19, Tailwind CSS 3.4, (main)
 
@@ -29,9 +31,9 @@ npm test; npm run lint
 TypeScript 5.6: Follow standard conventions
 
 ## Recent Changes
+- 018-delivery-approval: Added TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/API routes, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK 22.1.0
 - fix/admin-event-schema-cache: Added TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/Server Actions, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK 22.1.0, Stripe Checkout, Stripe Tax Calculation
 - 017-guest-ordering-payment: Added TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/Server Actions, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK to be added for payment sessions and webhook verification
-- 012-admin-editable-hero-and-cards: Added TypeScript 5.6 (strict), React 19.2 + Next.js 15.5 (App Router, Server Components,
 
 
 <!-- MANUAL ADDITIONS START -->
