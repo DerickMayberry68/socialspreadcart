@@ -8,9 +8,12 @@ import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "Events Calendar",
+  title: "Pop-Ups & Events in Northwest Arkansas",
   description:
     "Browse upcoming pop-ups, public tasting events, and appearances from The Social Spread Cart.",
+  alternates: {
+    canonical: "/events",
+  },
 };
 
 export default async function EventsPage() {
@@ -26,6 +29,7 @@ export default async function EventsPage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={content.eyebrow}
           title={content.title}
           description={content.description}

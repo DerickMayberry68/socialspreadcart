@@ -11,9 +11,12 @@ import type { AboutFeatureCard } from "@/lib/types/site-content";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About The Social Spread Cart in Bentonville",
   description:
     "Meet The Social Spread Cart, a Bentonville cart brand serving NWA with charcuterie, dirty soda, bartending, and ice cream toppings bar service.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 const iconMap = {
@@ -31,6 +34,7 @@ export default async function AboutPage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={content.eyebrow}
           title={content.title}
           description={content.description}

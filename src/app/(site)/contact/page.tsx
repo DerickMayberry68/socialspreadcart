@@ -8,9 +8,12 @@ import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Request Catering & Cart Service in NWA",
   description:
     "Request a quote from The Social Spread Cart for charcuterie boxes, cups, dirty soda, mini pancake bar service, bartending, and cart service in NWA.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default async function ContactPage() {
@@ -24,6 +27,7 @@ export default async function ContactPage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={content.eyebrow}
           title={content.title}
           description={content.description}

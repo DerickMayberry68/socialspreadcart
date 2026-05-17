@@ -8,9 +8,12 @@ import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "The Cart Service",
+  title: "Mobile Cart Service for NWA Events",
   description:
     "Learn about The Social Spread Cart's Bentonville cart services for charcuterie, dirty soda, mini pancake bars, bartending, and ice cream toppings bars.",
+  alternates: {
+    canonical: "/cart-service",
+  },
 };
 
 export default async function CartServicePage() {
@@ -23,6 +26,7 @@ export default async function CartServicePage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={content.eyebrow}
           title={content.title}
           description={content.description}

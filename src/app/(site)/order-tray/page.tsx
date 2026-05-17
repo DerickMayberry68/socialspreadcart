@@ -6,6 +6,7 @@ import { SectionShell } from "@/components/shared/section-shell";
 export const metadata: Metadata = {
   title: "Order Tray",
   description: "Review your selected menu items before checkout.",
+  robots: { index: false, follow: false },
 };
 
 export default function OrderTrayPage() {

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import { CheckCircle2, Clock, PackageCheck } from "lucide-react";
+import { PackageCheck } from "lucide-react";
 
 import type { GuestOrderSummary, OrderStatus } from "@/lib/types/order";
 import { formatPrice } from "@/lib/utils";
@@ -13,6 +13,35 @@ const statusOptions: Array<{ value: OrderStatus; label: string }> = [
   { value: "fulfilled", label: "Fulfilled" },
   { value: "cancelled", label: "Cancelled" },
 ];
+
+function formatOrderStatus(order: GuestOrderSummary) {
+  if (order.delivery_status && order.delivery_status !== "not_required") {
+    return order.delivery_status.replaceAll("_", " ");
+  }
+
+  return order.payment_status.replaceAll("_", " ");
+}
+
+function formatFulfillment(order: GuestOrderSummary) {
+  const date = order.fulfillment_requested_at
+    ? new Date(order.fulfillment_requested_at).toLocaleString()
+    : null;
+  return [order.fulfillment_type, date].filter(Boolean).join(" - ");
+}
+
+function formatAddress(order: GuestOrderSummary) {
+  if (!order.fulfillment_address) return null;
+
+  return [
+    order.fulfillment_address.line1,
+    order.fulfillment_address.line2,
+    order.fulfillment_address.city,
+    order.fulfillment_address.state,
+    order.fulfillment_address.postalCode,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
   const [updatingId, setUpdatingId] = React.useState<string | null>(null);
@@ -98,205 +127,202 @@ export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
   }
 
   return (
-    <div className="space-y-4">
-      {orders.map((order) => (
-        <article
-          key={order.id}
-          className="rounded-[28px] border border-sage/10 bg-white p-6 shadow-soft"
-        >
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <div className="flex items-center gap-3">
-                <div className="rounded-full bg-[#eef4e9] p-3 text-sage">
-                  {order.payment_status === "paid" ? (
-                    <CheckCircle2 className="h-5 w-5" />
-                  ) : (
-                    <Clock className="h-5 w-5" />
-                  )}
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-ink/45">
-                    #{order.id.slice(0, 8)}
-                  </p>
-                  <h2 className="font-heading text-3xl text-[#284237]">
-                    {order.guest_name}
-                  </h2>
-                </div>
-              </div>
-              <p className="mt-4 text-sm text-ink/60">
-                {[order.guest_email, order.guest_phone].filter(Boolean).join(" | ")}
-              </p>
-              <p className="mt-1 text-sm text-ink/50">
-                {order.fulfillment_type}
-                {order.fulfillment_requested_at
-                  ? ` - ${new Date(order.fulfillment_requested_at).toLocaleString()}`
-                  : ""}
-              </p>
-              {order.fulfillment_address && (
-                <p className="mt-1 text-sm text-ink/50">
-                  {[
-                    order.fulfillment_address.line1,
-                    order.fulfillment_address.line2,
-                    order.fulfillment_address.city,
-                    order.fulfillment_address.state,
-                    order.fulfillment_address.postalCode,
-                  ]
-                    .filter(Boolean)
-                    .join(", ")}
-                </p>
-              )}
-              {order.fulfillment_notes && (
-                <p className="mt-3 rounded-[18px] bg-[#fffaf4] px-4 py-3 text-sm text-ink/62">
-                  {order.fulfillment_notes}
-                </p>
-              )}
-              {order.delivery_decision_note && (
-                <p className="mt-3 rounded-[18px] bg-[#eef4e9] px-4 py-3 text-sm text-ink/62">
-                  {order.delivery_decision_note}
-                </p>
-              )}
-            </div>
+    <div className="overflow-hidden rounded-[18px] border border-sage/10 bg-white shadow-soft">
+      <div className="overflow-x-auto">
+        <table className="min-w-[1180px] w-full border-collapse text-left text-sm">
+          <thead className="border-b border-sage/10 bg-[#fffaf4] text-xs uppercase tracking-[0.14em] text-ink/45">
+            <tr>
+              <th className="px-4 py-3 font-medium">Order</th>
+              <th className="px-4 py-3 font-medium">Customer</th>
+              <th className="px-4 py-3 font-medium">Fulfillment</th>
+              <th className="px-4 py-3 font-medium">Items</th>
+              <th className="px-4 py-3 text-right font-medium">Total</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-sage/10">
+            {orders.map((order) => {
+              const form = getDecisionForm(order.id);
+              const canDecideDelivery =
+                order.fulfillment_type === "delivery" &&
+                order.payment_status !== "paid" &&
+                order.delivery_status !== "declined";
+              const address = formatAddress(order);
 
-            <div className="min-w-[220px]">
-              <div className="space-y-1 text-right text-sm">
-                <p className="text-ink/50">Subtotal {formatPrice(order.subtotal_cents)}</p>
-                <p className="text-ink/50">Tax {formatPrice(order.tax_cents)}</p>
-                {(order.delivery_fee_cents ?? 0) > 0 && (
-                  <p className="text-ink/50">
-                    Delivery fee {formatPrice(order.delivery_fee_cents ?? 0)}
-                  </p>
-                )}
-                <p className="text-ink/50">Processing fee {formatPrice(order.fee_cents)}</p>
-                <p className="font-heading text-3xl text-[#284237]">
-                  {formatPrice(order.total_cents)}
-                </p>
-              </div>
-              <p className="mt-1 text-right text-xs uppercase tracking-[0.14em] text-ink/45">
-                {order.delivery_status && order.delivery_status !== "not_required"
-                  ? order.delivery_status.replaceAll("_", " ")
-                  : order.payment_status}
-              </p>
-              <select
-                value={order.status}
-                disabled={updatingId === order.id}
-                onChange={(event) =>
-                  updateStatus(order.id, event.target.value as OrderStatus)
-                }
-                className="mt-4 h-11 w-full rounded-full border border-sage/15 bg-[#fffaf4] px-4 text-sm text-ink outline-none focus:border-sage"
-              >
-                {statusOptions.map((status) => (
-                  <option key={status.value} value={status.value}>
-                    {status.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="mt-5 divide-y divide-sage/10 rounded-[22px] border border-sage/10">
-            {order.items.map((item) => (
-              <div key={`${order.id}-${item.menu_item_id}`} className="flex justify-between gap-4 px-5 py-4">
-                <div>
-                  <p className="font-medium text-ink">{item.name}</p>
-                  <p className="text-sm text-ink/50">Qty {item.quantity}</p>
-                  {item.notes && <p className="mt-1 text-sm text-ink/55">{item.notes}</p>}
-                </div>
-                <p className="font-heading text-xl text-[#284237]">
-                  {formatPrice(item.line_total_cents)}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {order.fulfillment_type === "delivery" &&
-            order.payment_status !== "paid" &&
-            order.delivery_status !== "declined" && (
-              <div className="mt-5 rounded-[22px] border border-[#e4dbc9] bg-[#fffaf4] p-5">
-                <p className="text-xs uppercase tracking-[0.18em] text-ink/45">
-                  Delivery decision
-                </p>
-                <div className="mt-4 grid gap-3 md:grid-cols-[1fr_140px_190px]">
-                  <label className="space-y-2">
-                    <span className="text-xs uppercase tracking-[0.14em] text-ink/45">
-                      Customer note
+              return (
+                <tr key={order.id} className="align-top transition hover:bg-[#fffaf4]/55">
+                  <td className="px-4 py-4">
+                    <p className="font-mono text-xs font-medium text-[#284237]">
+                      #{order.id.slice(0, 8)}
+                    </p>
+                    <p className="mt-1 text-xs text-ink/45">
+                      {order.created_at
+                        ? new Date(order.created_at).toLocaleDateString()
+                        : "New order"}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-medium text-ink">{order.guest_name}</p>
+                    <p className="mt-1 max-w-[190px] text-xs leading-5 text-ink/55">
+                      {[order.guest_email, order.guest_phone].filter(Boolean).join(" | ")}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-medium capitalize text-ink">
+                      {formatFulfillment(order)}
+                    </p>
+                    {address && (
+                      <p className="mt-1 max-w-[220px] text-xs leading-5 text-ink/55">
+                        {address}
+                      </p>
+                    )}
+                    {order.fulfillment_notes && (
+                      <p className="mt-1 max-w-[220px] text-xs leading-5 text-ink/55">
+                        {order.fulfillment_notes}
+                      </p>
+                    )}
+                    {order.delivery_decision_note && (
+                      <p className="mt-2 max-w-[220px] rounded-[10px] bg-[#eef4e9] px-3 py-2 text-xs leading-5 text-ink/62">
+                        {order.delivery_decision_note}
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="max-w-[240px] space-y-2">
+                      {order.items.map((item) => (
+                        <div key={`${order.id}-${item.menu_item_id}`}>
+                          <p className="font-medium text-ink">{item.name}</p>
+                          <p className="text-xs text-ink/50">
+                            Qty {item.quantity} - {formatPrice(item.line_total_cents)}
+                          </p>
+                          {item.notes && (
+                            <p className="text-xs text-ink/50">{item.notes}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <p className="font-heading text-2xl text-[#284237]">
+                      {formatPrice(order.total_cents)}
+                    </p>
+                    <div className="mt-1 space-y-0.5 text-xs text-ink/50">
+                      <p>Subtotal {formatPrice(order.subtotal_cents)}</p>
+                      <p>Tax {formatPrice(order.tax_cents)}</p>
+                      {(order.delivery_fee_cents ?? 0) > 0 && (
+                        <p>Delivery {formatPrice(order.delivery_fee_cents ?? 0)}</p>
+                      )}
+                      <p>Fee {formatPrice(order.fee_cents)}</p>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <span className="inline-flex rounded-full border border-sage/15 bg-[#eef4e9] px-3 py-1 text-xs font-medium capitalize text-[#284237]">
+                      {formatOrderStatus(order)}
                     </span>
-                    <input
-                      value={getDecisionForm(order.id).note}
-                      onChange={(event) =>
-                        updateDecisionForm(order.id, "note", event.target.value)
-                      }
-                      className="h-11 w-full rounded-full border border-sage/15 bg-white px-4 text-sm text-ink outline-none focus:border-sage"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-xs uppercase tracking-[0.14em] text-ink/45">
-                      Delivery fee
-                    </span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={getDecisionForm(order.id).deliveryFee}
-                      onChange={(event) =>
-                        updateDecisionForm(order.id, "deliveryFee", event.target.value)
-                      }
-                      className="h-11 w-full rounded-full border border-sage/15 bg-white px-4 text-sm text-ink outline-none focus:border-sage"
-                    />
-                  </label>
-                  <label className="space-y-2">
-                    <span className="text-xs uppercase tracking-[0.14em] text-ink/45">
-                      Expires
-                    </span>
-                    <input
-                      type="datetime-local"
-                      value={getDecisionForm(order.id).expiresAt}
-                      onChange={(event) =>
-                        updateDecisionForm(order.id, "expiresAt", event.target.value)
-                      }
-                      className="h-11 w-full rounded-full border border-sage/15 bg-white px-4 text-sm text-ink outline-none focus:border-sage"
-                    />
-                  </label>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <button
-                    type="button"
-                    disabled={updatingId === order.id}
-                    onClick={() => decideDelivery(order.id, "approve")}
-                    className="rounded-full bg-sage px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
-                  >
-                    Approve Delivery
-                  </button>
-                  <button
-                    type="button"
-                    disabled={updatingId === order.id}
-                    onClick={() => decideDelivery(order.id, "decline")}
-                    className="rounded-full border border-sage/20 px-4 py-2 text-sm font-medium text-ink disabled:opacity-60"
-                  >
-                    Decline
-                  </button>
-                  <button
-                    type="button"
-                    disabled={updatingId === order.id}
-                    onClick={() => decideDelivery(order.id, "offer_pickup")}
-                    className="rounded-full border border-sage/20 px-4 py-2 text-sm font-medium text-ink disabled:opacity-60"
-                  >
-                    Offer Pickup
-                  </button>
-                  {order.delivery_status === "approved_payment_needed" && (
-                    <button
-                      type="button"
+                    <select
+                      value={order.status}
                       disabled={updatingId === order.id}
-                      onClick={() => decideDelivery(order.id, "withdraw_approval")}
-                      className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 disabled:opacity-60"
+                      onChange={(event) =>
+                        updateStatus(order.id, event.target.value as OrderStatus)
+                      }
+                      className="mt-3 h-9 w-full rounded-full border border-sage/15 bg-white px-3 text-xs text-ink outline-none focus:border-sage"
                     >
-                      Withdraw Approval
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-        </article>
-      ))}
+                      {statusOptions.map((status) => (
+                        <option key={status.value} value={status.value}>
+                          {status.label}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="px-4 py-4">
+                    {canDecideDelivery ? (
+                      <div className="w-[300px] space-y-2">
+                        <input
+                          aria-label={`Customer note for ${order.guest_name}`}
+                          placeholder="Customer note"
+                          value={form.note}
+                          onChange={(event) =>
+                            updateDecisionForm(order.id, "note", event.target.value)
+                          }
+                          className="h-9 w-full rounded-full border border-sage/15 bg-white px-3 text-xs text-ink outline-none focus:border-sage"
+                        />
+                        <div className="grid grid-cols-[96px_1fr] gap-2">
+                          <input
+                            aria-label={`Delivery fee for ${order.guest_name}`}
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="Fee"
+                            value={form.deliveryFee}
+                            onChange={(event) =>
+                              updateDecisionForm(
+                                order.id,
+                                "deliveryFee",
+                                event.target.value,
+                              )
+                            }
+                            className="h-9 rounded-full border border-sage/15 bg-white px-3 text-xs text-ink outline-none focus:border-sage"
+                          />
+                          <input
+                            aria-label={`Approval expiration for ${order.guest_name}`}
+                            type="datetime-local"
+                            value={form.expiresAt}
+                            onChange={(event) =>
+                              updateDecisionForm(order.id, "expiresAt", event.target.value)
+                            }
+                            className="h-9 rounded-full border border-sage/15 bg-white px-3 text-xs text-ink outline-none focus:border-sage"
+                          />
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            disabled={updatingId === order.id}
+                            onClick={() => decideDelivery(order.id, "approve")}
+                            className="rounded-full bg-sage px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            disabled={updatingId === order.id}
+                            onClick={() => decideDelivery(order.id, "decline")}
+                            className="rounded-full border border-sage/20 px-3 py-1.5 text-xs font-medium text-ink disabled:opacity-60"
+                          >
+                            Decline
+                          </button>
+                          <button
+                            type="button"
+                            disabled={updatingId === order.id}
+                            onClick={() => decideDelivery(order.id, "offer_pickup")}
+                            className="rounded-full border border-sage/20 px-3 py-1.5 text-xs font-medium text-ink disabled:opacity-60"
+                          >
+                            Pickup
+                          </button>
+                          {order.delivery_status === "approved_payment_needed" && (
+                            <button
+                              type="button"
+                              disabled={updatingId === order.id}
+                              onClick={() =>
+                                decideDelivery(order.id, "withdraw_approval")
+                              }
+                              className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-medium text-red-700 disabled:opacity-60"
+                            >
+                              Withdraw
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-ink/45">No delivery action needed</p>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
