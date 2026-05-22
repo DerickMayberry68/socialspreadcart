@@ -119,7 +119,7 @@ export function HomePage({
               {marketing.proof_stats.map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-[28px] border border-white/70 bg-white/75 px-5 py-5 shadow-soft backdrop-blur"
+                  className="rounded-[30px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 px-5 py-5 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
                 >
                   <p className="text-xs uppercase tracking-[0.24em] text-ink/50">
                     {item.label}
@@ -214,8 +214,8 @@ export function HomePage({
             const Icon = pillarIcons[index] ?? ShieldCheck;
             return (
               <Reveal key={item.title} delay={index * 0.08}>
-                <Card className="h-full rounded-[30px] bg-white/78 p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
+                <Card className="h-full rounded-[34px] border border-sage/25 bg-gradient-to-br from-[#eef8ed]/90 via-[#dfeeda]/85 to-[#c8dec0]/85 p-6 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-[#f8f1e3]/90 text-[#4f684d] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h2 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
@@ -372,7 +372,7 @@ export function HomePage({
             {marketing.booking_section.steps.map((item, index) => (
               <div
                 key={item}
-                className="rounded-[28px] border border-sage/10 bg-white/80 px-5 py-5 shadow-soft"
+                className="rounded-[30px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 px-5 py-5 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
               >
                 <p className="text-xs uppercase tracking-[0.28em] text-[#8c5a36]">
                   Step {index + 1}
@@ -389,9 +389,9 @@ export function HomePage({
               return (
                 <Card
                   key={card.title}
-                  className={`rounded-[32px] p-7 ${index === 2 ? "md:col-span-2" : ""}`}
+                  className={`rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-7 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl ${index === 2 ? "md:col-span-2" : ""}`}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#eef4e9] text-[#4f684d]">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/60 bg-[#eef4e9]/85 text-[#4f684d] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3 className="mt-5 font-heading text-[2rem] leading-tight text-[#284237]">
@@ -418,7 +418,7 @@ export function HomePage({
             {marketing.cart_section.highlights.map((item) => (
               <li
                 key={item}
-                className="rounded-[26px] border border-sage/10 bg-white/80 px-5 py-4 text-base leading-7 text-ink/68 shadow-soft"
+                className="rounded-[30px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 px-5 py-5 text-base leading-7 text-ink/68 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
               >
                 {item}
               </li>
@@ -433,17 +433,19 @@ export function HomePage({
         <div className="grid gap-5 sm:grid-cols-2">
           {storyGallery.map((item, index) => (
             <Reveal key={item.id} delay={index * 0.06}>
-              <div className="group overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft">
-                <div className="aspect-[4/4.6] overflow-hidden">
+              <div
+                className={`group h-full overflow-hidden rounded-[34px] bg-gradient-to-br ${pathwayAccents[index % pathwayAccents.length]} p-4 shadow-soft transition hover:-translate-y-0.5`}
+              >
+                <div className="overflow-hidden rounded-[26px] bg-white/80">
                   <Image
                     src={item.image_url}
                     alt={item.title}
                     width={840}
                     height={980}
-                    className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                    className="aspect-[4/4.6] h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
                   />
                 </div>
-                <div className="p-5">
+                <div className="px-2 pb-2 pt-5">
                   <p className="text-xs uppercase tracking-[0.26em] text-[#8c5a36]">
                     {item.eyebrow}
                   </p>
@@ -470,31 +472,33 @@ export function HomePage({
             </Button>
           </Reveal>
           <div className="space-y-4">
-            {events.slice(0, 3).map((event, index) => (
-              <Reveal key={event.id} delay={index * 0.08}>
-                <div className="rounded-[30px] border border-white/70 bg-white/85 p-6 shadow-soft">
-                  <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#284237] text-center text-[#fbf5eb]">
-                      <div>
-                        <CalendarDays className="mx-auto h-5 w-5" />
-                        <div className="mt-1 text-[10px] uppercase tracking-[0.18em]">
-                          {formatEventDate(event.date)}
+            {events.slice(0, 3).map((event, index) => {
+              const eventDate = formatEventDate(event.date);
+
+              return (
+                <Reveal key={event.id} delay={index * 0.08}>
+                  <div className="rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl">
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                      <div className="flex min-h-20 w-24 shrink-0 flex-col items-center justify-center rounded-[24px] border border-white/60 bg-[#fce1d2]/90 px-3 py-3 text-center text-[#284237] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
+                        <CalendarDays className="h-5 w-5 text-[#4f684d]" />
+                        <div className="mt-2 text-[11px] font-semibold uppercase leading-tight tracking-[0.12em]">
+                          {eventDate}
                         </div>
                       </div>
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
-                        {event.location}
-                      </p>
-                      <h3 className="mt-2 font-heading text-3xl text-[#284237]">
-                        {event.title}
-                      </h3>
-                      <p className="mt-3 text-base leading-7 text-ink/66">{event.description}</p>
+                      <div className="flex-1">
+                        <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
+                          {event.location}
+                        </p>
+                        <h3 className="mt-2 font-heading text-3xl text-[#284237]">
+                          {event.title}
+                        </h3>
+                        <p className="mt-3 text-base leading-7 text-ink/66">{event.description}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              );
+            })}
           </div>
         </SectionShell>
       </section>

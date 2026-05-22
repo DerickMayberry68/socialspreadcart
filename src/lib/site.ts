@@ -15,7 +15,7 @@ export const siteConfig = {
   description:
     "A Bentonville mobile cart offering charcuterie boxes, charcuterie cups, dirty soda, a mini pancake bar, bartending service, and an ice cream toppings bar for NWA events.",
   phone: "(870) 654-3732",
-  email: "info@socialspreadcart.com",
+  email: "info@socialspreadnwa.com",
   instagram: "https://instagram.com/thesocialspreadcart",
   location: "Bentonville, Arkansas",
 };
