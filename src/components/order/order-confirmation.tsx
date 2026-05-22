@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import * as React from "react";
-import { CheckCircle2, Clock } from "lucide-react";
+import { CheckCircle2, Clock, CreditCard } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { GuestOrderSummary } from "@/lib/types/order";
@@ -19,6 +19,8 @@ const PAYMENT_POLL_MAX_ATTEMPTS = 20;
 export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
   const [currentOrder, setCurrentOrder] =
     React.useState<GuestOrderSummary>(order);
+  const [paymentError, setPaymentError] = React.useState<string | null>(null);
+  const [isStartingPayment, setIsStartingPayment] = React.useState(false);
 
   React.useEffect(() => {
     clearOrderTray();
@@ -29,7 +31,16 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
   }, [order]);
 
   React.useEffect(() => {
-    if (currentOrder.payment_status === "paid") return;
+    if (
+      currentOrder.payment_status === "paid" ||
+      currentOrder.delivery_status === "requested" ||
+      currentOrder.delivery_status === "declined" ||
+      currentOrder.delivery_status === "pickup_offered" ||
+      currentOrder.delivery_status === "approval_withdrawn" ||
+      currentOrder.delivery_status === "expired"
+    ) {
+      return;
+    }
 
     let cancelled = false;
     let attempts = 0;
@@ -74,7 +85,52 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
   }, [currentOrder.id, currentOrder.payment_status]);
 
   const paid = currentOrder.payment_status === "paid";
+  const isDelivery = currentOrder.fulfillment_type === "delivery";
+  const deliveryStatus = currentOrder.delivery_status ?? "not_required";
+  const canPayDelivery =
+    isDelivery &&
+    deliveryStatus === "approved_payment_needed" &&
+    currentOrder.payment_status !== "paid";
   const Icon = paid ? CheckCircle2 : Clock;
+
+  const startDeliveryPayment = async () => {
+    setPaymentError(null);
+    setIsStartingPayment(true);
+    const response = await fetch("/api/checkout/delivery-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: currentOrder.id }),
+    });
+    const result = await response.json().catch(() => null);
+    setIsStartingPayment(false);
+
+    if (!response.ok || !result?.checkoutUrl) {
+      setPaymentError(result?.message ?? "Payment could not be started.");
+      return;
+    }
+
+    window.location.href = result.checkoutUrl;
+  };
+
+  const eyebrow = paid
+    ? "Payment confirmed"
+    : isDelivery && deliveryStatus === "requested"
+      ? "Delivery requested"
+      : canPayDelivery
+        ? "Delivery approved"
+        : isDelivery
+          ? "Delivery update"
+          : "Payment pending";
+
+  const heading = paid
+    ? "Your order is in."
+    : isDelivery && deliveryStatus === "requested"
+      ? "Delivery is awaiting approval."
+      : canPayDelivery
+        ? "Payment is ready."
+        : isDelivery
+          ? "Review your delivery request."
+          : "We are checking payment.";
 
   return (
     <div className="rounded-[28px] border border-[#e4dbc9] bg-white p-6 shadow-soft">
@@ -84,16 +140,45 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
         </div>
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
-            {paid ? "Payment confirmed" : "Payment pending"}
+            {eyebrow}
           </p>
           <h1 className="mt-2 font-heading text-4xl text-[#284237]">
-            {paid ? "Your order is in." : "We are checking payment."}
+            {heading}
           </h1>
           <p className="mt-3 text-sm leading-7 text-ink/62">
             Order #{currentOrder.id.slice(0, 8)} for {currentOrder.guest_name}
           </p>
         </div>
       </div>
+
+      {isDelivery && (
+        <div className="mt-6 rounded-[22px] border border-[#e4dbc9] bg-[#fffaf4] p-5 text-sm leading-7 text-ink/62">
+          <p className="font-medium text-ink">
+            {deliveryStatus === "requested"
+              ? "Shayley will review the delivery request before payment."
+              : deliveryStatus === "approved_payment_needed"
+                ? "Delivery is approved. Review the final total before paying."
+                : deliveryStatus === "declined"
+                  ? "Delivery was declined."
+                  : deliveryStatus === "pickup_offered"
+                    ? "Pickup was offered instead of delivery."
+                    : deliveryStatus === "approval_withdrawn"
+                      ? "Delivery approval was withdrawn."
+                      : deliveryStatus === "expired"
+                        ? "Delivery approval expired."
+                        : "Delivery status updated."}
+          </p>
+          {currentOrder.delivery_decision_note && (
+            <p className="mt-2">{currentOrder.delivery_decision_note}</p>
+          )}
+          {currentOrder.delivery_approval_expires_at && canPayDelivery && (
+            <p className="mt-2">
+              Payment approval expires{" "}
+              {new Date(currentOrder.delivery_approval_expires_at).toLocaleString()}.
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="mt-8 divide-y divide-sage/10 rounded-[24px] border border-sage/10">
         {currentOrder.items.map((item) => (
@@ -123,6 +208,12 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
           <p className="text-ink/55">Non-taxable processing fee</p>
           <p className="font-medium text-ink">{formatPrice(currentOrder.fee_cents)}</p>
         </div>
+        {(currentOrder.delivery_fee_cents ?? 0) > 0 && (
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-ink/55">Delivery fee</p>
+            <p className="font-medium text-ink">{formatPrice(currentOrder.delivery_fee_cents ?? 0)}</p>
+          </div>
+        )}
         <div className="flex items-center justify-between gap-4 border-t border-sage/10 pt-4">
           <p className="text-sm uppercase tracking-[0.16em] text-ink/45">
             {paid ? "Total paid" : "Order total"}
@@ -130,6 +221,24 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
           <p className="font-heading text-3xl text-[#284237]">{formatPrice(currentOrder.total_cents)}</p>
         </div>
       </div>
+
+      {paymentError && (
+        <p className="mt-5 rounded-[18px] border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {paymentError}
+        </p>
+      )}
+
+      {canPayDelivery && (
+        <Button
+          className="mt-7 w-full"
+          type="button"
+          disabled={isStartingPayment}
+          onClick={startDeliveryPayment}
+        >
+          <CreditCard className="h-4 w-4" />
+          {isStartingPayment ? "Starting Payment..." : "Pay Approved Delivery Order"}
+        </Button>
+      )}
 
       <Button className="mt-7" asChild>
         <Link href="/menu">Back to Menu</Link>

@@ -34,7 +34,7 @@ export function SiteFooter({
 }: SiteFooterProps = {}) {
   return (
     <footer className="relative mt-24 overflow-hidden border-t border-walnut/20 bg-[#f3e4c3]">
-      <div className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px] px-4 pt-14 sm:px-6 lg:px-8">
         <div className="rounded-[36px] bg-[linear-gradient(135deg,#3c2514_0%,#6b3f22_100%)] px-8 py-10 text-[#fbf0d6] shadow-[0_26px_80px_rgba(60,37,20,0.28)]">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
@@ -55,7 +55,7 @@ export function SiteFooter({
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
+      <div className="mx-auto grid max-w-[1400px] gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
         <div>
           <div className="w-40">
             <Logo />

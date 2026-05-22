@@ -9,13 +9,13 @@ import type {
 
 export const siteConfig = {
   name: "The Social Spread Cart",
-  domain: "TheSocialSpreadCart.com",
+  domain: "SocialSpreadNWA.com",
   url:
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://thesocialspreadcart.com",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.socialspreadnwa.com",
   description:
     "A Bentonville mobile cart offering charcuterie boxes, charcuterie cups, dirty soda, a mini pancake bar, bartending service, and an ice cream toppings bar for NWA events.",
   phone: "(870) 654-3732",
-  email: "info@socialspreadcart.com",
+  email: "info@socialspreadnwa.com",
   instagram: "https://instagram.com/thesocialspreadcart",
   location: "Bentonville, Arkansas",
 };
@@ -63,9 +63,6 @@ export const defaultMetadata: Metadata = {
     title: "The Social Spread Cart",
     description: siteConfig.description,
     images: ["/brand/logos/logo-rect.png"],
-  },
-  alternates: {
-    canonical: "/",
   },
 };
 

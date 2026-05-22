@@ -22,6 +22,7 @@ export default async function SiteLayout({
         headerTopRight={shell.header_top_right}
         bookingCtaLabel={shell.booking_cta_label}
         bookingCtaTarget={shell.booking_cta_target}
+        phone={shell.phone}
       />
       <main>{children}</main>
       <SiteFooter

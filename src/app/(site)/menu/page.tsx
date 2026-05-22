@@ -10,9 +10,12 @@ import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "Menu",
+  title: "Charcuterie & Dirty Soda Menu in Bentonville",
   description:
     "Browse charcuterie boxes, charcuterie cups, and dirty soda to-go from The Social Spread Cart in Bentonville.",
+  alternates: {
+    canonical: "/menu",
+  },
 };
 
 export default async function MenuPage() {
@@ -28,6 +31,7 @@ export default async function MenuPage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={content.eyebrow}
           title={content.title}
           description={content.description}

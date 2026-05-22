@@ -10,6 +10,7 @@ import { OrderService } from "@/services/order-service";
 export const metadata: Metadata = {
   title: "Order Confirmation",
   description: "Review your order confirmation and payment status.",
+  robots: { index: false, follow: false },
 };
 
 export default async function CheckoutConfirmationPage({

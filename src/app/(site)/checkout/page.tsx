@@ -7,6 +7,7 @@ import { SectionShell } from "@/components/shared/section-shell";
 export const metadata: Metadata = {
   title: "Checkout",
   description: "Complete your order and pay online.",
+  robots: { index: false, follow: false },
 };
 
 export default function CheckoutPage() {

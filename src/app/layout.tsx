@@ -29,11 +29,26 @@ export default function RootLayout({
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
+    "@id": `${siteConfig.url}/#local-business`,
     name: siteConfig.name,
     url: siteConfig.url,
     email: siteConfig.email,
     telephone: siteConfig.phone,
-    areaServed: "Bentonville, Arkansas",
+    sameAs: [siteConfig.instagram],
+    priceRange: "$$",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Bentonville",
+      addressRegion: "AR",
+      addressCountry: "US",
+    },
+    areaServed: [
+      "Bentonville, Arkansas",
+      "Northwest Arkansas",
+      "Rogers, Arkansas",
+      "Springdale, Arkansas",
+      "Fayetteville, Arkansas",
+    ],
     image: `${siteConfig.url}/brand/logos/logo-rect.png`,
     description: siteConfig.description,
   };

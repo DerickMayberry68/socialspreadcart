@@ -32,12 +32,14 @@ describe("POST /api/checkout", () => {
 
   it("returns checkout session for a valid request", async () => {
     createCheckoutMock.mockResolvedValue({
+      mode: "payment",
       orderId: "22222222-2222-4222-8222-222222222222",
       paymentStatus: "pending",
       totals: {
         subtotalCents: 2500,
         taxCents: 200,
         feeCents: 73,
+        deliveryFeeCents: 0,
         totalCents: 2773,
         currency: "usd",
       },

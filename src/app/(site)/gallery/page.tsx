@@ -8,9 +8,12 @@ import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
 export const metadata: Metadata = {
-  title: "Gallery",
+  title: "Cart Setup & Charcuterie Gallery",
   description:
     "A gallery of real cart setups, drinks, charcuterie, and event-ready menu moments from The Social Spread Cart.",
+  alternates: {
+    canonical: "/gallery",
+  },
 };
 
 export default async function GalleryPage() {
@@ -22,6 +25,7 @@ export default async function GalleryPage() {
     <div className="py-16">
       <SectionShell>
         <SectionHeading
+          as="h1"
           eyebrow={section.eyebrow}
           title={section.title}
           description={section.description}

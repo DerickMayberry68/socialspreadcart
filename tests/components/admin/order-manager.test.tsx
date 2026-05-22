@@ -56,9 +56,10 @@ describe("OrderManager", () => {
 
     expect(screen.getByText("Jane Guest")).toBeInTheDocument();
     expect(screen.getByText("Classic Tray")).toBeInTheDocument();
-    expect(screen.getAllByText("$45.00").length).toBeGreaterThan(0);
+    expect(screen.getByRole("columnheader", { name: "Actions" })).toBeInTheDocument();
+    expect(screen.getByText(/Qty 1 - \$45\.00/)).toBeInTheDocument();
     expect(screen.getByText("Tax $4.38")).toBeInTheDocument();
-    expect(screen.getByText("Processing fee $1.32")).toBeInTheDocument();
+    expect(screen.getByText("Fee $1.32")).toBeInTheDocument();
     expect(screen.getByText("$50.70")).toBeInTheDocument();
   });
 });

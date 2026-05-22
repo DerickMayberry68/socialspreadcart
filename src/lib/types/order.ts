@@ -1,6 +1,12 @@
 export type OrderStatus =
   | "draft"
   | "payment_pending"
+  | "delivery_requested"
+  | "delivery_approved_payment_needed"
+  | "delivery_declined"
+  | "pickup_offered"
+  | "approval_withdrawn"
+  | "expired"
   | "paid"
   | "payment_failed"
   | "cancelled"
@@ -16,6 +22,16 @@ export type PaymentStatus =
   | "refunded";
 
 export type FulfillmentType = "pickup" | "delivery" | "event" | "other";
+
+export type DeliveryStatus =
+  | "not_required"
+  | "requested"
+  | "approved_payment_needed"
+  | "declined"
+  | "pickup_offered"
+  | "approval_withdrawn"
+  | "expired"
+  | "paid";
 
 export type FulfillmentAddress = {
   line1?: string | null;
@@ -54,6 +70,14 @@ export type GuestOrder = {
   fulfillment_type: FulfillmentType;
   fulfillment_requested_at: string | null;
   fulfillment_notes: string | null;
+  fulfillment_address?: FulfillmentAddress | null;
+  delivery_status?: DeliveryStatus;
+  delivery_fee_cents?: number;
+  approved_total_cents?: number | null;
+  delivery_decision_note?: string | null;
+  delivery_approved_at?: string | null;
+  delivery_approval_expires_at?: string | null;
+  delivery_decided_by?: string | null;
   subtotal_cents: number;
   tax_cents: number;
   fee_cents: number;
@@ -89,18 +113,47 @@ export type GuestOrderSummary = GuestOrder & {
   payment?: PaymentRecord | null;
 };
 
-export type CheckoutSessionResult = {
+export type CheckoutPaymentResult = {
+  mode: "payment";
   orderId: string;
   paymentStatus: PaymentStatus;
   totals: OrderTotals;
   checkoutUrl: string;
 };
 
+export type DeliveryRequestResult = {
+  mode: "delivery_request";
+  orderId: string;
+  status: OrderStatus;
+  deliveryStatus: DeliveryStatus;
+  paymentStatus: PaymentStatus;
+  message: string;
+  totals: OrderTotals;
+};
+
+export type CheckoutSessionResult =
+  | CheckoutPaymentResult
+  | DeliveryRequestResult;
+
 export type OrderTotals = {
   subtotalCents: number;
   taxCents: number;
   feeCents: number;
+  deliveryFeeCents: number;
   totalCents: number;
   currency: string;
   taxCalculationId?: string | null;
+};
+
+export type OrderStatusHistory = {
+  id: string;
+  tenant_id: string;
+  order_id: string;
+  event_type: string;
+  from_status: string | null;
+  to_status: string | null;
+  note: string | null;
+  customer_visible: boolean;
+  created_by: string | null;
+  created_at: string;
 };

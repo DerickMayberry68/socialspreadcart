@@ -90,6 +90,7 @@ async function createCheckoutSession({
   successUrl,
   cancelUrl,
 }: CheckoutSessionInput): Promise<CheckoutSessionOutput> {
+  assertOrderPaymentEligible(order);
   const provider = getPaymentProvider();
   const stripe = getStripeClient();
   const success = new URL(successUrl);
@@ -107,6 +108,7 @@ async function createCheckoutSession({
       subtotalCents: String(order.subtotal_cents),
       taxCents: String(order.tax_cents),
       feeCents: String(order.fee_cents),
+      deliveryFeeCents: String(order.delivery_fee_cents ?? 0),
     },
     line_items: buildCheckoutLineItems(order),
   });
@@ -154,6 +156,21 @@ function buildCheckoutLineItems(order: GuestOrderSummary) {
     });
   }
 
+  if ((order.delivery_fee_cents ?? 0) > 0) {
+    lineItems.push({
+      quantity: 1,
+      price_data: {
+        currency: order.currency,
+        unit_amount: order.delivery_fee_cents ?? 0,
+        product_data: {
+          name: "Delivery fee",
+          description: "Approved delivery fee.",
+          tax_code: NON_TAXABLE_TAX_CODE,
+        },
+      },
+    });
+  }
+
   if (order.fee_cents > 0) {
     lineItems.push({
       quantity: 1,
@@ -170,6 +187,31 @@ function buildCheckoutLineItems(order: GuestOrderSummary) {
   }
 
   return lineItems;
+}
+
+function assertOrderPaymentEligible(order: GuestOrderSummary) {
+  if (order.payment_status === "paid") {
+    const error = new Error("This order has already been paid.");
+    error.name = "OrderPaymentEligibilityError";
+    throw error;
+  }
+
+  if (order.fulfillment_type !== "delivery") return;
+
+  if (order.delivery_status !== "approved_payment_needed") {
+    const error = new Error("Delivery must be approved before payment.");
+    error.name = "OrderPaymentEligibilityError";
+    throw error;
+  }
+
+  if (
+    order.delivery_approval_expires_at &&
+    new Date(order.delivery_approval_expires_at).getTime() <= Date.now()
+  ) {
+    const error = new Error("This delivery approval has expired.");
+    error.name = "OrderPaymentEligibilityError";
+    throw error;
+  }
 }
 
 async function calculateTax({
@@ -281,6 +323,7 @@ function paymentStatusFromCheckoutSession(
 }
 
 export const PaymentService = {
+  assertOrderPaymentEligible,
   calculateTax,
   createCheckoutSession,
   constructWebhookEvent,
