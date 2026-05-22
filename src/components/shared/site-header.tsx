@@ -30,6 +30,7 @@ export function SiteHeader({
 }: SiteHeaderProps = {}) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
+  const headerNavigation = navItems.filter((item) => item.href !== "/contact");
 
   return (
     <header className="sticky top-0 z-50 border-b border-walnut/15 bg-[#fefaf0]/35 backdrop-blur-xl">
@@ -57,7 +58,7 @@ export function SiteHeader({
           <Logo priority />
         </div>
         <nav className="hidden items-center gap-2 rounded-full border border-sage/10 bg-white/70 px-3 py-2 shadow-soft lg:flex">
-          {navItems.map((item) => (
+          {headerNavigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -87,7 +88,7 @@ export function SiteHeader({
       {open ? (
         <div className="border-t border-sage/10 bg-white/92 px-4 py-4 lg:hidden">
           <div className="mx-auto flex max-w-[1400px] flex-col gap-4">
-            {navItems.map((item) => (
+            {headerNavigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}

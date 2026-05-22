@@ -30,7 +30,7 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
 
   return (
     <div className="grid gap-8 lg:grid-cols-[420px_1fr]">
-      <Card className="calendar-shell rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-5 sm:p-7">
+      <Card className="calendar-shell rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-5 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl sm:p-7">
         <div className="mb-5">
           <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">Calendar view</p>
           <h3 className="mt-2 font-heading text-3xl text-[#284237]">Plan around the cart</h3>
@@ -55,7 +55,7 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
 
       <div className="space-y-4">
         {visibleEvents.length === 0 ? (
-          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8 sm:p-10">
+          <Card className="rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-8 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl sm:p-10">
             <p className="text-xs uppercase tracking-[0.2em] text-[#ad7a54]">
               No Public Events Yet
             </p>
@@ -75,7 +75,7 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
           visibleEvents.map((event) => (
             <div
               key={event.id}
-              className="rounded-[32px] border border-sage/10 bg-white/88 p-6 shadow-soft"
+              className="rounded-[32px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
             >
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#284237] text-center text-[#fbf5eb]">

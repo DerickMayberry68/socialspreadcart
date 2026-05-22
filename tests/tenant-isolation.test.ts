@@ -21,8 +21,11 @@ import {
 let fixture: TenantTestFixture;
 let clientA: SupabaseClient;
 let clientB: SupabaseClient;
+const hasSupabaseEnv = Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY && process.env.SUPABASE_SERVICE_ROLE_KEY);
+const describeIfSupabaseEnv = hasSupabaseEnv ? describe : describe.skip;
 
 beforeAll(async () => {
+  if (!hasSupabaseEnv) return;
   fixture = await setupTwoTenants();
   clientA = await authenticatedClientFor(
     fixture.userA.email,
@@ -42,7 +45,7 @@ afterAll(async () => {
 // Pattern 2: Public Read / Tenant Write (menu_items, events, testimonials)
 // ------------------------------------------------------------
 
-describe("menu_items isolation", () => {
+describeIfSupabaseEnv("menu_items isolation", () => {
   it("tenant A cannot update tenant B's menu item (zero rows affected)", async () => {
     const { data, error } = await clientA
       .from("menu_items")
@@ -97,7 +100,7 @@ describe("menu_items isolation", () => {
   });
 });
 
-describe("events isolation", () => {
+describeIfSupabaseEnv("events isolation", () => {
   it("tenant A cannot update tenant B's event", async () => {
     const { data, error } = await clientA
       .from("events")
@@ -142,7 +145,7 @@ describe("events isolation", () => {
   });
 });
 
-describe("testimonials isolation", () => {
+describeIfSupabaseEnv("testimonials isolation", () => {
   it("tenant A cannot update tenant B's testimonial", async () => {
     const { data, error } = await clientA
       .from("testimonials")
@@ -188,7 +191,7 @@ describe("testimonials isolation", () => {
 // Pattern 3: Public Insert / Tenant Read (quotes)
 // ------------------------------------------------------------
 
-describe("quotes isolation", () => {
+describeIfSupabaseEnv("quotes isolation", () => {
   it("tenant A cannot read tenant B's quote (authenticated select is tenant-scoped)", async () => {
     const { data, error } = await clientA
       .from("quotes")
@@ -252,7 +255,7 @@ describe("quotes isolation", () => {
 // Pattern 1: Tenant-Only (contacts, interactions)
 // ------------------------------------------------------------
 
-describe("contacts isolation", () => {
+describeIfSupabaseEnv("contacts isolation", () => {
   it("tenant A cannot read tenant B's contact", async () => {
     const { data, error } = await clientA
       .from("contacts")
@@ -318,7 +321,7 @@ describe("contacts isolation", () => {
   });
 });
 
-describe("interactions isolation", () => {
+describeIfSupabaseEnv("interactions isolation", () => {
   it("tenant A cannot read tenant B's interaction", async () => {
     const { data, error } = await clientA
       .from("interactions")
@@ -363,7 +366,7 @@ describe("interactions isolation", () => {
 // Public anon behaviour
 // ------------------------------------------------------------
 
-describe("public quote submission (anon)", () => {
+describeIfSupabaseEnv("public quote submission (anon)", () => {
   it("anon can insert a quote under tenant A", async () => {
     const anon = createAnonClient();
     const { error } = await anon.from("quotes").insert({
@@ -418,7 +421,7 @@ describe("public quote submission (anon)", () => {
   });
 });
 
-describe("public anon reads (Pattern 2 tables)", () => {
+describeIfSupabaseEnv("public anon reads (Pattern 2 tables)", () => {
   it("anon can read menu_items from any tenant (Pattern 2 public read)", async () => {
     const anon = createAnonClient();
     const { data, error } = await anon
@@ -457,7 +460,7 @@ describe("public anon reads (Pattern 2 tables)", () => {
 // Helper-function sanity checks
 // ------------------------------------------------------------
 
-describe("tenant_ids_for_current_user()", () => {
+describeIfSupabaseEnv("tenant_ids_for_current_user()", () => {
   it("returns exactly tenant A's id for user A", async () => {
     const { data, error } = await clientA.rpc("tenant_ids_for_current_user");
     expect(error).toBeNull();

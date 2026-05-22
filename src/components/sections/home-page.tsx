@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { TestimonialCarousel } from "@/components/sections/testimonial-carousel";
+import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { Reveal } from "@/components/shared/reveal";
 import { SectionHeading, SectionShell } from "@/components/shared/section-shell";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +26,13 @@ import {
   DEFAULT_PATHWAY_CARDS,
   DEFAULT_SITE_CONFIGURATION,
 } from "@/lib/site";
-import type { EventItem, GalleryItem, MenuItem, Testimonial } from "@/lib/types";
+import type {
+  EventItem,
+  GalleryItem,
+  MenuItem,
+  PublicCustomerReview,
+  Testimonial,
+} from "@/lib/types";
 import type {
   HomePageContent,
   HomePageMarketingContent,
@@ -51,6 +58,7 @@ export function HomePage({
   menuItems,
   events,
   testimonials,
+  reviews,
   gallery,
   content,
   marketingContent,
@@ -58,6 +66,7 @@ export function HomePage({
   menuItems: MenuItem[];
   events: EventItem[];
   testimonials: Testimonial[];
+  reviews: PublicCustomerReview[];
   gallery: GalleryItem[];
   content?: HomePageContent;
   marketingContent?: HomePageMarketingContent;
@@ -514,6 +523,8 @@ export function HomePage({
           <TestimonialCarousel testimonials={testimonials} />
         </div>
       </SectionShell>
+
+      <ReviewsSection reviews={reviews} />
 
       <SectionShell className="mt-24">
         <div className="overflow-hidden rounded-[40px] border border-walnut/20 bg-[linear-gradient(135deg,#3c2514_0%,#5a3a22_45%,#8c5a36_100%)] px-6 py-12 text-[#fbf0d6] shadow-[0_30px_90px_rgba(60,37,20,0.3)] sm:px-10 lg:px-14">

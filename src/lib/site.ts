@@ -73,7 +73,6 @@ export const navigation = [
   { title: "Events", href: "/events" },
   { title: "Gallery", href: "/gallery" },
   { title: "About", href: "/about" },
-  { title: "Contact", href: "/contact" },
 ];
 
 export const serviceOptions = [

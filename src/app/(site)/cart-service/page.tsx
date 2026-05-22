@@ -56,7 +56,10 @@ export default async function CartServicePage() {
             </h3>
             <ul className="mt-6 space-y-4 text-base leading-7 text-ink/68">
               {content.highlights.map((item) => (
-                <li key={item} className="rounded-[24px] bg-white px-5 py-4">
+                <li
+                  key={item}
+                  className="rounded-[24px] border border-sage/25 bg-white px-5 py-4 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
+                >
                   {item}
                 </li>
               ))}

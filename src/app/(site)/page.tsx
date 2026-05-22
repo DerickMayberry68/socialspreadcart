@@ -7,6 +7,7 @@ import { EventService } from "@/services/event-service";
 import { MenuService } from "@/services/menu-service";
 import { SiteContentService } from "@/services/site-content-service";
 import { TestimonialService } from "@/services/testimonial-service";
+import { ReviewService } from "@/services/review-service";
 
 export const metadata: Metadata = {
   alternates: {
@@ -15,10 +16,11 @@ export const metadata: Metadata = {
 };
 
 export default async function IndexPage() {
-  const [menuItems, events, testimonials, gallery, content, pageContent] = await Promise.all([
+  const [menuItems, events, testimonials, reviews, gallery, content, pageContent] = await Promise.all([
     withCurrentTenant(MenuService.listMenuItems),
     withCurrentTenant(EventService.listEvents),
     withCurrentTenant(TestimonialService.listTestimonials),
+    withCurrentTenant(ReviewService.listApprovedReviews),
     getGalleryItems(),
     withCurrentTenant(SiteContentService.loadHomePageContent),
     withCurrentTenant((tenantId) =>
@@ -31,6 +33,7 @@ export default async function IndexPage() {
       menuItems={menuItems}
       events={events}
       testimonials={testimonials}
+      reviews={reviews}
       gallery={gallery}
       content={content}
       marketingContent={pageContent.content}

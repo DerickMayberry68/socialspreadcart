@@ -58,7 +58,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
 
   return (
     <div className="mt-10 grid gap-10 lg:grid-cols-[300px_1fr]">
-      <Card className="h-fit rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-6">
+      <Card className="h-fit rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl">
         <div>
           <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">Browse with confidence</p>
           <h3 className="mt-2 font-heading text-3xl text-[#284237]">Find the right fit</h3>
@@ -107,7 +107,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
           ))}
         </div>
 
-        <div className="mt-8 rounded-[24px] border border-[#e5dccd] bg-white px-4 py-4">
+        <div className="mt-8 rounded-[24px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 px-4 py-4 shadow-[0_16px_36px_rgba(56,66,44,0.16)] backdrop-blur-xl">
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 text-[#5f7657]" />
             <p className="text-sm leading-7 text-ink/66">
@@ -131,7 +131,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
 
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {filtered.length === 0 ? (
-          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-8 md:col-span-2 xl:col-span-3">
+          <Card className="rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-8 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl md:col-span-2 xl:col-span-3">
             <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">No matches yet</p>
             <h3 className="mt-3 font-heading text-4xl text-[#284237]">
               No menu items fit those filters.
@@ -151,7 +151,7 @@ export function MenuBrowser({ items }: { items: MenuItem[] }) {
           filtered.map((item, index) => (
             <div
               key={item.id}
-              className="group overflow-hidden rounded-[34px] border border-sage/10 bg-white shadow-soft"
+              className="group overflow-hidden rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl"
             >
               <div className={`bg-gradient-to-br p-4 ${cardBands[index % cardBands.length]}`}>
                 <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-ink/48">
