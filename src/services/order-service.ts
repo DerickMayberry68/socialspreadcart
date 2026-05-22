@@ -399,7 +399,7 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
   const now = new Date().toISOString();
   let update: Partial<GuestOrder> = {};
   let eventType = "";
-  let customerVisible = true;
+  const customerVisible = true;
 
   if (parsed.decision === "approve") {
     if (

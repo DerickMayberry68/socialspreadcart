@@ -152,9 +152,13 @@ export function HomePage({
             <div className="relative rounded-[40px] border border-white/70 bg-white/70 p-4 shadow-[0_30px_90px_rgba(72,81,61,0.14)] backdrop-blur">
               <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative overflow-hidden rounded-[30px] bg-[#f6efe3]">
-                  <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between rounded-full bg-white/88 px-4 py-2 text-[11px] uppercase tracking-[0.24em] text-[#51654f] shadow-soft backdrop-blur">
-                    <span>{marketing.hero_main_image_left_label}</span>
-                    <span>{marketing.hero_main_image_right_label}</span>
+                  <div className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-col gap-1 items-center justify-center rounded-[20px] border border-white/10 bg-[#284237]/75 px-5 py-3.5 shadow-md backdrop-blur-md">
+                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#fefaf0] leading-none whitespace-nowrap">
+                      {marketing.hero_main_image_left_label}
+                    </span>
+                    <span className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#fefaf0]/80 leading-none whitespace-nowrap">
+                      {marketing.hero_main_image_right_label}
+                    </span>
                   </div>
                   <Image
                     src={marketing.hero_main_image.image_url}
@@ -186,15 +190,15 @@ export function HomePage({
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
                     <div className="rounded-[28px] bg-[linear-gradient(180deg,#eef4e9_0%,#dde9d9_100%)] p-5">
                       <Truck className="h-8 w-8 text-[#4f684d]" />
-                      <p className="mt-4 font-heading text-2xl text-[#284237]">
+                      <h3 className="mt-4 font-heading text-2xl text-[#284237]">
                         {marketing.hero_service_cards[0]}
-                      </p>
+                      </h3>
                     </div>
                     <div className="rounded-[28px] bg-[linear-gradient(180deg,#fce1d2_0%,#f2c4a5_100%)] p-5">
                       <Store className="h-8 w-8 text-[#b8562e]" />
-                      <p className="mt-4 font-heading text-2xl text-[#284237]">
+                      <h3 className="mt-4 font-heading text-2xl text-[#284237]">
                         {marketing.hero_service_cards[1]}
-                      </p>
+                      </h3>
                     </div>
                   </div>
                 </div>
@@ -443,7 +447,7 @@ export function HomePage({
                   <p className="text-xs uppercase tracking-[0.26em] text-[#8c5a36]">
                     {item.eyebrow}
                   </p>
-                  <p className="mt-2 font-heading text-2xl text-[#284237]">{item.title}</p>
+                  <h3 className="mt-2 font-heading text-2xl text-[#284237]">{item.title}</h3>
                 </div>
               </div>
             </Reveal>

@@ -17,6 +17,7 @@ type SiteHeaderProps = {
   headerTopRight?: string;
   bookingCtaLabel?: string;
   bookingCtaTarget?: string;
+  phone?: string;
 };
 
 export function SiteHeader({
@@ -25,6 +26,7 @@ export function SiteHeader({
   headerTopRight = "Host-friendly favorites with playful polish",
   bookingCtaLabel = DEFAULT_SITE_CONFIGURATION.booking_cta_label,
   bookingCtaTarget = DEFAULT_SITE_CONFIGURATION.booking_cta_target,
+  phone,
 }: SiteHeaderProps = {}) {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
@@ -32,12 +34,25 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-50 border-b border-walnut/15 bg-[#fefaf0]/35 backdrop-blur-xl">
       <div className="border-b border-sage/10 bg-white/55">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-ink/55 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-4 px-4 py-2 text-[11px] uppercase tracking-[0.22em] text-ink/55 sm:px-6 lg:px-8">
           <span>{headerTopLeft}</span>
-          <span className="hidden sm:block">{headerTopRight}</span>
+          <div className="flex items-center gap-4">
+            <span className="hidden sm:block">{headerTopRight}</span>
+            {phone && (
+              <>
+                <span className="hidden sm:inline text-sage/20">|</span>
+                <a
+                  href={`tel:${phone}`}
+                  className="font-bold text-sage hover:text-sage/80 transition-colors"
+                >
+                  {phone}
+                </a>
+              </>
+            )}
+          </div>
         </div>
       </div>
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
         <div className="w-32 sm:w-36">
           <Logo priority />
         </div>
@@ -71,7 +86,7 @@ export function SiteHeader({
       </div>
       {open ? (
         <div className="border-t border-sage/10 bg-white/92 px-4 py-4 lg:hidden">
-          <div className="mx-auto flex max-w-7xl flex-col gap-4">
+          <div className="mx-auto flex max-w-[1400px] flex-col gap-4">
             {navItems.map((item) => (
               <Link
                 key={item.href}

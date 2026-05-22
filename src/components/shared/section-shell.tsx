@@ -8,7 +8,7 @@ export function SectionShell({
   children: React.ReactNode;
 }) {
   return (
-    <section className={cn("mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8", className)}>
+    <section className={cn("mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8", className)}>
       {children}
     </section>
   );
