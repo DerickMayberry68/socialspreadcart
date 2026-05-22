@@ -9,11 +9,23 @@ export function FloatingCta() {
       initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="fixed bottom-5 right-4 z-40 sm:bottom-6 sm:right-6"
+      className="fixed bottom-5 right-4 z-40 flex flex-col items-end gap-3 sm:bottom-6 sm:right-6"
     >
       <Link
         href="/contact"
-        className="inline-flex items-center rounded-full bg-sage px-5 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:-translate-y-0.5 hover:bg-sage-700"
+        className="inline-flex w-52 items-center justify-center rounded-full border border-sage/25 bg-white/90 px-5 py-3 text-sm font-medium uppercase tracking-[0.18em] text-sage shadow-frame backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#eef4e9]"
+      >
+        Contact
+      </Link>
+      <Link
+        href="/reviews"
+        className="inline-flex w-52 items-center justify-center rounded-full border border-sage/25 bg-white/90 px-5 py-3 text-sm font-medium uppercase tracking-[0.18em] text-sage shadow-frame backdrop-blur transition hover:-translate-y-0.5 hover:bg-[#eef4e9]"
+      >
+        Leave a Review
+      </Link>
+      <Link
+        href="/contact"
+        className="inline-flex w-52 items-center justify-center rounded-full bg-sage px-5 py-3 text-sm font-medium uppercase tracking-[0.18em] text-cream shadow-frame transition hover:-translate-y-0.5 hover:bg-sage-700"
       >
         Book the Cart
       </Link>

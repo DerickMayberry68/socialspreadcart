@@ -54,12 +54,22 @@ Object.defineProperty(window, 'ResizeObserver', {
   })),
 });
 
+Object.defineProperty(window, "IntersectionObserver", {
+  writable: true,
+  value: vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  })),
+});
+
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: vi.fn(),
     back: vi.fn(),
     replace: vi.fn(),
   }),
+  usePathname: () => "/",
 }));
 
 vi.mock("next/image", () => ({

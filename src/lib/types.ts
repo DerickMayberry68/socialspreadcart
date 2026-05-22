@@ -46,6 +46,36 @@ export type Testimonial = {
   quote: string;
 };
 
+export type CustomerReviewStatus = "pending" | "approved" | "rejected" | "hidden";
+
+export type CustomerReview = {
+  id: string;
+  tenant_id: string;
+  display_name: string;
+  rating: number;
+  review_text: string;
+  occasion?: string | null;
+  customer_email?: string | null;
+  customer_phone?: string | null;
+  status: CustomerReviewStatus;
+  source: string;
+  admin_note?: string | null;
+  submitted_at: string;
+  approved_at?: string | null;
+  approved_by?: string | null;
+  rejected_at?: string | null;
+  rejected_by?: string | null;
+  hidden_at?: string | null;
+  hidden_by?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PublicCustomerReview = Pick<
+  CustomerReview,
+  "id" | "display_name" | "rating" | "review_text" | "occasion" | "approved_at"
+>;
+
 export type GalleryItem = {
   id: string;
   title: string;

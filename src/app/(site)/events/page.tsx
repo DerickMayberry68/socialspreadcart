@@ -37,7 +37,10 @@ export default async function EventsPage() {
 
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {content.cards.map((card) => (
-            <Card key={card.eyebrow} className="rounded-[30px] p-6">
+            <Card
+              key={card.eyebrow}
+              className="rounded-[30px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
+            >
               <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
                 {card.eyebrow}
               </p>

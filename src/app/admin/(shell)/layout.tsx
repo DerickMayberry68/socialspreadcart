@@ -5,6 +5,7 @@ import {
   ExternalLink,
   FileText,
   LayoutDashboard,
+  MessageSquareText,
   Palette,
   PackageCheck,
   ShoppingBag,
@@ -21,6 +22,7 @@ const nav = [
   { href: "/admin/orders", label: "Orders", icon: PackageCheck },
   { href: "/admin/contacts", label: "Contacts", icon: Users },
   { href: "/admin/quotes", label: "Quotes", icon: FileText },
+  { href: "/admin/reviews", label: "Reviews", icon: MessageSquareText },
   { href: "/admin/events", label: "Events", icon: CalendarDays },
   { href: "/admin/team", label: "Team", icon: Shield },
 ];

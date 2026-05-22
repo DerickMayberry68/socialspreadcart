@@ -7,6 +7,12 @@ import { Card } from "@/components/ui/card";
 import { withCurrentTenant } from "@/lib/tenant";
 import { SiteContentService } from "@/services/site-content-service";
 
+const galleryCardBands = [
+  "from-[#e8c9a6] to-[#fcf3e0]",
+  "from-[#d6e0cb] to-[#f3f7ec]",
+  "from-[#e8b896] to-[#fef0e0]",
+] as const;
+
 export const metadata: Metadata = {
   title: "Cart Setup & Charcuterie Gallery",
   description:
@@ -32,7 +38,7 @@ export default async function GalleryPage() {
         />
 
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
-          <Card className="rounded-[34px] border-[#e4dbc9] bg-[#fffaf4] p-7 lg:col-span-2">
+          <Card className="rounded-[34px] border border-sage/25 bg-gradient-to-br from-[#eef8ed]/90 via-[#dfeeda]/85 to-[#c8dec0]/85 p-7 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl lg:col-span-2">
             <p className="text-xs uppercase tracking-[0.24em] text-[#ad7a54]">
               {section.feature_card_eyebrow}
             </p>
@@ -40,7 +46,7 @@ export default async function GalleryPage() {
               {section.feature_card_title}
             </p>
           </Card>
-          <Card className="rounded-[30px] p-6">
+          <Card className="rounded-[30px] border border-sage/25 bg-gradient-to-br from-[#eef8ed]/90 via-[#dfeeda]/85 to-[#c8dec0]/85 p-6 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl">
             <p className="text-base leading-7 text-ink/66">
               {section.support_card_body}
             </p>
@@ -48,7 +54,7 @@ export default async function GalleryPage() {
         </div>
 
         {images.length === 0 ? (
-          <div className="mt-12 rounded-[30px] border border-dashed border-sage/20 bg-white p-8 text-center text-sm leading-6 text-ink/60 shadow-soft">
+          <div className="mt-12 rounded-[30px] border border-dashed border-sage/25 bg-gradient-to-br from-[#eef8ed]/90 via-[#dfeeda]/85 to-[#c8dec0]/85 p-8 text-center text-sm leading-6 text-ink/60 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl">
             Gallery images are being refreshed. Check back soon for a closer
             look at the cart, drinks, grazing, and event-ready moments.
           </div>
@@ -60,14 +66,18 @@ export default async function GalleryPage() {
                 delay={index * 0.04}
                 className="mb-4 break-inside-avoid"
               >
-                <div className="overflow-hidden rounded-[30px] border border-sage/10 bg-white shadow-soft">
-                  <Image
-                    src={item.image_url}
-                    alt={item.alt_text}
-                    width={800}
-                    height={1000}
-                    className="h-auto w-full object-cover"
-                  />
+                <div
+                  className={`overflow-hidden rounded-[30px] border border-sage/25 bg-gradient-to-br ${galleryCardBands[index % galleryCardBands.length]} p-3 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl`}
+                >
+                  <div className="overflow-hidden rounded-[24px] bg-white/80">
+                    <Image
+                      src={item.image_url}
+                      alt={item.alt_text}
+                      width={800}
+                      height={1000}
+                      className="h-auto w-full object-cover"
+                    />
+                  </div>
                   <div className="p-5">
                     <p className="text-xs uppercase tracking-[0.18em] text-[#ad7a54]">
                       {item.eyebrow}
