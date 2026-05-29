@@ -4,6 +4,7 @@ import {
   clearActiveTenantIdOnResponse,
   setActiveTenantIdOnResponse,
 } from "@/lib/tenant";
+import { normalizeAdminReturnUrl } from "@/lib/navigation/admin-return-url";
 import { getSupabaseUser } from "@/lib/supabase/server";
 import { TenantService } from "@/services/tenant-service";
 
@@ -18,12 +19,11 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
-  const returnUrl =
-    typeof body === "object" &&
-    body !== null &&
-    typeof (body as { returnUrl?: unknown }).returnUrl === "string"
-      ? (body as { returnUrl: string }).returnUrl
-      : "/admin";
+  const returnUrl = normalizeAdminReturnUrl(
+    typeof body === "object" && body !== null
+      ? (body as { returnUrl?: unknown }).returnUrl
+      : undefined,
+  );
 
   const memberships = (await TenantService.listMembershipsForUser(user.id)).filter(
     (membership) => membership.tenant?.status === "active",

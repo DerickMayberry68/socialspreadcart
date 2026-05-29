@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { normalizeAdminReturnUrl } from "@/lib/navigation/admin-return-url";
 import { setActiveTenantId } from "@/lib/tenant";
 import { getSupabaseUser } from "@/lib/supabase/server";
 import { TenantService } from "@/services/tenant-service";
@@ -14,7 +15,7 @@ export async function selectTenantAction(formData: FormData) {
   }
 
   const tenantId = String(formData.get("tenantId") ?? "");
-  const returnUrl = String(formData.get("returnUrl") ?? "/admin");
+  const returnUrl = normalizeAdminReturnUrl(formData.get("returnUrl"));
   const membership = await TenantService.getMembershipForUser(tenantId, user.id);
 
   if (!membership || membership.tenant?.status !== "active") {
@@ -22,5 +23,5 @@ export async function selectTenantAction(formData: FormData) {
   }
 
   await setActiveTenantId(tenantId);
-  redirect(returnUrl || "/admin");
+  redirect(returnUrl);
 }

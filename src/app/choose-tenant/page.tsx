@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { normalizeAdminReturnUrl } from "@/lib/navigation/admin-return-url";
 import { getSupabaseUser } from "@/lib/supabase/server";
-import { setActiveTenantId } from "@/lib/tenant";
 import { TenantService } from "@/services/tenant-service";
 import { selectTenantAction } from "./actions";
 
@@ -12,7 +12,7 @@ export default async function ChooseTenantPage({
 }) {
   const user = await getSupabaseUser();
   const params = await searchParams;
-  const returnUrl = params.returnUrl ?? "/admin";
+  const returnUrl = normalizeAdminReturnUrl(params.returnUrl);
 
   if (!user) {
     redirect(`/admin/login?returnUrl=${encodeURIComponent("/choose-tenant")}`);
@@ -27,8 +27,9 @@ export default async function ChooseTenantPage({
   }
 
   if (memberships.length === 1) {
-    await setActiveTenantId(memberships[0].tenant_id);
-    redirect(returnUrl);
+    redirect(
+      `/choose-tenant/activate?returnUrl=${encodeURIComponent(returnUrl)}`,
+    );
   }
 
   return (

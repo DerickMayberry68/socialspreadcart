@@ -13,7 +13,6 @@ import {
   Truck,
 } from "lucide-react";
 
-import { TestimonialCarousel } from "@/components/sections/testimonial-carousel";
 import { ReviewsSection } from "@/components/reviews/reviews-section";
 import { Reveal } from "@/components/shared/reveal";
 import { SectionHeading, SectionShell } from "@/components/shared/section-shell";
@@ -511,18 +510,6 @@ export function HomePage({
           </div>
         </SectionShell>
       </section>
-
-      <SectionShell className="mt-24">
-        <SectionHeading
-          eyebrow={marketing.testimonials_section.eyebrow}
-          title={marketing.testimonials_section.title}
-          description={marketing.testimonials_section.description}
-          align="center"
-        />
-        <div className="mx-auto mt-10 max-w-4xl">
-          <TestimonialCarousel testimonials={testimonials} />
-        </div>
-      </SectionShell>
 
       <ReviewsSection reviews={reviews} />
 

@@ -22,6 +22,7 @@ describe("ReviewsSection", () => {
 
     expect(screen.getByText("Avery M.")).toBeInTheDocument();
     expect(screen.getByText(/made the shower feel special/i)).toBeInTheDocument();
+    expect(document.querySelector("[data-rating='5']")).toBeInTheDocument();
     expect(screen.queryByText(/avery@example.com/i)).not.toBeInTheDocument();
   });
 
