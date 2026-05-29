@@ -19,7 +19,7 @@ export function ReviewsSection({
     <SectionShell className="mt-24">
       <SectionHeading
         eyebrow="Customer Reviews"
-        title="Kind words from recent hosts and guests."
+        title="Customer reviews from recent hosts and guests."
         description="Approved notes from people who have ordered, hosted, or visited The Social Spread Cart."
         align="center"
       />
