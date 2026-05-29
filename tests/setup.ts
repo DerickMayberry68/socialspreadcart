@@ -62,6 +62,10 @@ Object.defineProperty(window, "IntersectionObserver", {
     disconnect: vi.fn(),
   })),
 });
+Object.defineProperty(globalThis, "IntersectionObserver", {
+  writable: true,
+  value: window.IntersectionObserver,
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -70,6 +74,18 @@ vi.mock("next/navigation", () => ({
     replace: vi.fn(),
   }),
   usePathname: () => "/",
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    prefetch: _prefetch,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+    prefetch?: boolean;
+  }) => React.createElement("a", { href, ...props }, children),
 }));
 
 vi.mock("next/image", () => ({

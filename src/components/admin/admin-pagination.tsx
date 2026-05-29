@@ -1,4 +1,5 @@
 import type * as React from "react";
+import Link from "next/link";
 
 import { buildAdminListHref, getPageRange } from "@/lib/admin/list-query";
 import { cn } from "@/lib/utils";
@@ -83,5 +84,5 @@ function PageLink({
     return <span className={className}>{children}</span>;
   }
 
-  return <a href={href} className={className}>{children}</a>;
+  return <Link href={href} prefetch={false} className={className}>{children}</Link>;
 }

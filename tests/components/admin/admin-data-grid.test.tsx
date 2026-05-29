@@ -27,10 +27,7 @@ describe("AdminDataGrid", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: /customer/i })).toHaveAttribute(
-      "href",
-      "/admin/contacts?search=avery&sort=name&direction=desc",
-    );
+    expect(screen.getByRole("button", { name: /sort by customer/i })).toBeInTheDocument();
     expect(screen.getByText("Avery")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Open" })).toBeInTheDocument();
   });

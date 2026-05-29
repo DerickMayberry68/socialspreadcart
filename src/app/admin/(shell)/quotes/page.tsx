@@ -80,6 +80,7 @@ export default async function QuotesPage({
     { key: "date", label: "Date", sortable: true, sortKey: "event_date" },
     { key: "guests", label: "Guests", sortable: true, sortKey: "guests" },
     { key: "status", label: "Status", sortable: true, sortKey: "status" },
+    { key: "added", label: "Added", sortable: true, sortKey: "created_at" },
   ];
   const listQuery = {
     search: query.search,
@@ -269,6 +270,7 @@ export default async function QuotesPage({
           sort={query.sort}
           direction={query.direction}
           columns={columns}
+          minWidthClassName="min-w-[1040px]"
           rows={quotesPage.records.map((quote) => ({
             id: quote.id,
             href: `/admin/quotes/${quote.id}`,
@@ -299,6 +301,7 @@ export default async function QuotesPage({
                   {quote.status.replace("_", " ")}
                 </span>
               ),
+              added: new Date(quote.created_at).toLocaleDateString(),
             },
             actions: (
               <Link

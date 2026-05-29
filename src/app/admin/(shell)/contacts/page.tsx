@@ -12,6 +12,11 @@ import {
 
 import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { parseAdminListQuery } from "@/lib/admin/list-query";
 import type { ContactStatus } from "@/lib/types";
 import { withCurrentTenant } from "@/lib/tenant";
@@ -71,6 +76,7 @@ export default async function ContactsPage({
     { key: "phone", label: "Phone" },
     { key: "source", label: "Source", sortable: true, sortKey: "source" },
     { key: "status", label: "Status", sortable: true, sortKey: "status" },
+    { key: "added", label: "Added", sortable: true, sortKey: "created_at" },
     { key: "updated", label: "Updated", sortable: true, sortKey: "updated_at" },
   ];
   const listQuery = {
@@ -253,6 +259,7 @@ export default async function ContactsPage({
           sort={query.sort}
           direction={query.direction}
           columns={columns}
+          minWidthClassName="min-w-[1080px]"
           rows={contactsPage.records.map((contact) => ({
             id: contact.id,
             href: `/admin/contacts/${contact.id}`,
@@ -261,9 +268,6 @@ export default async function ContactsPage({
               customer: (
                 <div className="min-w-0">
                   <p className="truncate font-medium">{contact.name}</p>
-                  <p className="mt-1 text-xs text-ink/45">
-                    Added {new Date(contact.created_at).toLocaleDateString()}
-                  </p>
                 </div>
               ),
               email: <span className="truncate">{contact.email}</span>,
@@ -276,16 +280,22 @@ export default async function ContactsPage({
                   {contact.status}
                 </span>
               ),
+              added: new Date(contact.created_at).toLocaleDateString(),
               updated: new Date(contact.updated_at).toLocaleDateString(),
             },
             actions: (
-              <Link
-                href={`/admin/contacts/${contact.id}`}
-                className="inline-flex items-center gap-1 rounded-full border border-sage/15 bg-white px-3 py-1.5 text-xs font-medium text-sage transition hover:border-sage/35"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Open
-              </Link>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={`/admin/contacts/${contact.id}`}
+                    aria-label={`Open contact for ${contact.name}`}
+                    className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent>Open contact</TooltipContent>
+              </Tooltip>
             ),
           }))}
           emptyState={

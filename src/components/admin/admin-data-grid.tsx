@@ -1,9 +1,11 @@
 import type * as React from "react";
+import Link from "next/link";
 import { ArrowDown, ArrowUp } from "lucide-react";
 
 import { buildAdminListHref } from "@/lib/admin/list-query";
 import { cn } from "@/lib/utils";
 import type { SortDirection } from "@/lib/types";
+import { AdminSortHeaderButton } from "@/components/admin/admin-sort-header-button";
 
 export type AdminDataGridColumn<TSort extends string = string> = {
   key: string;
@@ -59,7 +61,7 @@ export function AdminDataGrid<TSort extends string = string>({
     <div className="overflow-x-auto">
       <div className={cn("w-full", minWidthClassName)}>
         <div
-          className="grid gap-4 border-b border-sage/10 bg-[#fffaf4] px-6 py-3 text-xs uppercase tracking-[0.13em] text-ink/45"
+          className="grid gap-4 border-b border-sage/10 bg-[#f4eadb] px-6 py-3 text-xs uppercase tracking-[0.13em] text-ink/62"
           style={{ gridTemplateColumns }}
         >
           {columns.map((column) => {
@@ -88,21 +90,21 @@ export function AdminDataGrid<TSort extends string = string>({
             }
 
             return (
-              <a
+              <AdminSortHeaderButton
                 key={column.key}
                 href={buildAdminListHref(pathname, query, {
                   sort: sortKey,
                   direction: nextDirection,
                   page: "1",
                 })}
+                label={column.label}
+                isSorted={isSorted}
+                direction={direction}
                 className={cn(
-                  "transition hover:text-sage",
                   alignmentClass(column.align),
                   column.className,
                 )}
-              >
-                {content}
-              </a>
+              />
             );
           })}
           <div className="text-right">Actions</div>
@@ -136,13 +138,14 @@ export function AdminDataGrid<TSort extends string = string>({
                   style={{ gridTemplateColumns }}
                 >
                   {cells.map((cell, index) => (
-                    <a
+                    <Link
                       key={`${row.id}-link-${columns[index].key}`}
                       href={row.href ?? "#"}
+                      prefetch={false}
                       className="min-w-0"
                     >
                       {cell}
-                    </a>
+                    </Link>
                   ))}
                   <div className="flex justify-end gap-2">{row.actions}</div>
                 </div>
