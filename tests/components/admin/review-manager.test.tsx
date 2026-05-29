@@ -61,12 +61,9 @@ describe("ReviewManager", () => {
     expect(body).toEqual({ status: "approved", adminNote: "Good public note" });
   });
 
-  it("shows an empty state for a selected status", async () => {
-    const user = userEvent.setup();
+  it("shows an empty state when no reviews match the current view", () => {
+    render(<ReviewManager reviews={[]} />);
 
-    render(<ReviewManager reviews={[baseReview]} />);
-    await user.click(screen.getByRole("button", { name: /^approved/i }));
-
-    expect(screen.getByText(/no approved reviews/i)).toBeInTheDocument();
+    expect(screen.getByText(/no reviews match that view/i)).toBeInTheDocument();
   });
 });

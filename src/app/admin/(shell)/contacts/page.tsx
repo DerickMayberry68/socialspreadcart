@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   CheckCircle2,
-  Filter,
+  ExternalLink,
   Inbox,
   PhoneCall,
   Search,
@@ -10,9 +10,12 @@ import {
   Users,
 } from "lucide-react";
 
+import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
+import { AdminPagination } from "@/components/admin/admin-pagination";
+import { parseAdminListQuery } from "@/lib/admin/list-query";
 import type { ContactStatus } from "@/lib/types";
 import { withCurrentTenant } from "@/lib/tenant";
-import { ContactService } from "@/services/contact-service";
+import { ContactService, type ContactSort } from "@/services/contact-service";
 
 export const metadata: Metadata = { title: "Contacts | Admin" };
 
@@ -42,11 +45,40 @@ async function getContacts(search?: string, status?: string) {
 export default async function ContactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; status?: string }>;
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    sort?: string;
+    direction?: string;
+    page?: string;
+  }>;
 }) {
   const params = await searchParams;
-  const { contacts, counts } = await getContacts(params.search, params.status);
+  const query = parseAdminListQuery<ContactSort>({
+    params,
+    allowedSorts: ["name", "email", "source", "status", "created_at", "updated_at"],
+    defaultSort: "created_at",
+  });
+  const [{ contacts: legacyContacts, counts }, contactsPage] = await Promise.all([
+    getContacts(params.search, params.status),
+    withCurrentTenant(ContactService.listContactsPage, query),
+  ]);
+  void legacyContacts;
   const activeStatus = params.status && params.status !== "all" ? params.status : null;
+  const columns: Array<AdminDataGridColumn<ContactSort>> = [
+    { key: "customer", label: "Customer", sortable: true, sortKey: "name" },
+    { key: "email", label: "Email", sortable: true, sortKey: "email" },
+    { key: "phone", label: "Phone" },
+    { key: "source", label: "Source", sortable: true, sortKey: "source" },
+    { key: "status", label: "Status", sortable: true, sortKey: "status" },
+    { key: "updated", label: "Updated", sortable: true, sortKey: "updated_at" },
+  ];
+  const listQuery = {
+    search: query.search,
+    status: query.status,
+    sort: query.sort,
+    direction: query.direction,
+  };
   const statusCards = [
     {
       key: "new" as const,
@@ -164,6 +196,8 @@ export default async function ContactsPage({
         </div>
 
         <form method="GET" className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_auto]">
+          <input type="hidden" name="sort" value={query.sort} />
+          <input type="hidden" name="direction" value={query.direction} />
           <label className="space-y-2">
             <span className="text-xs uppercase tracking-[0.13em] text-ink/45">Search</span>
             <div className="relative">
@@ -204,7 +238,7 @@ export default async function ContactsPage({
           <div>
             <h2 className="font-heading text-3xl text-[#284237]">Contact list</h2>
             <p className="mt-1 text-sm text-ink/50">
-              {contacts.length} result{contacts.length === 1 ? "" : "s"} shown
+              {contactsPage.total} result{contactsPage.total === 1 ? "" : "s"} found
             </p>
           </div>
           <div className="hidden items-center gap-2 rounded-full bg-[#eef4e9] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#4f684d] sm:flex">
@@ -213,52 +247,67 @@ export default async function ContactsPage({
           </div>
         </div>
 
-        {contacts.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <Users className="mx-auto h-10 w-10 text-ink/20" />
-            <p className="mt-4 font-heading text-2xl text-[#284237]">
-              No contacts match that view.
-            </p>
-            <p className="mt-2 text-sm text-ink/45">
-              Clear the filters or wait for the next inquiry to come through.
-            </p>
-          </div>
-        ) : (
-          <ul className="divide-y divide-sage/8">
-            {contacts.map((contact) => (
-              <li key={contact.id}>
-                <Link
-                  href={`/admin/contacts/${contact.id}`}
-                  className="flex flex-col gap-4 px-6 py-5 transition hover:bg-[#fcf8f1] sm:flex-row sm:items-center"
+        <AdminDataGrid<ContactSort>
+          pathname="/admin/contacts"
+          query={listQuery}
+          sort={query.sort}
+          direction={query.direction}
+          columns={columns}
+          rows={contactsPage.records.map((contact) => ({
+            id: contact.id,
+            href: `/admin/contacts/${contact.id}`,
+            state: contact.status === "closed" ? "muted" : "active",
+            cells: {
+              customer: (
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{contact.name}</p>
+                  <p className="mt-1 text-xs text-ink/45">
+                    Added {new Date(contact.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              ),
+              email: <span className="truncate">{contact.email}</span>,
+              phone: contact.phone ? <span>{contact.phone}</span> : <span className="text-ink/35">No phone</span>,
+              source: contact.source === "quote" ? "Quote lead" : "Contact form",
+              status: (
+                <span
+                  className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusStyles[contact.status]}`}
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#eef4e9] font-heading text-xl text-[#284237]">
-                    {contact.name.charAt(0).toUpperCase()}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-ink">{contact.name}</p>
-                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink/50">
-                      <span>{contact.email}</span>
-                      {contact.phone && <span>{contact.phone}</span>}
-                    </div>
-                  </div>
-
-                  <div className="flex shrink-0 flex-col gap-2 sm:items-end">
-                    <span
-                      className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusStyles[contact.status]}`}
-                    >
-                      {contact.status}
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs uppercase tracking-[0.1em] text-ink/35">
-                      <Filter className="h-3 w-3" />
-                      {contact.source === "quote" ? "Quote lead" : "Contact form"}
-                    </span>
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+                  {contact.status}
+                </span>
+              ),
+              updated: new Date(contact.updated_at).toLocaleDateString(),
+            },
+            actions: (
+              <Link
+                href={`/admin/contacts/${contact.id}`}
+                className="inline-flex items-center gap-1 rounded-full border border-sage/15 bg-white px-3 py-1.5 text-xs font-medium text-sage transition hover:border-sage/35"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open
+              </Link>
+            ),
+          }))}
+          emptyState={
+            <div className="px-6 py-16 text-center">
+              <Users className="mx-auto h-10 w-10 text-ink/20" />
+              <p className="mt-4 font-heading text-2xl text-[#284237]">
+                No contacts match that view.
+              </p>
+              <p className="mt-2 text-sm text-ink/45">
+                Clear the filters or wait for the next inquiry to come through.
+              </p>
+            </div>
+          }
+        />
+        <AdminPagination
+          pathname="/admin/contacts"
+          query={listQuery}
+          page={contactsPage.page}
+          pageCount={contactsPage.pageCount}
+          pageSize={contactsPage.pageSize}
+          total={contactsPage.total}
+        />
       </section>
     </div>
   );

@@ -4,6 +4,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
+  ExternalLink,
   FileSearch,
   FileText,
   TrendingUp,
@@ -11,9 +12,17 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
+import { AdminPagination } from "@/components/admin/admin-pagination";
+import { parseAdminListQuery } from "@/lib/admin/list-query";
 import type { QuoteStatus } from "@/lib/types";
 import { withCurrentTenant } from "@/lib/tenant";
-import { getQuoteStatusCounts, listQuotes } from "@/services/quote-service";
+import {
+  getQuoteStatusCounts,
+  listQuotes,
+  listQuotesPage,
+  type QuoteSort,
+} from "@/services/quote-service";
 
 export const metadata: Metadata = { title: "Quotes | Admin" };
 
@@ -45,11 +54,39 @@ async function getQuotes(search?: string, status?: string) {
 export default async function QuotesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string; status?: string }>;
+  searchParams: Promise<{
+    search?: string;
+    status?: string;
+    sort?: string;
+    direction?: string;
+    page?: string;
+  }>;
 }) {
   const params = await searchParams;
-  const { quotes, counts } = await getQuotes(params.search, params.status);
+  const query = parseAdminListQuery<QuoteSort>({
+    params,
+    allowedSorts: ["name", "event_type", "event_date", "guests", "status", "created_at"],
+    defaultSort: "created_at",
+  });
+  const [{ quotes: legacyQuotes, counts }, quotesPage] = await Promise.all([
+    getQuotes(params.search, params.status),
+    withCurrentTenant(listQuotesPage, query),
+  ]);
+  void legacyQuotes;
   const activeStatus = params.status && params.status !== "all" ? params.status : null;
+  const columns: Array<AdminDataGridColumn<QuoteSort>> = [
+    { key: "customer", label: "Customer", sortable: true, sortKey: "name" },
+    { key: "event", label: "Event", sortable: true, sortKey: "event_type" },
+    { key: "date", label: "Date", sortable: true, sortKey: "event_date" },
+    { key: "guests", label: "Guests", sortable: true, sortKey: "guests" },
+    { key: "status", label: "Status", sortable: true, sortKey: "status" },
+  ];
+  const listQuery = {
+    search: query.search,
+    status: query.status,
+    sort: query.sort,
+    direction: query.direction,
+  };
   const statusCards = [
     {
       key: "new" as const,
@@ -174,6 +211,8 @@ export default async function QuotesPage({
         </div>
 
         <form method="GET" className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_auto]">
+          <input type="hidden" name="sort" value={query.sort} />
+          <input type="hidden" name="direction" value={query.direction} />
           <label className="space-y-2">
             <span className="text-xs uppercase tracking-[0.13em] text-ink/45">Search</span>
             <div className="relative">
@@ -215,7 +254,7 @@ export default async function QuotesPage({
           <div>
             <h2 className="font-heading text-3xl text-[#284237]">Quote pipeline</h2>
             <p className="mt-1 text-sm text-ink/50">
-              {quotes.length} result{quotes.length === 1 ? "" : "s"} shown
+              {quotesPage.total} result{quotesPage.total === 1 ? "" : "s"} found
             </p>
           </div>
           <div className="hidden items-center gap-2 rounded-full bg-[#f5efe3] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#9a6c44] sm:flex">
@@ -224,66 +263,73 @@ export default async function QuotesPage({
           </div>
         </div>
 
-        {quotes.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <FileText className="mx-auto h-10 w-10 text-ink/20" />
-            <p className="mt-4 font-heading text-2xl text-[#284237]">
-              No quotes match that view.
-            </p>
-            <p className="mt-2 text-sm text-ink/45">
-              Try broadening the filters or check back after the next inquiry comes in.
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="hidden grid-cols-[1.2fr_180px_150px_120px_110px] gap-4 border-b border-sage/10 px-6 py-3 text-xs uppercase tracking-[0.13em] text-ink/40 md:grid">
-              <span>Customer</span>
-              <span>Event</span>
-              <span>Date</span>
-              <span>Guests</span>
-              <span>Status</span>
+        <AdminDataGrid<QuoteSort>
+          pathname="/admin/quotes"
+          query={listQuery}
+          sort={query.sort}
+          direction={query.direction}
+          columns={columns}
+          rows={quotesPage.records.map((quote) => ({
+            id: quote.id,
+            href: `/admin/quotes/${quote.id}`,
+            state: quote.status === "closed" || quote.status === "lost" ? "muted" : "active",
+            cells: {
+              customer: (
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{quote.name}</p>
+                  <p className="truncate text-xs text-ink/50">{quote.email}</p>
+                </div>
+              ),
+              event: <span className="truncate">{quote.event_type}</span>,
+              date: new Date(quote.event_date).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }),
+              guests: (
+                <span className="inline-flex items-center gap-2">
+                  <Users className="h-3.5 w-3.5 text-ink/35" />
+                  {quote.guests}
+                </span>
+              ),
+              status: (
+                <span
+                  className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusStyles[quote.status]}`}
+                >
+                  {quote.status.replace("_", " ")}
+                </span>
+              ),
+            },
+            actions: (
+              <Link
+                href={`/admin/quotes/${quote.id}`}
+                className="inline-flex items-center gap-1 rounded-full border border-sage/15 bg-white px-3 py-1.5 text-xs font-medium text-sage transition hover:border-sage/35"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Open
+              </Link>
+            ),
+          }))}
+          emptyState={
+            <div className="px-6 py-16 text-center">
+              <FileText className="mx-auto h-10 w-10 text-ink/20" />
+              <p className="mt-4 font-heading text-2xl text-[#284237]">
+                No quotes match that view.
+              </p>
+              <p className="mt-2 text-sm text-ink/45">
+                Try broadening the filters or check back after the next inquiry comes in.
+              </p>
             </div>
-            <ul className="divide-y divide-sage/8">
-              {quotes.map((quote) => (
-                <li key={quote.id}>
-                  <Link
-                    href={`/admin/quotes/${quote.id}`}
-                    className="grid grid-cols-1 gap-3 px-6 py-5 transition hover:bg-[#fcf8f1] md:grid-cols-[1.2fr_180px_150px_120px_110px] md:items-center md:gap-4"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3">
-                        <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#eef4e9] font-heading text-lg text-[#284237] sm:flex">
-                          {quote.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-ink">{quote.name}</p>
-                          <p className="truncate text-xs text-ink/50">{quote.email}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <p className="truncate text-sm text-ink/70">{quote.event_type}</p>
-                    <p className="text-sm text-ink/70">
-                      {new Date(quote.event_date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <p className="flex items-center gap-2 text-sm text-ink/70">
-                      <Users className="h-3.5 w-3.5 text-ink/35" />
-                      {quote.guests}
-                    </p>
-                    <span
-                      className={`w-fit rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusStyles[quote.status]}`}
-                    >
-                      {quote.status.replace("_", " ")}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
+          }
+        />
+        <AdminPagination
+          pathname="/admin/quotes"
+          query={listQuery}
+          page={quotesPage.page}
+          pageCount={quotesPage.pageCount}
+          pageSize={quotesPage.pageSize}
+          total={quotesPage.total}
+        />
       </section>
     </div>
   );

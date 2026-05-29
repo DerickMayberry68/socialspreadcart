@@ -1,7 +1,14 @@
 import { z } from "zod";
 
+import { createPagedResult } from "@/lib/admin/list-query";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
-import type { Contact, Interaction, Quote } from "@/lib/types";
+import type {
+  AdminListQuery,
+  Contact,
+  Interaction,
+  PagedResult,
+  Quote,
+} from "@/lib/types";
 
 const tenantIdSchema = z.string().uuid();
 const contactStatusSchema = z.enum(["new", "contacted", "booked", "closed"]);
@@ -13,40 +20,91 @@ const updateContactStatusSchema = z.object({
   previousStatus: contactStatusSchema.optional(),
 });
 
+const contactSortColumns = {
+  name: "name",
+  email: "email",
+  source: "source",
+  status: "status",
+  created_at: "created_at",
+  updated_at: "updated_at",
+} as const;
+
+export type ContactSort = keyof typeof contactSortColumns;
+export type ContactListOptions = Partial<AdminListQuery<ContactSort>>;
+
+function isContactListOptions(value: unknown): value is ContactListOptions {
+  return typeof value === "object" && value !== null;
+}
+
 async function listContacts(
   tenantId: string,
   search?: string,
   status?: string,
 ): Promise<Contact[]> {
+  return listContactsInternal(tenantId, { search, status }, false) as Promise<Contact[]>;
+}
+
+async function listContactsPage(
+  tenantId: string,
+  options: ContactListOptions,
+): Promise<PagedResult<Contact>> {
+  return listContactsInternal(tenantId, options, true) as Promise<PagedResult<Contact>>;
+}
+
+async function listContactsInternal(
+  tenantId: string,
+  searchOrOptions?: string | ContactListOptions,
+  pagedStatusOrPaged?: string | boolean,
+  forcePaged = false,
+): Promise<Contact[] | PagedResult<Contact>> {
   tenantIdSchema.parse(tenantId);
+  const options = isContactListOptions(searchOrOptions)
+    ? searchOrOptions
+    : { search: searchOrOptions, status: typeof pagedStatusOrPaged === "string" ? pagedStatusOrPaged : undefined };
+  const paged = forcePaged || pagedStatusOrPaged === true;
 
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
-    return [];
+    return paged
+      ? createPagedResult<Contact>([], 0, options.page ?? 1, options.pageSize ?? 25)
+      : [];
   }
 
+  const page = Math.max(1, options.page ?? 1);
+  const pageSize = Math.max(1, options.pageSize ?? 25);
+  const sort = options.sort && options.sort in contactSortColumns
+    ? contactSortColumns[options.sort as ContactSort]
+    : "created_at";
+  const direction = options.direction ?? "desc";
   let query = supabase
     .from("contacts")
-    .select("*")
+    .select("*", paged ? { count: "exact" } : undefined)
     .eq("tenant_id", tenantId)
-    .order("created_at", { ascending: false });
+    .order(sort, { ascending: direction === "asc" });
 
-  if (status && status !== "all") {
-    query = query.eq("status", status);
+  if (options.status && options.status !== "all") {
+    query = query.eq("status", options.status);
   }
 
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,phone.ilike.%${search}%`);
+  if (options.search) {
+    query = query.or(`name.ilike.%${options.search}%,email.ilike.%${options.search}%,phone.ilike.%${options.search}%`);
   }
 
-  const { data, error } = await query;
+  if (paged) {
+    query = query.range((page - 1) * pageSize, page * pageSize - 1);
+  }
+
+  const { data, error, count } = await query;
 
   if (error || !data) {
-    return [];
+    return paged ? createPagedResult<Contact>([], 0, page, pageSize) : [];
   }
 
-  return data as Contact[];
+  const records = data as Contact[];
+  return paged
+    ? createPagedResult(records, count ?? records.length, page, pageSize)
+    : records;
 }
 
 async function getRecentContacts(
@@ -175,6 +233,7 @@ async function updateContactStatus(
 
 export const ContactService = {
   listContacts,
+  listContactsPage,
   getRecentContacts,
   getContactStatusCounts,
   getContactDetail,

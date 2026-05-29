@@ -17,6 +17,8 @@ import {
 import { toast } from "sonner";
 
 import type { MenuItem } from "@/lib/types";
+import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
+import { DeleteConfirmationDialog } from "@/components/admin/delete-confirmation-dialog";
 import { clientMedia } from "@/lib/media";
 import { formatPrice, generateUuid, slugify } from "@/lib/utils";
 import {
@@ -114,6 +116,8 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [deleting, setDeleting] = React.useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = React.useState<MenuItem | null>(null);
+  const [page, setPage] = React.useState(1);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const featuredCount = items.filter((item) => item.featured).length;
@@ -234,6 +238,7 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
     }
 
     setItems((current) => current.filter((item) => item.id !== id));
+    setPendingDelete(null);
     toast.success("Menu item deleted.");
   };
 
@@ -300,6 +305,17 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
     setForm((current) => ({ ...current, image_url: result.imageUrl ?? current.image_url }));
     toast.success("Image uploaded.");
   };
+  const pageSize = 25;
+  const pageCount = Math.max(1, Math.ceil(items.length / pageSize));
+  const visibleItems = items.slice((page - 1) * pageSize, page * pageSize);
+  const columns: Array<AdminDataGridColumn> = [
+    { key: "item", label: "Item" },
+    { key: "price", label: "Price", align: "right" },
+    { key: "size", label: "Size" },
+    { key: "lead_time", label: "Lead time" },
+    { key: "visibility", label: "Visibility" },
+    { key: "featured", label: "Featured" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -599,49 +615,48 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
             </button>
           </div>
         ) : (
-          <ul className="divide-y divide-sage/8">
-            {items.map((item) => (
-              <li
-                key={item.id}
-                className="flex flex-col gap-4 px-6 py-5 transition hover:bg-[#fcf8f1] lg:flex-row lg:items-center"
-              >
-                <div className="overflow-hidden rounded-[18px] border border-sage/10 bg-[#fffaf4] lg:w-24">
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    width={192}
-                    height={144}
-                    className="aspect-[4/3] h-full w-full object-cover"
-                  />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-ink">{item.name}</p>
-                    {item.featured && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-[#eef4e9] px-2.5 py-1 text-xs uppercase tracking-[0.12em] text-[#4f684d]">
-                        <Star className="h-3 w-3 fill-current" />
-                        Featured
-                      </span>
-                    )}
-                    {!item.is_active && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2.5 py-1 text-xs uppercase tracking-[0.12em] text-ink/55">
-                        <EyeOff className="h-3 w-3" />
-                        Hidden
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink/62">
-                    {item.description}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/50">
-                    <span>{item.size}</span>
-                    <span>{formatPrice(item.price_cents)}</span>
-                    <span>{item.lead_time}</span>
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 gap-2">
+          <>
+            <AdminDataGrid
+              columns={columns}
+              minWidthClassName="min-w-[1080px]"
+              rows={visibleItems.map((item) => ({
+                id: item.id,
+                state: item.is_active ? "active" : "muted",
+                cells: {
+                  item: (
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="w-20 overflow-hidden rounded-[14px] border border-sage/10 bg-[#fffaf4]">
+                        <Image
+                          src={item.image_url}
+                          alt={item.name}
+                          width={160}
+                          height={120}
+                          className="aspect-[4/3] h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{item.name}</p>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink/55">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  ),
+                  price: formatPrice(item.price_cents),
+                  size: item.size,
+                  lead_time: item.lead_time,
+                  visibility: item.is_active ? "Visible" : "Hidden",
+                  featured: item.featured ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#eef4e9] px-2.5 py-1 text-xs uppercase tracking-[0.12em] text-[#4f684d]">
+                      <Star className="h-3 w-3 fill-current" />
+                      Featured
+                    </span>
+                  ) : (
+                    <span className="text-ink/35">No</span>
+                  ),
+                },
+                actions: (
+                  <>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
@@ -673,7 +688,7 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => setPendingDelete(item)}
                         disabled={deleting === item.id}
                         className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
                       >
@@ -682,12 +697,47 @@ export function MenuItemManager({ initial }: { initial: MenuItem[] }) {
                     </TooltipTrigger>
                     <TooltipContent>Permanently delete this item</TooltipContent>
                   </Tooltip>
+                  </>
+                ),
+              }))}
+              emptyState={null}
+            />
+            {items.length > pageSize ? (
+              <div className="flex items-center justify-between border-t border-sage/10 px-6 py-4 text-sm text-ink/55">
+                <p>Page {page} of {pageCount}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() => setPage((current) => Math.max(1, current - 1))}
+                    className="rounded-full border border-sage/15 px-3 py-1.5 text-xs disabled:opacity-35"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={page >= pageCount}
+                    onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                    className="rounded-full border border-sage/15 px-3 py-1.5 text-xs disabled:opacity-35"
+                  >
+                    Next
+                  </button>
                 </div>
-              </li>
-            ))}
-          </ul>
+              </div>
+            ) : null}
+          </>
         )}
       </section>
+      <DeleteConfirmationDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        recordLabel={pendingDelete?.name ?? "this menu item"}
+        onConfirm={() => {
+          if (pendingDelete) void handleDelete(pendingDelete.id);
+        }}
+      />
     </div>
   );
 }

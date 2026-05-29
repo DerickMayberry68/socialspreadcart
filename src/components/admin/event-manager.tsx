@@ -13,6 +13,8 @@ import {
 import { toast } from "sonner";
 
 import type { EventItem } from "@/lib/types";
+import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
+import { DeleteConfirmationDialog } from "@/components/admin/delete-confirmation-dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -132,6 +134,8 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
   const [mode, setMode] = React.useState<"idle" | "create" | "edit">("idle");
   const [editing, setEditing] = React.useState<EventItem | null>(null);
   const [deleting, setDeleting] = React.useState<string | null>(null);
+  const [pendingDelete, setPendingDelete] = React.useState<EventItem | null>(null);
+  const [page, setPage] = React.useState(1);
 
   const handleSave = (event: EventItem) => {
     setEvents((prev) => {
@@ -161,6 +165,7 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
 
     toast.success("Event deleted.");
     setEvents((prev) => prev.filter((event) => event.id !== id));
+    setPendingDelete(null);
   };
 
   const startEdit = (event: EventItem) => {
@@ -171,7 +176,16 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
   const sorted = [...events].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
   );
+  const pageSize = 25;
+  const pageCount = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const visibleEvents = sorted.slice((page - 1) * pageSize, page * pageSize);
   const upcoming = sorted.filter((event) => new Date(event.date) >= new Date()).length;
+  const columns: Array<AdminDataGridColumn> = [
+    { key: "date", label: "Date" },
+    { key: "title", label: "Event" },
+    { key: "location", label: "Location" },
+    { key: "state", label: "State" },
+  ];
 
   return (
     <div className="space-y-6">
@@ -264,53 +278,45 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
             </p>
           </div>
         ) : (
-          <ul className="divide-y divide-sage/8">
-            {sorted.map((event) => {
+          <>
+            <AdminDataGrid
+              columns={columns}
+              minWidthClassName="min-w-[820px]"
+              rows={visibleEvents.map((event) => {
               const date = new Date(event.date);
               const isPast = date < new Date();
 
-              return (
-                <li
-                  key={event.id}
-                  className={`flex flex-col gap-4 px-6 py-5 transition sm:flex-row sm:items-start ${
-                    isPast ? "opacity-55" : "hover:bg-[#fcf8f1]"
-                  }`}
-                >
-                  <div className="flex w-14 shrink-0 flex-col items-center rounded-[18px] bg-[#eef4e9] py-2 text-center">
-                    <span className="text-xs uppercase tracking-wider text-[#4f684d]/75">
-                      {date.toLocaleDateString("en-US", { month: "short" })}
+              return {
+                id: event.id,
+                state: isPast ? "muted" : "active",
+                cells: {
+                  date: (
+                    <div className="w-fit rounded-[18px] bg-[#eef4e9] px-3 py-2 text-center">
+                      <p className="text-xs uppercase tracking-wider text-[#4f684d]/75">
+                        {date.toLocaleDateString("en-US", { month: "short" })}
+                      </p>
+                      <p className="font-heading text-2xl text-[#284237]">{date.getDate()}</p>
+                      <p className="text-xs text-[#4f684d]/70">{date.getFullYear()}</p>
+                    </div>
+                  ),
+                  title: (
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{event.title}</p>
+                      <p className="mt-2 line-clamp-2 text-xs leading-5 text-ink/55">
+                        {event.description}
+                      </p>
+                    </div>
+                  ),
+                  location: (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {event.location}
                     </span>
-                    <span className="font-heading text-2xl text-[#284237]">{date.getDate()}</span>
-                    <span className="text-xs text-[#4f684d]/70">{date.getFullYear()}</span>
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-medium text-ink">{event.title}</p>
-                      {isPast && (
-                        <span className="rounded-full bg-ink/10 px-2.5 py-1 text-xs uppercase tracking-[0.12em] text-ink/50">
-                          Past
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink/50">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {event.location}
-                      </span>
-                      <span>
-                        {date.toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-ink/62">
-                      {event.description}
-                    </p>
-                  </div>
-
-                  <div className="flex shrink-0 gap-2">
+                  ),
+                  state: isPast ? "Past" : "Upcoming",
+                },
+                actions: (
+                  <>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
@@ -325,7 +331,7 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          onClick={() => handleDelete(event.id)}
+                          onClick={() => setPendingDelete(event)}
                           disabled={deleting === event.id}
                           className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
                         >
@@ -334,13 +340,48 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                       </TooltipTrigger>
                       <TooltipContent>Permanently delete this event</TooltipContent>
                     </Tooltip>
-                  </div>
-                </li>
-              );
+                  </>
+                ),
+              };
             })}
-          </ul>
+              emptyState={null}
+            />
+            {sorted.length > pageSize ? (
+              <div className="flex items-center justify-between border-t border-sage/10 px-6 py-4 text-sm text-ink/55">
+                <p>Page {page} of {pageCount}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={page <= 1}
+                    onClick={() => setPage((current) => Math.max(1, current - 1))}
+                    className="rounded-full border border-sage/15 px-3 py-1.5 text-xs disabled:opacity-35"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={page >= pageCount}
+                    onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                    className="rounded-full border border-sage/15 px-3 py-1.5 text-xs disabled:opacity-35"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
         )}
       </section>
+      <DeleteConfirmationDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => {
+          if (!open) setPendingDelete(null);
+        }}
+        recordLabel={pendingDelete?.title ?? "this event"}
+        onConfirm={() => {
+          if (pendingDelete) void handleDelete(pendingDelete.id);
+        }}
+      />
     </div>
   );
 }

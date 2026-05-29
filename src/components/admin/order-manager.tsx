@@ -127,7 +127,7 @@ export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-[18px] border border-sage/10 bg-white shadow-soft">
+    <div className="overflow-hidden bg-white">
       <div className="overflow-x-auto">
         <table className="min-w-[1180px] w-full border-collapse text-left text-sm">
           <thead className="border-b border-sage/10 bg-[#fffaf4] text-xs uppercase tracking-[0.14em] text-ink/45">
@@ -151,7 +151,14 @@ export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
               const address = formatAddress(order);
 
               return (
-                <tr key={order.id} className="align-top transition hover:bg-[#fffaf4]/55">
+                <tr
+                  key={order.id}
+                  className={`align-top transition ${
+                    order.status === "fulfilled" || order.status === "cancelled"
+                      ? "bg-ink/[0.025] text-ink/55"
+                      : "hover:bg-[#fffaf4]/55"
+                  }`}
+                >
                   <td className="px-4 py-4">
                     <p className="font-mono text-xs font-medium text-[#284237]">
                       #{order.id.slice(0, 8)}

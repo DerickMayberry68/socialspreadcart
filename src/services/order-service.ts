@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { createPagedResult } from "@/lib/admin/list-query";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import type { MenuItem } from "@/lib/types";
@@ -626,6 +627,18 @@ async function listOrders(
   }));
 }
 
+async function listOrdersPage(
+  tenantId: string,
+  options: { status?: string; page?: number; pageSize?: number } = {},
+) {
+  const records = await listOrders(tenantId, options.status);
+  const pageSize = Math.max(1, options.pageSize ?? 25);
+  const page = Math.max(1, options.page ?? 1);
+  const start = (page - 1) * pageSize;
+
+  return createPagedResult(records.slice(start, start + pageSize), records.length, page, pageSize);
+}
+
 async function updateFulfillmentStatus(
   input: z.input<typeof adminFulfillmentUpdateSchema>,
 ): Promise<void> {
@@ -751,6 +764,7 @@ export const OrderService = {
   createCheckout,
   getCheckoutConfirmation,
   listOrders,
+  listOrdersPage,
   updateFulfillmentStatus,
   decideDelivery,
   createDeliveryPayment,
