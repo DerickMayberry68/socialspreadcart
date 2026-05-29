@@ -1,9 +1,17 @@
 import { z } from "zod";
 
+import { createPagedResult } from "@/lib/admin/list-query";
 import { hasSupabaseServiceEnv } from "@/lib/supabase/env";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
-import type { Contact, Quote, QuoteStatus, QuoteRequest } from "@/lib/types";
+import type {
+  AdminListQuery,
+  Contact,
+  PagedResult,
+  Quote,
+  QuoteStatus,
+  QuoteRequest,
+} from "@/lib/types";
 
 export type SubmitQuoteResult =
   | { ok: true }
@@ -30,40 +38,81 @@ const updateQuoteStatusSchema = z.object({
   contactId: z.string().uuid().optional().nullable(),
 });
 
+const quoteSortColumns = {
+  name: "name",
+  event_type: "event_type",
+  event_date: "event_date",
+  guests: "guests",
+  status: "status",
+  created_at: "created_at",
+} as const;
+
+export type QuoteSort = keyof typeof quoteSortColumns;
+export type QuoteListOptions = Partial<AdminListQuery<QuoteSort>>;
+
 export async function listQuotes(
   tenantId: string,
   search?: string,
   status?: string,
 ): Promise<Quote[]> {
+  return listQuotesInternal(tenantId, { search, status }, false) as Promise<Quote[]>;
+}
+
+export async function listQuotesPage(
+  tenantId: string,
+  options: QuoteListOptions,
+): Promise<PagedResult<Quote>> {
+  return listQuotesInternal(tenantId, options, true) as Promise<PagedResult<Quote>>;
+}
+
+async function listQuotesInternal(
+  tenantId: string,
+  options: QuoteListOptions,
+  paged: boolean,
+): Promise<Quote[] | PagedResult<Quote>> {
   tenantIdSchema.parse(tenantId);
 
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
-    return [];
+    return paged
+      ? createPagedResult<Quote>([], 0, options.page ?? 1, options.pageSize ?? 25)
+      : [];
   }
 
+  const page = Math.max(1, options.page ?? 1);
+  const pageSize = Math.max(1, options.pageSize ?? 25);
+  const sort = options.sort && options.sort in quoteSortColumns
+    ? quoteSortColumns[options.sort as QuoteSort]
+    : "created_at";
   let query = supabase
     .from("quotes")
-    .select("*")
+    .select("*", paged ? { count: "exact" } : undefined)
     .eq("tenant_id", tenantId)
-    .order("created_at", { ascending: false });
+    .order(sort, { ascending: options.direction === "asc" });
 
-  if (status && status !== "all") {
-    query = query.eq("status", status);
+  if (options.status && options.status !== "all") {
+    query = query.eq("status", options.status);
   }
 
-  if (search) {
-    query = query.or(`name.ilike.%${search}%,email.ilike.%${search}%,event_type.ilike.%${search}%`);
+  if (options.search) {
+    query = query.or(`name.ilike.%${options.search}%,email.ilike.%${options.search}%,event_type.ilike.%${options.search}%`);
   }
 
-  const { data, error } = await query;
+  if (paged) {
+    query = query.range((page - 1) * pageSize, page * pageSize - 1);
+  }
+
+  const { data, error, count } = await query;
 
   if (error || !data) {
-    return [];
+    return paged ? createPagedResult<Quote>([], 0, page, pageSize) : [];
   }
 
-  return data as Quote[];
+  const records = data as Quote[];
+  return paged
+    ? createPagedResult(records, count ?? records.length, page, pageSize)
+    : records;
 }
 
 export async function getRecentQuotes(

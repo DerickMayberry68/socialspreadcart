@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+import { createPagedResult } from "@/lib/admin/list-query";
 import { getSupabaseServiceRoleClient } from "@/lib/supabase/service";
 import type {
+  AdminListQuery,
   CustomerReview,
   CustomerReviewStatus,
+  PagedResult,
   PublicCustomerReview,
 } from "@/lib/types";
 import {
@@ -29,6 +32,17 @@ type ModerateReviewInput = AdminReviewStatusUpdateInput & {
   reviewId: string;
   userId: string;
 };
+
+const reviewSortColumns = {
+  display_name: "display_name",
+  rating: "rating",
+  occasion: "occasion",
+  status: "status",
+  submitted_at: "submitted_at",
+} as const;
+
+export type ReviewSort = keyof typeof reviewSortColumns;
+export type ReviewListOptions = Partial<AdminListQuery<ReviewSort>>;
 
 function getServiceClient(): SupabaseClient {
   const supabase = getSupabaseServiceRoleClient();
@@ -126,27 +140,64 @@ async function listAdminReviews(
   tenantIdInput: string,
   statusInput?: CustomerReviewStatus,
 ): Promise<CustomerReview[]> {
+  return listAdminReviewsInternal(
+    tenantIdInput,
+    { status: statusInput },
+    false,
+  ) as Promise<CustomerReview[]>;
+}
+
+async function listAdminReviewsPage(
+  tenantIdInput: string,
+  options: ReviewListOptions,
+): Promise<PagedResult<CustomerReview>> {
+  return listAdminReviewsInternal(tenantIdInput, options, true) as Promise<
+    PagedResult<CustomerReview>
+  >;
+}
+
+async function listAdminReviewsInternal(
+  tenantIdInput: string,
+  options: ReviewListOptions,
+  paged: boolean,
+): Promise<CustomerReview[] | PagedResult<CustomerReview>> {
   const tenantId = tenantIdSchema.parse(tenantIdInput);
-  const status = statusInput ? reviewStatusSchema.parse(statusInput) : undefined;
+  const status = options.status ? reviewStatusSchema.parse(options.status) : undefined;
   const supabase = getServiceClient();
+  const page = Math.max(1, options.page ?? 1);
+  const pageSize = Math.max(1, options.pageSize ?? 25);
+  const sort = options.sort && options.sort in reviewSortColumns
+    ? reviewSortColumns[options.sort as ReviewSort]
+    : "submitted_at";
 
   let query = supabase
     .from("customer_reviews")
-    .select("*")
+    .select("*", paged ? { count: "exact" } : undefined)
     .eq("tenant_id", tenantId)
-    .order("submitted_at", { ascending: false });
+    .order(sort, { ascending: options.direction === "asc" });
 
   if (status) {
     query = query.eq("status", status);
   }
 
-  const { data, error } = await query;
+  if (options.search) {
+    query = query.or(`display_name.ilike.%${options.search}%,occasion.ilike.%${options.search}%,review_text.ilike.%${options.search}%`);
+  }
+
+  if (paged) {
+    query = query.range((page - 1) * pageSize, page * pageSize - 1);
+  }
+
+  const { data, error, count } = await query;
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return (data ?? []) as CustomerReview[];
+  const records = (data ?? []) as CustomerReview[];
+  return paged
+    ? createPagedResult(records, count ?? records.length, page, pageSize)
+    : records;
 }
 
 async function moderateReview(input: ModerateReviewInput): Promise<void> {
@@ -210,5 +261,6 @@ export const ReviewService = {
   createPendingReview,
   listApprovedReviews,
   listAdminReviews,
+  listAdminReviewsPage,
   moderateReview,
 };

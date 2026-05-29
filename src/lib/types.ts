@@ -1,6 +1,25 @@
 import type { EventType, ServiceOption } from "@/types/booking";
 export type * from "@/lib/types/order";
 
+export type SortDirection = "asc" | "desc";
+
+export type AdminListQuery<TSort extends string = string> = {
+  search?: string;
+  status?: string;
+  sort: TSort;
+  direction: SortDirection;
+  page: number;
+  pageSize: number;
+};
+
+export type PagedResult<T> = {
+  records: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+};
+
 export type MenuItem = {
   id: string;
   name: string;
