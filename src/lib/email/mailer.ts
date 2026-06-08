@@ -8,17 +8,20 @@ export interface SendMailInput {
   /** Recipient address. If empty/undefined, the send is skipped (never guessed). */
   to: string | null | undefined;
   subject: string;
+  /** Plain-text body (always sent as a fallback). */
   text: string;
+  /** Optional HTML body. */
+  html?: string;
   /** Optional label used in log lines to identify the kind of email. */
   context?: string;
+  /** Optional Reply-To address. */
+  replyTo?: string | null;
 }
 
 /**
- * Sends a plain-text email via Resend.
- *
- * This function never throws to the caller: it returns a {@link SendMailResult}
- * and logs the outcome, so callers (e.g. the quote submission flow) cannot be
- * broken by a delivery failure or misconfiguration.
+ * Sends an email via Resend. Never throws to the caller: returns a
+ * {@link SendMailResult} and logs the outcome, so callers (quote/order flows)
+ * cannot be broken by a delivery failure or misconfiguration.
  */
 export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
   const label = input.context ?? "email";
@@ -37,12 +40,15 @@ export async function sendMail(input: SendMailInput): Promise<SendMailResult> {
 
   try {
     const resend = new Resend(config.apiKey);
+    const replyTo = input.replyTo?.trim();
 
     const { error } = await resend.emails.send({
       from: config.from,
       to: [recipient],
       subject: input.subject,
       text: input.text,
+      ...(input.html ? { html: input.html } : {}),
+      ...(replyTo ? { replyTo } : {}),
     });
 
     if (error) {

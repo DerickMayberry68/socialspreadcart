@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentTenant } from "@/lib/tenant";
-import { sendQuoteNotification } from "@/services/email-service";
+import { sendQuoteConfirmation, sendQuoteNotification } from "@/services/email-service";
 import { submitQuote } from "@/services/quote-service";
 import { hasSupabaseServiceEnv } from "@/lib/supabase/env";
 
@@ -32,6 +32,11 @@ export async function POST(request: Request) {
   const notification = await sendQuoteNotification(payload);
   if (notification !== "sent") {
     console.warn(`[api/quote] quote saved but notification ${notification}.`);
+  }
+
+  const confirmation = await sendQuoteConfirmation(payload);
+  if (confirmation !== "sent") {
+    console.warn(`[api/quote] customer confirmation ${confirmation}.`);
   }
 
   return NextResponse.json({

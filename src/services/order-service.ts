@@ -24,6 +24,7 @@ import {
   deliveryPaymentSchema,
 } from "@/lib/validation/order";
 import { PaymentService } from "@/services/payment-service";
+import { sendOrderNotification } from "@/services/email-service";
 
 const tenantIdSchema = z.string().uuid();
 const PROCESSING_FEE_RATE = 0.026;
@@ -314,6 +315,24 @@ async function createCheckout(
     eventType: isDeliveryRequest ? "delivery_requested" : "submitted",
     toStatus: guestOrder.status,
     customerVisible: isDeliveryRequest,
+  });
+
+  // Best-effort owner notification for every newly created order (never throws).
+  await sendOrderNotification({
+    orderId: guestOrder.id,
+    tenantId: parsed.tenantId,
+    guestName: parsed.guest.name,
+    guestEmail: parsed.guest.email || null,
+    guestPhone: parsed.guest.phone || null,
+    fulfillmentType: parsed.fulfillment.type,
+    status: guestOrder.status,
+    totalCents: totals.totalCents,
+    currency: totals.currency,
+    items: orderItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      lineTotalCents: item.line_total_cents,
+    })),
   });
 
   if (isDeliveryRequest) {
