@@ -27,7 +27,12 @@ export async function POST(request: Request) {
     );
   }
 
-  await sendQuoteNotification(payload);
+  // Notification is best-effort: sendQuoteNotification never throws and the
+  // customer's submission must succeed regardless of delivery outcome.
+  const notification = await sendQuoteNotification(payload);
+  if (notification !== "sent") {
+    console.warn(`[api/quote] quote saved but notification ${notification}.`);
+  }
 
   return NextResponse.json({
     ok: true,

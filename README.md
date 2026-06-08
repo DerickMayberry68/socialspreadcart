@@ -94,7 +94,7 @@ Use those for production menu and event photography. The seed content currently 
 
 - The contact form posts to `src/app/api/quote/route.ts`
 - If `SUPABASE_SERVICE_ROLE_KEY` is present, quotes are persisted to Supabase
-- If `RESEND_API_KEY` is present, a notification email is also sent
+- If Resend is configured (`RESEND_API_KEY`, `RESEND_FROM`) and `QUOTE_NOTIFICATION_EMAIL` is set, an owner notification email is also sent. Delivery is best-effort: a failed or unconfigured send never blocks the submission, and the outcome is logged. The notification is never sent to the requesting customer.
 - Without Supabase configured, the route returns a successful demo response so the UI remains usable during design review
 
 ## Guest ordering and payment
@@ -132,10 +132,4 @@ The order and admin implementation is provider-neutral; only `src/services/payme
 1. Import the repo into Vercel
 2. Add the environment variables from `.env.example`
 3. Deploy
-4. Point `TheSocialSpreadCart.com` to the Vercel project
-
-## Notes
-
-- The image slots are ready for real board photography and Supabase Storage URLs.
-- The current visual treatment intentionally follows the supplied green/cream logo system and Instagram template mood.
-- `npm run build` and `npm run lint` both pass in the current workspace.
+4. Point `TheSocialSpreadCart.com` t

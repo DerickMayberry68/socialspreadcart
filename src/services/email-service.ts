@@ -1,19 +1,13 @@
-import { Resend } from "resend";
-
+import { sendMail, type SendMailResult } from "@/lib/email/mailer";
 import type { QuoteRequest, TenantRole } from "@/lib/types";
 
 export async function sendQuoteNotification(
   payload: QuoteRequest,
-): Promise<void> {
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
-    return;
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
-  await resend.emails.send({
-    from: process.env.RESEND_FROM,
-    to: [process.env.QUOTE_NOTIFICATION_EMAIL ?? payload.email],
+): Promise<SendMailResult> {
+  return sendMail({
+    context: "quote notification",
+    // Owner recipient only. Never fall back to the requester's address.
+    to: process.env.QUOTE_NOTIFICATION_EMAIL,
     subject: `New quote request from ${payload.name}`,
     text: [
       `Tenant ID: ${payload.tenantId}`,
@@ -34,16 +28,10 @@ export async function sendTenantInvitationEmail(input: {
   email: string;
   role: TenantRole;
   acceptUrl: string;
-}): Promise<void> {
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM) {
-    return;
-  }
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-
-  await resend.emails.send({
-    from: process.env.RESEND_FROM,
-    to: [input.email],
+}): Promise<SendMailResult> {
+  return sendMail({
+    context: "tenant invitation",
+    to: input.email,
     subject: `You’ve been invited to join ${input.tenantName}`,
     text: [
       `You’ve been invited to join ${input.tenantName} as ${input.role}.`,
