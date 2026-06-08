@@ -124,7 +124,15 @@ export default async function ContactDetailPage({
               </div>
             </div>
             <div className="mt-6">
-              <ContactStatusSelect contactId={contact.id} current={contact.status} />
+              <ContactStatusSelect
+                contactId={contact.id}
+                current={contact.status}
+                openQuotesCount={
+                  quotes.filter((quote) =>
+                    ["new", "in_progress", "booked"].includes(quote.status),
+                  ).length
+                }
+              />
             </div>
           </section>
 

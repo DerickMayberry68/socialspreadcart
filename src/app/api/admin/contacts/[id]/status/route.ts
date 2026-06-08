@@ -17,12 +17,12 @@ export async function PATCH(
   const payload = body && typeof body === "object" ? body : {};
 
   try {
-    await ContactService.updateContactStatus({
+    const result = await ContactService.updateContactStatus({
       ...payload,
       tenantId: tenant.id,
       contactId: id,
     });
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, closedQuotes: result.closedQuotes });
   } catch (error) {
     return NextResponse.json(
       { ok: false, message: error instanceof Error ? error.message : "Invalid fields." },

@@ -214,12 +214,12 @@ export default async function AdminDashboardPage() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-ink">{contact.name}</p>
                       <p className="truncate text-xs text-ink/50">{contact.email}</p>
+                      <p className="mt-0.5 truncate text-xs uppercase tracking-[0.1em] text-ink/35">
+                        {contact.source === "quote" ? "via Quote" : "via Contact form"}
+                      </p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1">
                       <StatusBadge status={contact.status} styles={contactStatusStyles} />
-                      <span className="text-xs uppercase tracking-[0.1em] text-ink/35">
-                        {contact.source === "quote" ? "Quote" : "Contact form"}
-                      </span>
                     </div>
                   </Link>
                 </li>

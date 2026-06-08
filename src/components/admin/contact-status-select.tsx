@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Inbox, PhoneCall, Users } from "lucide-react";
+import { toast } from "sonner";
 
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import type { ContactStatus } from "@/lib/types";
 
 const statuses: ContactStatus[] = ["new", "contacted", "booked", "closed"];
@@ -41,29 +43,77 @@ const statusMeta: Record<
 export function ContactStatusSelect({
   contactId,
   current,
+  openQuotesCount = 0,
 }: {
   contactId: string;
   current: ContactStatus;
+  openQuotesCount?: number;
 }) {
   const router = useRouter();
   const [saving, setSaving] = React.useState<ContactStatus | null>(null);
+  const [confirmingClose, setConfirmingClose] = React.useState(false);
 
-  const update = async (next: ContactStatus) => {
-    if (next === current || saving) return;
+  const performUpdate = async (next: ContactStatus) => {
     setSaving(next);
 
-    await fetch(`/api/admin/contacts/${contactId}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next, previousStatus: current }),
-    });
+    try {
+      const response = await fetch(`/api/admin/contacts/${contactId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next, previousStatus: current }),
+      });
 
-    setSaving(null);
-    router.refresh();
+      const result = (await response.json().catch(() => null)) as
+        | { ok: boolean; closedQuotes?: number; message?: string }
+        | null;
+
+      if (!response.ok || !result?.ok) {
+        toast.error(result?.message ?? "Status could not be updated.");
+        return;
+      }
+
+      if (next === "closed" && result.closedQuotes && result.closedQuotes > 0) {
+        toast.success(
+          `Contact closed. ${result.closedQuotes} related ${
+            result.closedQuotes === 1 ? "quote was" : "quotes were"
+          } also closed.`,
+        );
+      } else {
+        toast.success("Contact status updated.");
+      }
+
+      router.refresh();
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const update = (next: ContactStatus) => {
+    if (next === current || saving) return;
+
+    // Closing a contact cuts ties and voids its open quotes — confirm first.
+    if (next === "closed" && openQuotesCount > 0) {
+      setConfirmingClose(true);
+      return;
+    }
+
+    void performUpdate(next);
   };
 
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <ConfirmDialog
+        open={confirmingClose}
+        onOpenChange={setConfirmingClose}
+        title="Close this contact?"
+        description={`This contact has ${openQuotesCount} open ${
+          openQuotesCount === 1 ? "quote" : "quotes"
+        }. Closing the contact will also close ${
+          openQuotesCount === 1 ? "it" : "them"
+        }. This is for cutting ties — to close a single quote, do it from that quote instead.`}
+        confirmLabel="Close contact & quotes"
+        onConfirm={() => void performUpdate("closed")}
+      />
       {statuses.map((status) => {
         const meta = statusMeta[status];
         const Icon = meta.icon;

@@ -193,12 +193,29 @@ async function getContactDetail(
 
 async function updateContactStatus(
   input: z.input<typeof updateContactStatusSchema>,
-): Promise<void> {
+): Promise<{ closedQuotes: number }> {
   const parsed = updateContactStatusSchema.parse(input);
   const supabase = await getSupabaseServerClient();
 
   if (!supabase) {
     throw new Error("Supabase client could not be initialised.");
+  }
+
+  // Closing a contact cuts ties: every open quote for that contact is closed
+  // too. The cascade runs in one transaction inside `close_contact_cascade`
+  // so the contact, its quotes, and the audit rows are all-or-nothing.
+  if (parsed.status === "closed") {
+    const { data, error } = await supabase.rpc("close_contact_cascade", {
+      p_tenant_id: parsed.tenantId,
+      p_contact_id: parsed.contactId,
+      p_previous_status: parsed.previousStatus ?? null,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return { closedQuotes: typeof data === "number" ? data : 0 };
   }
 
   const { error } = await supabase
@@ -229,6 +246,8 @@ async function updateContactStatus(
   if (interactionError) {
     throw new Error(interactionError.message);
   }
+
+  return { closedQuotes: 0 };
 }
 
 export const ContactService = {
