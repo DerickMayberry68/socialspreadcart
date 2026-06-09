@@ -12,12 +12,35 @@ export function formatPrice(priceCents: number) {
   }).format(priceCents / 100);
 }
 
+// Postgres `date` columns serialize as a bare `YYYY-MM-DD` string. Passing that
+// to `new Date()` parses it as UTC midnight, which renders as the *previous*
+// calendar day in negative-offset (e.g. US) timezones. `timestamptz` values
+// carry an offset and parse correctly. This helper parses date-only strings as
+// local time so a stored calendar date always displays as that same day.
+export function parseDbDate(value: string | Date): Date {
+  if (value instanceof Date) return value;
+
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (dateOnly) {
+    return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+  }
+
+  return new Date(value);
+}
+
+export function formatAdminDate(
+  value: string | Date,
+  options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" },
+) {
+  return new Intl.DateTimeFormat("en-US", options).format(parseDbDate(value));
+}
+
 export function formatLongDate(date: string) {
   return new Intl.DateTimeFormat("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
-  }).format(new Date(date));
+  }).format(parseDbDate(date));
 }
 
 export function formatEventDate(date: string) {
@@ -25,7 +48,7 @@ export function formatEventDate(date: string) {
     weekday: "short",
     month: "short",
     day: "numeric",
-  }).format(new Date(date));
+  }).format(parseDbDate(date));
 }
 
 export function slugify(value: string) {
@@ -75,4 +98,3 @@ export function generateUuid(): string {
     .slice(6, 8)
     .join("")}-${hex.slice(8, 10).join("")}-${hex.slice(10, 16).join("")}`;
 }
-

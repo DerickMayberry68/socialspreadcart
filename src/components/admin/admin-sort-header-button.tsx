@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import type { SortDirection } from "@/lib/types";
@@ -40,7 +40,9 @@ export function AdminSortHeaderButton({
         ) : (
           <ArrowDown className="h-3 w-3" aria-hidden="true" />
         )
-      ) : null}
+      ) : (
+        <ArrowUpDown className="h-3 w-3 text-ink/25" aria-hidden="true" />
+      )}
     </button>
   );
 }

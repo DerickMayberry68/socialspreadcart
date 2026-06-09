@@ -15,6 +15,7 @@ import {
 import { AdminDataGrid, type AdminDataGridColumn } from "@/components/admin/admin-data-grid";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { parseAdminListQuery } from "@/lib/admin/list-query";
+import { formatAdminDate } from "@/lib/utils";
 import type { QuoteStatus } from "@/lib/types";
 import { withCurrentTenant } from "@/lib/tenant";
 import {
@@ -283,11 +284,7 @@ export default async function QuotesPage({
                 </div>
               ),
               event: <span className="truncate">{quote.event_type}</span>,
-              date: new Date(quote.event_date).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }),
+              date: formatAdminDate(quote.event_date),
               guests: (
                 <span className="inline-flex items-center gap-2">
                   <Users className="h-3.5 w-3.5 text-ink/35" />
@@ -301,7 +298,11 @@ export default async function QuotesPage({
                   {quote.status.replace("_", " ")}
                 </span>
               ),
-              added: new Date(quote.created_at).toLocaleDateString(),
+              added: formatAdminDate(quote.created_at, {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+              }),
             },
             actions: (
               <Link
