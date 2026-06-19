@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
+import { compressUpload } from "@/lib/image-compression";
 import {
   CalendarDays,
+  ImagePlus,
   MapPin,
   Pencil,
   Plus,
@@ -40,12 +43,56 @@ function EventForm({
 }) {
   const [form, setForm] = React.useState({ ...empty, ...initial });
   const [saving, setSaving] = React.useState(false);
+  const [uploading, setUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const set = (field: string, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const compressedFile = await compressUpload(file);
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+
+      const response = await fetch("/api/admin/events/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const result = (await response.json()) as {
+        ok: boolean;
+        imageUrl?: string;
+        message?: string;
+      };
+
+      if (!response.ok || !result.ok || !result.imageUrl) {
+        toast.error(result.message ?? "Failed to upload event image.");
+        return;
+      }
+
+      set("image_url", result.imageUrl);
+      toast.success("Event image uploaded.");
+    } catch {
+      toast.error("Could not upload that image. Please try again.");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading) {
+      return;
+    }
+
     setSaving(true);
 
     const method = initial?.id ? "PUT" : "POST";
@@ -107,7 +154,38 @@ function EventForm({
           className="w-full resize-none rounded-[16px] border border-sage/15 bg-white px-4 py-3 text-sm text-ink outline-none transition focus:border-sage focus:ring-1 focus:ring-sage"
         />
       </label>
-      {field("Image URL", "image_url", "url", false)}
+      <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
+        {field("Image URL", "image_url", "url", false)}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-sage/20 bg-white px-4 py-3 text-xs uppercase tracking-[0.15em] text-ink/55 transition hover:border-sage/40 hover:text-sage disabled:opacity-50"
+        >
+          <ImagePlus className="h-4 w-4" />
+          {uploading ? "Uploading..." : "Choose image"}
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+      </div>
+
+      {form.image_url ? (
+        <div className="overflow-hidden rounded-[22px] border border-sage/10 bg-white">
+          <div className="relative aspect-[16/9]">
+            <Image
+              src={form.image_url}
+              alt={form.title || "Event image preview"}
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex justify-end gap-3 pt-2">
         <button
@@ -119,10 +197,10 @@ function EventForm({
         </button>
         <button
           type="submit"
-          disabled={saving}
+          disabled={saving || uploading}
           className="rounded-full bg-sage px-5 py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-cream transition hover:bg-sage-700 disabled:opacity-50"
         >
-          {saving ? "Saving..." : initial?.id ? "Update event" : "Create event"}
+          {uploading ? "Uploading image..." : saving ? "Saving..." : initial?.id ? "Update event" : "Create event"}
         </button>
       </div>
     </form>
@@ -321,6 +399,7 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                       <TooltipTrigger asChild>
                         <button
                           onClick={() => startEdit(event)}
+                          aria-label={`Edit event ${event.title}`}
                           className="rounded-full border border-sage/15 bg-white p-2.5 text-ink/50 transition hover:border-sage/30 hover:text-sage"
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -333,6 +412,7 @@ export function EventManager({ initial }: { initial: EventItem[] }) {
                         <button
                           onClick={() => setPendingDelete(event)}
                           disabled={deleting === event.id}
+                          aria-label={`Delete event ${event.title}`}
                           className="rounded-full border border-red-200 bg-white p-2.5 text-red-500 transition hover:border-red-300 hover:text-red-600 disabled:opacity-40"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
