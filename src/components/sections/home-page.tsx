@@ -485,15 +485,35 @@ export function HomePage({
 
               return (
                 <Reveal key={event.id} delay={index * 0.08}>
-                  <div className="rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-                      <div className="flex min-h-20 w-24 shrink-0 flex-col items-center justify-center rounded-[24px] border border-white/60 bg-[#fce1d2]/90 px-3 py-3 text-center text-[#284237] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
-                        <CalendarDays className="h-5 w-5 text-[#4f684d]" />
-                        <div className="mt-2 text-[11px] font-semibold uppercase leading-tight tracking-[0.12em]">
-                          {eventDate}
+                  <div className="overflow-hidden rounded-[34px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 shadow-[0_28px_70px_rgba(56,66,44,0.22)] backdrop-blur-xl">
+                    <div className="grid gap-0 sm:grid-cols-[180px_1fr]">
+                      {event.image_url ? (
+                        <div className="relative min-h-48 overflow-hidden bg-[#f6efe3] sm:min-h-full">
+                          <Image
+                            src={event.image_url}
+                            alt={event.title}
+                            fill
+                            sizes="(min-width: 640px) 180px, 100vw"
+                            className="object-cover"
+                          />
+                          <div className="absolute left-4 top-4 flex max-w-[8rem] flex-col items-center justify-center rounded-[20px] border border-white/60 bg-[#fce1d2]/92 px-3 py-3 text-center text-[#284237] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
+                            <CalendarDays className="h-5 w-5 text-[#4f684d]" />
+                            <div className="mt-2 text-[11px] font-semibold uppercase leading-tight tracking-[0.12em]">
+                              {eventDate}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1">
+                      ) : (
+                        <div className="flex min-h-32 items-center justify-center bg-[#fce1d2]/70 p-5 sm:min-h-full">
+                          <div className="flex min-h-20 w-24 shrink-0 flex-col items-center justify-center rounded-[24px] border border-white/60 bg-[#fce1d2]/90 px-3 py-3 text-center text-[#284237] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
+                            <CalendarDays className="h-5 w-5 text-[#4f684d]" />
+                            <div className="mt-2 text-[11px] font-semibold uppercase leading-tight tracking-[0.12em]">
+                              {eventDate}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="p-6">
                         <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
                           {event.location}
                         </p>

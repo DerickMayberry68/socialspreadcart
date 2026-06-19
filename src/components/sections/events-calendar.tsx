@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import Calendar from "react-calendar";
 import { isSameDay } from "date-fns";
@@ -75,13 +76,30 @@ export function EventsCalendar({ events }: { events: EventItem[] }) {
           visibleEvents.map((event) => (
             <div
               key={event.id}
-              className="rounded-[32px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 p-6 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
+              className="overflow-hidden rounded-[32px] border border-sage/25 bg-gradient-to-br from-white/70 via-[#f8f1e3]/58 to-[#dfe8d8]/62 shadow-[0_24px_60px_rgba(56,66,44,0.2)] backdrop-blur-xl"
             >
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#284237] text-center text-[#fbf5eb]">
-                  <CalendarDays className="h-5 w-5" />
-                </div>
-                <div className="flex-1">
+              <div className="grid gap-0 md:grid-cols-[220px_1fr]">
+                {event.image_url ? (
+                  <div className="relative min-h-56 overflow-hidden bg-[#f6efe3] md:min-h-full">
+                    <Image
+                      src={event.image_url}
+                      alt={event.title}
+                      fill
+                      sizes="(min-width: 768px) 220px, 100vw"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex min-h-32 items-center justify-center bg-[#284237] p-5 text-center text-[#fbf5eb] md:min-h-full">
+                    <div>
+                      <CalendarDays className="mx-auto h-6 w-6" />
+                      <p className="mt-3 text-xs font-semibold uppercase leading-5 tracking-[0.14em]">
+                        {formatLongDate(event.date)}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <div className="flex-1 p-6">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-xs uppercase tracking-[0.22em] text-[#ad7a54]">
