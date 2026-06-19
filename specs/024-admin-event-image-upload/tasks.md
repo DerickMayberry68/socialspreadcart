@@ -82,10 +82,13 @@
 
 ## Phase 6: Polish & Verification
 
-- [x] T013 Run `npx vitest run tests/components/admin/event-manager.test.tsx tests/api/admin-events-upload-route.test.ts`
-- [x] T014 Run `npx tsc --noEmit`
-- [x] T015 Run `npm run build`
-- [ ] T016 Manually verify `/admin/events` image upload flow on the running app when credentials/session are available
+- [x] T013 [US4] Render uploaded event images on home page event cards in `src/components/sections/home-page.tsx`
+- [x] T014 [US4] Render uploaded event images on Events calendar event cards in `src/components/sections/events-calendar.tsx`
+- [x] T015 [P] [US4] Add public event image display coverage in `tests/components/sections/event-image-display.test.tsx`
+- [x] T016 Run `npx vitest run tests/components/admin/event-manager.test.tsx tests/api/admin-events-upload-route.test.ts tests/components/sections/event-image-display.test.tsx`
+- [x] T017 Run `npx tsc --noEmit`
+- [x] T018 Run `npm run build`
+- [ ] T019 Manually verify `/admin/events` image upload flow on the running app when credentials/session are available
 
 ---
 
@@ -95,7 +98,7 @@
 - T006-T008 implement MVP create flow after T004.
 - T009-T010 build on the same form behavior for edit mode.
 - T011-T012 validate failure behavior after upload handling exists.
-- T013-T016 verify the complete feature.
+- T016-T019 verify the complete feature.
 
 ## Implementation Strategy
 

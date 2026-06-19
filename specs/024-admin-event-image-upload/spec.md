@@ -51,6 +51,22 @@ An admin receives clear feedback when they choose a non-image file, an oversized
 1. **Given** an admin chooses a non-image file, **When** the upload is attempted, **Then** the system rejects it with a clear message and does not update the image URL.
 2. **Given** an admin chooses a file that cannot be uploaded, **When** the upload fails, **Then** the system shows a handled error and keeps the previous image URL unchanged.
 
+---
+
+### User Story 4 - Show event images publicly (Priority: P2)
+
+Visitors viewing upcoming events on the home page or Events page can see the uploaded event image alongside the event date, title, location, and description.
+
+**Why this priority**: Uploading an event image has limited value if the public event cards do not display it where visitors browse upcoming appearances.
+
+**Independent Test**: Can be tested by creating an event with an uploaded image, then viewing the home page upcoming events section and the Events calendar page to confirm the image and date both appear.
+
+**Acceptance Scenarios**:
+
+1. **Given** an event has an image URL, **When** a visitor views the home page upcoming events section, **Then** the event card shows the image and still shows the event date.
+2. **Given** an event has an image URL, **When** a visitor views the Events page calendar/list, **Then** the event card shows the image and still shows the event date.
+3. **Given** an event has no image URL, **When** the event appears publicly, **Then** the card still shows a polished date-first layout without a broken image.
+
 ### Edge Cases
 
 - An event can still be saved without an image, because the current event image URL is optional.
@@ -75,6 +91,9 @@ An admin receives clear feedback when they choose a non-image file, an oversized
 - **FR-010**: The system MUST not use browser alert, confirm, or prompt dialogs for upload errors or confirmations.
 - **FR-011**: The system MUST return the uploaded image URL in a way the Events form can use immediately.
 - **FR-012**: The system MUST leave the existing image URL unchanged when an attempted upload fails.
+- **FR-013**: Public home page event cards MUST display the event image when an image URL exists while preserving the event date display.
+- **FR-014**: Public Events page event cards MUST display the event image when an image URL exists while preserving the event date display.
+- **FR-015**: Public event cards MUST avoid rendering broken image elements when an event has no image URL.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -91,6 +110,7 @@ An admin receives clear feedback when they choose a non-image file, an oversized
 - **SC-003**: 100% of unsupported file uploads show a handled error and leave the current image URL unchanged.
 - **SC-004**: Existing manual image URL entry remains usable for event creation and editing.
 - **SC-005**: Event image upload works consistently for both new and existing events in the admin Events editor.
+- **SC-006**: 100% of public event cards with an image URL display both the uploaded image and event date on the home page and Events page.
 
 ## Assumptions
 
