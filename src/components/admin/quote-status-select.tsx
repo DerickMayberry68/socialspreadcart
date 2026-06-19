@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock3, FileText, TrendingUp, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import type { QuoteStatus } from "@/lib/types";
 
@@ -60,14 +61,26 @@ export function QuoteStatusSelect({
     if (next === current || saving) return;
     setSaving(next);
 
-    await fetch(`/api/admin/quotes/${quoteId}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next, contactId }),
-    });
+    try {
+      const response = await fetch(`/api/admin/quotes/${quoteId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next, contactId }),
+      });
+      const result = (await response.json().catch(() => null)) as
+        | { ok: boolean; message?: string }
+        | null;
 
-    setSaving(null);
-    router.refresh();
+      if (!response.ok || !result?.ok) {
+        toast.error(result?.message ?? "Quote status could not be updated.");
+        return;
+      }
+
+      toast.success("Quote status updated.");
+      router.refresh();
+    } finally {
+      setSaving(null);
+    }
   };
 
   return (

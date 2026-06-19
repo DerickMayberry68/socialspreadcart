@@ -30,10 +30,11 @@ const submitQuoteSchema = z.object({
 });
 
 const tenantIdSchema = z.string().uuid();
+const quoteIdSchema = z.string().trim().min(1);
 
 const updateQuoteStatusSchema = z.object({
   tenantId: tenantIdSchema,
-  quoteId: z.string().uuid(),
+  quoteId: quoteIdSchema,
   status: z.enum(["new", "in_progress", "booked", "closed", "lost"]),
   contactId: z.string().uuid().optional().nullable(),
 });

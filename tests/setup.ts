@@ -72,6 +72,7 @@ vi.mock("next/navigation", () => ({
     push: vi.fn(),
     back: vi.fn(),
     replace: vi.fn(),
+    refresh: vi.fn(),
   }),
   usePathname: () => "/",
 }));

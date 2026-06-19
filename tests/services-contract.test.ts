@@ -263,6 +263,40 @@ describe("services contract", () => {
     );
   });
 
+  it("updateQuoteStatus accepts numeric quote ids used by legacy production rows", async () => {
+    const quoteQuery = {
+      update: vi.fn().mockReturnThis(),
+      eq: vi.fn(),
+    };
+    quoteQuery.eq
+      .mockImplementationOnce(() => quoteQuery)
+      .mockResolvedValueOnce({ error: null });
+
+    const serverClient = {
+      from: vi.fn((table: string) => {
+        if (table === "quotes") return quoteQuery;
+        throw new Error(`Unexpected table ${table}`);
+      }),
+    };
+
+    getSupabaseServerClientMock.mockResolvedValue(serverClient as never);
+
+    await updateQuoteStatus({
+      tenantId: TENANT_ID,
+      quoteId: "8",
+      status: "in_progress",
+    });
+
+    expect(quoteQuery.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tenant_id: TENANT_ID,
+        status: "in_progress",
+      }),
+    );
+    expect(quoteQuery.eq).toHaveBeenCalledWith("tenant_id", TENANT_ID);
+    expect(quoteQuery.eq).toHaveBeenCalledWith("id", "8");
+  });
+
   it("updateQuoteStatus filters by tenant_id and mirrors tenant-scoped contact changes", async () => {
     const quoteQuery = {
       update: vi.fn().mockReturnThis(),

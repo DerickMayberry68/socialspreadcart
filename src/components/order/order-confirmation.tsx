@@ -82,7 +82,7 @@ export function OrderConfirmation({ order }: { order: GuestOrderSummary }) {
       cancelled = true;
       window.clearInterval(intervalId);
     };
-  }, [currentOrder.id, currentOrder.payment_status]);
+  }, [currentOrder.delivery_status, currentOrder.id, currentOrder.payment_status]);
 
   const paid = currentOrder.payment_status === "paid";
   const isDelivery = currentOrder.fulfillment_type === "delivery";
