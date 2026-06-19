@@ -496,12 +496,6 @@ export function HomePage({
                             sizes="(min-width: 640px) 180px, 100vw"
                             className="object-cover"
                           />
-                          <div className="absolute left-4 top-4 flex max-w-[8rem] flex-col items-center justify-center rounded-[20px] border border-white/60 bg-[#fce1d2]/92 px-3 py-3 text-center text-[#284237] shadow-[0_10px_24px_rgba(56,66,44,0.14)] backdrop-blur">
-                            <CalendarDays className="h-5 w-5 text-[#4f684d]" />
-                            <div className="mt-2 text-[11px] font-semibold uppercase leading-tight tracking-[0.12em]">
-                              {eventDate}
-                            </div>
-                          </div>
                         </div>
                       ) : (
                         <div className="flex min-h-32 items-center justify-center bg-[#fce1d2]/70 p-5 sm:min-h-full">
@@ -514,6 +508,12 @@ export function HomePage({
                         </div>
                       )}
                       <div className="p-6">
+                        {event.image_url ? (
+                          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#8c5a36]">
+                            <CalendarDays className="h-4 w-4 text-[#4f684d]" />
+                            {eventDate}
+                          </div>
+                        ) : null}
                         <p className="text-xs uppercase tracking-[0.24em] text-[#8c5a36]">
                           {event.location}
                         </p>
