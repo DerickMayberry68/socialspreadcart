@@ -134,7 +134,7 @@
 - [X] T042 [US4] Add environment-aware Square configuration validation and fail-closed production activation behavior in `src/services/square-payment-service.ts`
 - [X] T043 [US4] Add a read-only pending Stripe payment audit utility with no credential output in `scripts/audit-pending-stripe-payments.mjs`
 - [X] T044 [US4] Update `.env.example` and `README.md` with exact Sandbox, webhook, production activation, zero-pending-Stripe, and rollback instructions
-- [ ] T045 [US4] Update `specs/025-stripe-to-square/quickstart.md` with the final deployed preview URL, observed Square configuration behavior, and acceptance results
+- [X] T045 [US4] Update `specs/025-stripe-to-square/quickstart.md` with the final deployed preview URL, observed Square configuration behavior, and acceptance results
 
 **Checkpoint**: The system is operationally ready for a controlled Square production cutover.
 

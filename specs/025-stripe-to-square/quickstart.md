@@ -7,11 +7,14 @@
 - An explicit `SQUARE_PROCESSING_FEE_PERCENT=2.5` Square Order service charge produced a 25-cent fee on a $10 test subtotal. The disposable link was deleted immediately.
 - Created the Sandbox catalog tax `Social Spread Sales Tax` at 9.5%, additive, enabled, and applicable to custom amounts at the configured location.
 - A disposable $10.00 Payment Link returned $0.95 tax, $0.25 processing fee, and an $11.20 total. The validation link was deleted immediately.
+- Vercel preview deployment completed at `https://socialspreadcart-orsc39sfg-derick-mayberrys-projects.vercel.app`.
+- The preview is protected by Vercel authentication, so Square cannot deliver external webhook events to it.
+- Created a disabled Square Sandbox webhook subscription for `https://www.socialspreadnwa.com/api/webhooks/square` with `payment.updated` and `refund.updated`; its signature key and exact notification URL are saved only in ignored `.env.local`.
 - The Square reconciliation migration was applied directly to linked Supabase project `zlygobftlioxoirietgh` and recorded as migration `20260624025854`.
 - Remote verification confirmed the payment columns, five indexes, RLS, tenant-admin read policy, authenticated select grant, and service-role CRUD grant.
 - `npm run audit:stripe-pending` found four historical pending database records and zero actionable Stripe Checkout sessions.
 - Focused payment tests, the full 132-test suite, TypeScript, `git diff --check`, and the Next.js production build pass.
-- Preview deployment, exact webhook registration, full Sandbox payment/refund acceptance, and production activation remain pending.
+- Vercel environment configuration, enabling the Sandbox subscription, full payment/refund acceptance, and production activation remain pending.
 
 ## 1. Prerequisites
 
