@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 
 import { ReviewsSection } from "@/components/reviews/reviews-section";
+import { HeroImageLightbox } from "@/components/shared/hero-image-lightbox";
 import { Reveal } from "@/components/shared/reveal";
 import { SectionHeading, SectionShell } from "@/components/shared/section-shell";
 import { Badge } from "@/components/ui/badge";
@@ -160,21 +161,11 @@ export function HomePage({
             <div className="relative rounded-[40px] border border-white/70 bg-white/70 p-4 shadow-[0_30px_90px_rgba(72,81,61,0.14)] backdrop-blur">
               <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
                 <div className="relative overflow-hidden rounded-[30px] bg-[#f6efe3]">
-                  <div className="absolute left-1/2 -translate-x-1/2 top-5 z-10 flex flex-col gap-1 items-center justify-center rounded-[20px] border border-white/10 bg-[#284237]/75 px-5 py-3.5 shadow-md backdrop-blur-md">
-                    <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#fefaf0] leading-none whitespace-nowrap">
-                      {marketing.hero_main_image_left_label}
-                    </span>
-                    <span className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-[#fefaf0]/80 leading-none whitespace-nowrap">
-                      {marketing.hero_main_image_right_label}
-                    </span>
-                  </div>
-                  <Image
+                  <HeroImageLightbox
                     src={marketing.hero_main_image.image_url}
                     alt={marketing.hero_main_image.alt_text}
-                    width={900}
-                    height={1100}
-                    priority
-                    className="aspect-[4/5] h-full w-full object-cover"
+                    primaryLabel={marketing.hero_main_image_left_label}
+                    secondaryLabel={marketing.hero_main_image_right_label}
                   />
                 </div>
                 <div className="grid gap-4">
