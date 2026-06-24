@@ -3,12 +3,14 @@ import Stripe from "stripe";
 import type {
   FulfillmentAddress,
   GuestOrderSummary,
+  HostedCheckoutResult,
+  HostedPaymentEvent,
   OrderLineItem,
   OrderTotals,
+  PaymentProviderName,
   PaymentStatus,
 } from "@/lib/types/order";
-
-export type PaymentProviderName = "stripe" | "chase";
+import { SquarePaymentService } from "@/services/square-payment-service";
 
 type CheckoutSessionInput = {
   order: GuestOrderSummary;
@@ -20,13 +22,6 @@ type TaxCalculationInput = {
   items: OrderLineItem[];
   currency: string;
   fulfillmentAddress: FulfillmentAddress;
-};
-
-type CheckoutSessionOutput = {
-  provider: PaymentProviderName;
-  sessionId: string;
-  paymentIntentId: string | null;
-  checkoutUrl: string;
 };
 
 export type HostedCheckoutEvent = {
@@ -64,34 +59,35 @@ function getPaymentProvider(): PaymentProviderName {
 
   if (provider === "disabled") {
     const error = new Error(
-      "Online payments are not configured yet. Confirm Shayley's Chase payment product before enabling checkout payments.",
+      "Online payments are not configured.",
     );
     error.name = "PaymentConfigurationError";
     throw error;
   }
 
-  if (provider === "chase") {
-    const error = new Error(
-      "PAYMENT_PROVIDER=chase is not implemented yet. Confirm Shayley's Chase product and gateway details first.",
-    );
-    error.name = "PaymentConfigurationError";
-    throw error;
-  }
-
-  if (provider !== "stripe") {
+  if (provider !== "stripe" && provider !== "square") {
     throw new Error(`Unsupported payment provider: ${provider}`);
   }
 
-  return "stripe";
+  return provider;
 }
 
 async function createCheckoutSession({
   order,
   successUrl,
   cancelUrl,
-}: CheckoutSessionInput): Promise<CheckoutSessionOutput> {
+}: CheckoutSessionInput): Promise<HostedCheckoutResult> {
   assertOrderPaymentEligible(order);
   const provider = getPaymentProvider();
+
+  if (provider === "square") {
+    return SquarePaymentService.createCheckoutSession({
+      order,
+      successUrl,
+      cancelUrl,
+    });
+  }
+
   const stripe = getStripeClient();
   const success = new URL(successUrl);
   success.searchParams.set("orderId", order.id);
@@ -119,10 +115,20 @@ async function createCheckoutSession({
 
   return {
     provider,
-    sessionId: session.id,
-    paymentIntentId:
+    checkoutId: session.id,
+    providerOrderId: null,
+    paymentId:
       typeof session.payment_intent === "string" ? session.payment_intent : null,
     checkoutUrl: session.url,
+    totals: {
+      subtotalCents: order.subtotal_cents,
+      taxCents: order.tax_cents,
+      feeCents: order.fee_cents,
+      deliveryFeeCents: order.delivery_fee_cents ?? 0,
+      totalCents: order.total_cents,
+      currency: order.currency,
+      taxCalculationId: order.payment?.tax_calculation_id ?? null,
+    },
   };
 }
 
@@ -221,7 +227,7 @@ async function calculateTax({
 }: TaxCalculationInput): Promise<Pick<OrderTotals, "taxCents" | "taxCalculationId">> {
   const provider = getPaymentProvider();
 
-  if (provider !== "stripe") {
+  if (provider === "square") {
     return { taxCents: 0, taxCalculationId: null };
   }
 
@@ -322,11 +328,56 @@ function paymentStatusFromCheckoutSession(
   return "pending";
 }
 
+async function constructSquareHostedCheckoutEvent(
+  payload: string,
+  signature: string,
+): Promise<HostedPaymentEvent | null> {
+  return SquarePaymentService.verifyAndNormalizeWebhook(payload, signature);
+}
+
+async function deleteHostedCheckout(input: {
+  provider: PaymentProviderName;
+  checkoutId: string | null | undefined;
+}) {
+  if (!input.checkoutId) return;
+  if (input.provider === "square") {
+    await SquarePaymentService.deleteCheckout(input.checkoutId);
+  }
+}
+
+async function getHostedCheckout(input: {
+  provider: PaymentProviderName;
+  checkoutId: string | null | undefined;
+}) {
+  if (input.provider !== "square" || !input.checkoutId) return null;
+  return SquarePaymentService.getCheckout(input.checkoutId);
+}
+
+async function getProviderOrderTotals(input: {
+  provider: PaymentProviderName;
+  providerOrderId: string | null | undefined;
+  subtotalCents: number;
+  deliveryFeeCents: number;
+}): Promise<OrderTotals | null> {
+  if (input.provider !== "square" || !input.providerOrderId) return null;
+  return SquarePaymentService.getOrderTotals(
+    input.providerOrderId,
+    input.subtotalCents,
+    input.deliveryFeeCents,
+  );
+}
+
 export const PaymentService = {
   assertOrderPaymentEligible,
   calculateTax,
   createCheckoutSession,
   constructWebhookEvent,
   constructHostedCheckoutEvent,
+  constructSquareHostedCheckoutEvent,
+  deleteHostedCheckout,
+  getHostedCheckout,
+  getPaymentProvider,
+  getProviderOrderTotals,
   paymentStatusFromCheckoutSession,
+  validateSquareLocation: SquarePaymentService.getLocation,
 };

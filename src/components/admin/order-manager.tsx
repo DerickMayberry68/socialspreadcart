@@ -15,6 +15,8 @@ const statusOptions: Array<{ value: OrderStatus; label: string }> = [
 ];
 
 function formatOrderStatus(order: GuestOrderSummary) {
+  if (order.payment_status === "refunded") return "refunded";
+
   if (order.delivery_status && order.delivery_status !== "not_required") {
     return order.delivery_status.replaceAll("_", " ");
   }
@@ -168,6 +170,19 @@ export function OrderManager({ orders }: { orders: GuestOrderSummary[] }) {
                         ? new Date(order.created_at).toLocaleDateString()
                         : "New order"}
                     </p>
+                    {order.payment ? (
+                      <div className="mt-2 text-[11px] uppercase tracking-[0.12em] text-ink/45">
+                        <p>{order.payment.provider}</p>
+                        <p className="font-mono normal-case tracking-normal">
+                          {(
+                            order.payment.provider_payment_intent_id ??
+                            order.payment.provider_order_id ??
+                            order.payment.provider_session_id ??
+                            ""
+                          ).slice(0, 12)}
+                        </p>
+                      </div>
+                    ) : null}
                   </td>
                   <td className="px-4 py-4">
                     <p className="font-medium text-ink">{order.guest_name}</p>

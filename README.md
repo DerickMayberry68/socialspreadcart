@@ -61,6 +61,13 @@ RESEND_API_KEY=...
 RESEND_FROM=The Social Spread Cart <info@socialspreadnwa.com>
 QUOTE_NOTIFICATION_EMAIL=info@socialspreadnwa.com
 PAYMENT_PROVIDER=disabled
+SQUARE_ENVIRONMENT=sandbox
+SQUARE_APPLICATION_ID=...
+SQUARE_ACCESS_TOKEN=...
+SQUARE_LOCATION_ID=...
+SQUARE_PROCESSING_FEE_PERCENT=2.5
+SQUARE_WEBHOOK_SIGNATURE_KEY=...
+SQUARE_WEBHOOK_NOTIFICATION_URL=https://www.socialspreadnwa.com/api/webhooks/square
 STRIPE_SECRET_KEY=...
 STRIPE_WEBHOOK_SECRET=...
 STRIPE_MENU_ITEM_TAX_CODE=...
@@ -70,8 +77,8 @@ TAX_ORIGIN_ADDRESS_CITY=Bentonville
 TAX_ORIGIN_ADDRESS_STATE=AR
 TAX_ORIGIN_ADDRESS_POSTAL_CODE=...
 TAX_ORIGIN_ADDRESS_COUNTRY=US
-CHECKOUT_SUCCESS_URL=https://thesocialspreadcart.com/checkout/confirmation
-CHECKOUT_CANCEL_URL=https://thesocialspreadcart.com/order-tray
+CHECKOUT_SUCCESS_URL=https://www.socialspreadnwa.com/checkout/confirmation
+CHECKOUT_CANCEL_URL=https://www.socialspreadnwa.com/order-tray
 ```
 
 ### Storage buckets
@@ -101,29 +108,30 @@ Use those for production menu and event photography. The seed content currently 
 
 - Menu items can be added to the customer-facing Order Tray from `/menu`
 - Checkout posts to `src/app/api/checkout/route.ts`, revalidates active tenant menu items server-side, creates a pending guest order, and starts hosted payment through the configured payment provider
-- The payment layer lives in `src/services/payment-service.ts`; leave `PAYMENT_PROVIDER=disabled` while Chase details are pending
-- Set `PAYMENT_PROVIDER=stripe` only when using Stripe test or live keys
-- Stripe Tax must be enabled in the Stripe account before live tax collection
-- Pickup orders use the `TAX_ORIGIN_ADDRESS_*` values for tax calculation; delivery and event handoff orders collect a fulfillment address
-- `STRIPE_MENU_ITEM_TAX_CODE` is optional when the Stripe account has a default product tax code; set it when menu items need an explicit Stripe Tax code
-- The checkout adds a customer-visible, non-taxable processing fee using an exact 2.6% gross-up formula; the fee is sent to Stripe as a separate line item with Stripe's non-taxable tax code
-- Stripe webhooks post to `src/app/api/webhooks/stripe/route.ts`; configure the webhook signing secret as `STRIPE_WEBHOOK_SECRET`
+- The payment layer lives in `src/services/payment-service.ts`; leave `PAYMENT_PROVIDER=disabled` until Sandbox acceptance is complete
+- Set `PAYMENT_PROVIDER=square` with `SQUARE_ENVIRONMENT=sandbox` for Square Sandbox testing
+- Square-hosted Payment Links automatically apply the location's catalog tax for custom amounts. Sandbox and production catalogs are separate, so configure and verify the tax in each environment.
+- `SQUARE_PROCESSING_FEE_PERCENT` adds the confirmed non-taxable processing service charge to the Square Order. Square calculates the fee amount, and the website persists Square's returned totals rather than calculating the former 2.6% Stripe gross-up.
+- Square webhooks post to `/api/webhooks/square`; the signature is validated with the exact `SQUARE_WEBHOOK_NOTIFICATION_URL` and `SQUARE_WEBHOOK_SIGNATURE_KEY`
+- Subscribe the Square application to `payment.updated` and `refund.updated`
+- Optional tipping, Square coupons, and Square loyalty are disabled for this checkout flow so the approved website total remains authoritative
+- Approved delivery orders use a separate fixed non-taxable delivery service charge and invalidate the Square Payment Link when approval is withdrawn or expires
+- Keep `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` only during the transition window for sessions created before Square activation; no new Stripe sessions are created when `PAYMENT_PROVIDER=square`
 - Paid orders appear in `/admin/orders` for authorized tenant admins only
 - Run `supabase/migrations/20260428_guest_ordering_payment.sql` before testing checkout persistence
 - Run `supabase/migrations/20260429_order_tax_fee_reconciliation.sql` before testing tax/fee reconciliation
+- Run `supabase/migrations/20260624025854_square_payment_reconciliation.sql` before testing Square checkout or webhooks
 
-### Chase payment discovery
+### Square activation
 
-Before switching `PAYMENT_PROVIDER` away from `stripe`, confirm which Chase product Shayley uses:
-
-- Chase Payment Solutions online payments
-- Chase QuickAccept
-- Chase POS
-- Chase Paymentech / Orbital
-- Authorize.net or another Chase-backed gateway
-- Whether Chase has enabled hosted checkout, API credentials, and webhook/payment-status callbacks for her account
-
-The order and admin implementation is provider-neutral; only `src/services/payment-service.ts` and the provider webhook route should need to change once Chase answers are available.
+1. Configure Sandbox credentials and validate the configured location.
+2. Deploy a preview and register its exact `/api/webhooks/square` URL in the Square Sandbox application.
+3. Complete pickup, cancellation, failed payment, no-browser-return, approved delivery, invalidated delivery link, refund, and duplicate-webhook tests.
+4. Confirm there are no actionable pending Stripe Checkout sessions.
+5. Add production Square credentials and the production webhook subscription in Vercel.
+6. Set `SQUARE_ENVIRONMENT=production` and `PAYMENT_PROVIDER=square`.
+7. Complete one low-value live payment and verify Square, website confirmation, stored totals, owner notification, and admin Orders all match.
+8. Set `PAYMENT_PROVIDER=disabled` and redeploy immediately if production verification fails; leave webhooks enabled for reconciliation.
 
 ## Deployment
 

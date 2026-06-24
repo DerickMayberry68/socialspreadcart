@@ -107,4 +107,27 @@ describe("POST /api/checkout", () => {
 
     expect(response.status).toBe(422);
   });
+
+  it.each([
+    ["PaymentTotalsError", 422],
+    ["PaymentConfigurationError", 503],
+    ["PaymentProviderError", 503],
+  ])("maps %s to %i", async (name, status) => {
+    const error = new Error("Handled payment failure.");
+    error.name = name;
+    createCheckoutMock.mockRejectedValue(error);
+
+    const response = await POST(
+      new Request("https://site.test/api/checkout", {
+        method: "POST",
+        body: JSON.stringify({
+          items: [{ menuItemId: "menu-1", quantity: 1, notes: "" }],
+          guest: { name: "Guest", email: "guest@example.com", phone: "" },
+          fulfillment: { type: "pickup", requestedAt: null, notes: "" },
+        }),
+      }),
+    );
+
+    expect(response.status).toBe(status);
+  });
 });
