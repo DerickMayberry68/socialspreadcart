@@ -7,6 +7,7 @@ export const foodMedia = {
 } as const;
 
 export const clientMedia = {
+  cartComingSummer2026: "/client/cart-coming-summer-2026.jpg",
   cartDirtySodaHero: "/client/cart-dirty-soda-hero.jpg",
   cartUmbrellaWide: "/client/cart-umbrella-wide.jpg",
   miniPancakeBar: "/client/mini-pancake-bar.jpg",

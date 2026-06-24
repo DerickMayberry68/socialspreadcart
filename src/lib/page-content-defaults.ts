@@ -34,11 +34,11 @@ export const DEFAULT_HOME_MARKETING_CONTENT: HomePageMarketingContent = {
   hero_badge: "Premium cart hospitality in Northwest Arkansas",
   hero_kicker: "Charcuterie boxes - dirty soda - styled cart service",
   hero_main_image: {
-    image_url: clientMedia.cartDirtySodaHero,
-    alt_text: "Dirty soda service from The Social Spread Cart",
+    image_url: clientMedia.cartComingSummer2026,
+    alt_text: "Mint green Social Spread Cart bus coming summer 2026",
   },
-  hero_main_image_left_label: "Host favorite",
-  hero_main_image_right_label: "Bentonville, AR",
+  hero_main_image_left_label: "Coming summer 2026!",
+  hero_main_image_right_label: "",
   hero_feature_image: {
     image_url: foodMedia.charcuterieBox,
     alt_text: "Charcuterie box",
