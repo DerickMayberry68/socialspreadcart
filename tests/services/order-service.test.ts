@@ -377,6 +377,10 @@ describe("OrderService", () => {
   });
 
   it("persists Square-confirmed totals instead of the former local fee", async () => {
+    delete process.env.TAX_ORIGIN_ADDRESS_LINE1;
+    delete process.env.TAX_ORIGIN_ADDRESS_CITY;
+    delete process.env.TAX_ORIGIN_ADDRESS_STATE;
+    delete process.env.TAX_ORIGIN_ADDRESS_POSTAL_CODE;
     const { client, orderQuery } = makeCheckoutClient([
       {
         id: "menu-1",

@@ -346,7 +346,10 @@ async function createCheckout(
     : await PaymentService.calculateTax({
         items: orderItems,
         currency: "usd",
-        fulfillmentAddress: getFulfillmentTaxAddress(parsed.fulfillment),
+        fulfillmentAddress:
+          provider === "square"
+            ? {}
+            : getFulfillmentTaxAddress(parsed.fulfillment),
       });
   const totals = calculateOrderTotals(
     orderItems,
