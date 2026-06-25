@@ -6,6 +6,15 @@ const stripeMocks = vi.hoisted(() => ({
   constructEvent: vi.fn(),
 }));
 
+const squareServiceMocks = vi.hoisted(() => ({
+  createCheckoutSession: vi.fn(),
+  deleteCheckout: vi.fn(),
+  getCheckout: vi.fn(),
+  getOrderTotals: vi.fn(),
+  getLocation: vi.fn(),
+  verifyAndNormalizeWebhook: vi.fn(),
+}));
+
 vi.mock("stripe", () => ({
   default: vi.fn(() => ({
     checkout: {
@@ -22,6 +31,10 @@ vi.mock("stripe", () => ({
       constructEvent: stripeMocks.constructEvent,
     },
   })),
+}));
+
+vi.mock("@/services/square-payment-service", () => ({
+  SquarePaymentService: squareServiceMocks,
 }));
 
 import { PaymentService } from "@/services/payment-service";
@@ -71,6 +84,66 @@ describe("PaymentService", () => {
     process.env.STRIPE_SECRET_KEY = "sk_test";
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
     delete process.env.STRIPE_MENU_ITEM_TAX_CODE;
+  });
+
+  it("fails closed when online payments are disabled", async () => {
+    process.env.PAYMENT_PROVIDER = "disabled";
+
+    await expect(
+      PaymentService.createCheckoutSession({
+        order: makeOrder(),
+        successUrl: "https://site.test/checkout/confirmation",
+        cancelUrl: "https://site.test/order-tray",
+      }),
+    ).rejects.toMatchObject({ name: "PaymentConfigurationError" });
+  });
+
+  it("delegates new checkout to Square without creating Stripe sessions", async () => {
+    process.env.PAYMENT_PROVIDER = "square";
+    squareServiceMocks.createCheckoutSession.mockResolvedValue({
+      provider: "square",
+      checkoutId: "square-link-1",
+      providerOrderId: "square-order-1",
+      paymentId: null,
+      checkoutUrl: "https://sandbox.square.link/u/test",
+      totals: {
+        subtotalCents: 2500,
+        taxCents: 250,
+        feeCents: 63,
+        deliveryFeeCents: 0,
+        totalCents: 2813,
+        currency: "usd",
+        taxCalculationId: null,
+      },
+    });
+
+    await expect(
+      PaymentService.createCheckoutSession({
+        order: makeOrder(),
+        successUrl: "https://site.test/checkout/confirmation",
+        cancelUrl: "https://site.test/order-tray",
+      }),
+    ).resolves.toMatchObject({
+      provider: "square",
+      checkoutId: "square-link-1",
+    });
+
+    expect(squareServiceMocks.createCheckoutSession).toHaveBeenCalled();
+    expect(stripeMocks.sessionCreate).not.toHaveBeenCalled();
+  });
+
+  it("does not calculate tax locally when Square is active", async () => {
+    process.env.PAYMENT_PROVIDER = "square";
+
+    await expect(
+      PaymentService.calculateTax({
+        items: [makeItem()],
+        currency: "usd",
+        fulfillmentAddress: {},
+      }),
+    ).resolves.toEqual({ taxCents: 0, taxCalculationId: null });
+
+    expect(stripeMocks.taxCreate).not.toHaveBeenCalled();
   });
 
   it("maps paid checkout session status to paid", () => {

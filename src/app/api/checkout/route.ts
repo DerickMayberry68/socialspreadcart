@@ -40,8 +40,12 @@ export async function POST(request: Request) {
         ? 409
         : error instanceof Error && error.name === "TaxCalculationError"
           ? 422
+        : error instanceof Error && error.name === "PaymentTotalsError"
+          ? 422
         : error instanceof Error && error.name === "PaymentConfigurationError"
           ? 503
+          : error instanceof Error && error.name === "PaymentProviderError"
+            ? 503
           : 400;
 
     return NextResponse.json({ ok: false, message }, { status });

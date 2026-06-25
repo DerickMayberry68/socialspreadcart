@@ -108,5 +108,37 @@ export const deliveryPaymentSchema = z.object({
   cancelUrl: z.string().url(),
 });
 
+export const squareEnvironmentSchema = z.enum(["sandbox", "production"]);
+
+export const squareProcessingFeePercentSchema = z.coerce
+  .number()
+  .positive()
+  .max(100);
+
+export const hostedPaymentEventSchema = z.object({
+  provider: z.enum(["square", "stripe"]),
+  eventId: z.string().min(1),
+  eventType: z.string().min(1),
+  providerOrderId: z.string().min(1).nullable(),
+  checkoutId: z.string().min(1).nullable(),
+  paymentId: z.string().min(1).nullable(),
+  refundId: z.string().min(1).nullable(),
+  amountCents: z.number().int().nonnegative().nullable(),
+  subtotalCents: z.number().int().nonnegative().nullable(),
+  taxCents: z.number().int().nonnegative().nullable(),
+  feeCents: z.number().int().nonnegative().nullable(),
+  deliveryFeeCents: z.number().int().nonnegative().nullable(),
+  refundedAmountCents: z.number().int().nonnegative().nullable(),
+  currency: z.string().length(3).nullable(),
+  status: z.enum([
+    "not_started",
+    "pending",
+    "paid",
+    "failed",
+    "cancelled",
+    "refunded",
+  ]),
+});
+
 export type CheckoutSubmissionInput = z.input<typeof checkoutSubmissionSchema>;
 export type CheckoutSubmission = z.output<typeof checkoutSubmissionSchema>;

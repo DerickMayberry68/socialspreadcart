@@ -9,10 +9,13 @@ import type {
   FulfillmentAddress,
   GuestOrder,
   GuestOrderSummary,
+  HostedCheckoutResult,
+  HostedPaymentEvent,
   OrderLineItem,
   OrderTotals,
   OrderStatus,
   OrderTrayItem,
+  PaymentProviderName,
   PaymentRecord,
   PaymentStatus,
 } from "@/lib/types/order";
@@ -77,15 +80,19 @@ export function calculateOrderTotals(
   taxCents = 0,
   deliveryFeeCents = 0,
   taxCalculationId?: string | null,
+  feeCents?: number,
 ): OrderTotals {
   const subtotalCents = items.reduce((total, item) => total + item.line_total_cents, 0);
-  const feeCents = calculateProcessingFeeCents(subtotalCents + taxCents + deliveryFeeCents);
+  const resolvedFeeCents =
+    feeCents ??
+    calculateProcessingFeeCents(subtotalCents + taxCents + deliveryFeeCents);
   return {
     subtotalCents,
     taxCents,
-    feeCents,
+    feeCents: resolvedFeeCents,
     deliveryFeeCents,
-    totalCents: subtotalCents + taxCents + deliveryFeeCents + feeCents,
+    totalCents:
+      subtotalCents + taxCents + deliveryFeeCents + resolvedFeeCents,
     currency: "usd",
     taxCalculationId,
   };
@@ -210,6 +217,9 @@ async function getOrderSummary(
         .select("*")
         .eq("tenant_id", tenantId)
         .eq("order_id", orderId)
+        .is("superseded_at", null)
+        .order("updated_at", { ascending: false })
+        .limit(1)
         .maybeSingle(),
     ]);
 
@@ -221,6 +231,79 @@ async function getOrderSummary(
     items: (items ?? []) as OrderLineItem[],
     payment: (payment as PaymentRecord | null) ?? null,
   };
+}
+
+async function savePaymentRecord(
+  supabase: SupabaseClient,
+  input: {
+    tenantId: string;
+    orderId: string;
+    checkout: HostedCheckoutResult;
+    checkoutExpiresAt?: string | null;
+    existingPayment?: PaymentRecord | null;
+  },
+) {
+  const values = {
+    provider: input.checkout.provider,
+    provider_session_id: input.checkout.checkoutId,
+    provider_checkout_id: input.checkout.checkoutId,
+    provider_order_id: input.checkout.providerOrderId,
+    provider_payment_intent_id: input.checkout.paymentId,
+    amount_cents: input.checkout.totals.totalCents,
+    amount_subtotal_cents: input.checkout.totals.subtotalCents,
+    amount_tax_cents: input.checkout.totals.taxCents,
+    amount_fee_cents: input.checkout.totals.feeCents,
+    currency: input.checkout.totals.currency,
+    status: "pending" as const,
+    tax_calculation_id: input.checkout.totals.taxCalculationId ?? null,
+    checkout_expires_at: input.checkoutExpiresAt ?? null,
+    superseded_at: null,
+    updated_at: new Date().toISOString(),
+  };
+
+  if (input.existingPayment) {
+    const { error } = await supabase
+      .from("payment_records")
+      .update(values)
+      .eq("tenant_id", input.tenantId)
+      .eq("id", input.existingPayment.id);
+
+    if (error) throw new Error(error.message);
+    return;
+  }
+
+  const { error } = await supabase.from("payment_records").insert({
+    tenant_id: input.tenantId,
+    order_id: input.orderId,
+    ...values,
+  });
+
+  if (error) throw new Error(error.message);
+}
+
+async function updateOrderTotalsFromCheckout(
+  supabase: SupabaseClient,
+  tenantId: string,
+  orderId: string,
+  checkout: HostedCheckoutResult,
+) {
+  const totals = checkout.totals;
+  const { error } = await supabase
+    .from("guest_orders")
+    .update({
+      subtotal_cents: totals.subtotalCents,
+      tax_cents: totals.taxCents,
+      fee_cents: totals.feeCents,
+      delivery_fee_cents: totals.deliveryFeeCents,
+      total_cents: totals.totalCents,
+      currency: totals.currency,
+      payment_status: "pending",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("tenant_id", tenantId)
+    .eq("id", orderId);
+
+  if (error) throw new Error(error.message);
 }
 
 async function recordStatusHistory(
@@ -257,14 +340,24 @@ async function createCheckout(
   const supabase = getServiceClient();
   const orderItems = await buildOrderItems(parsed.tenantId, parsed.items, supabase);
   const isDeliveryRequest = parsed.fulfillment.type === "delivery";
+  const provider = isDeliveryRequest ? null : PaymentService.getPaymentProvider();
   const tax = isDeliveryRequest
     ? { taxCents: 0, taxCalculationId: null }
     : await PaymentService.calculateTax({
         items: orderItems,
         currency: "usd",
-        fulfillmentAddress: getFulfillmentTaxAddress(parsed.fulfillment),
+        fulfillmentAddress:
+          provider === "square"
+            ? {}
+            : getFulfillmentTaxAddress(parsed.fulfillment),
       });
-  const totals = calculateOrderTotals(orderItems, tax.taxCents, 0, tax.taxCalculationId);
+  const totals = calculateOrderTotals(
+    orderItems,
+    tax.taxCents,
+    0,
+    tax.taxCalculationId,
+    isDeliveryRequest || provider === "square" ? 0 : undefined,
+  );
 
   const { data: order, error: orderError } = await supabase
     .from("guest_orders")
@@ -359,30 +452,23 @@ async function createCheckout(
     cancelUrl: input.cancelUrl,
   });
 
-  const { error: paymentError } = await supabase.from("payment_records").insert({
-    tenant_id: parsed.tenantId,
-    order_id: guestOrder.id,
-    provider: checkout.provider,
-    provider_session_id: checkout.sessionId,
-    provider_payment_intent_id: checkout.paymentIntentId,
-    amount_cents: totals.totalCents,
-    amount_subtotal_cents: totals.subtotalCents,
-    amount_tax_cents: totals.taxCents,
-    amount_fee_cents: totals.feeCents,
-    currency: totals.currency,
-    status: "pending",
-    tax_calculation_id: totals.taxCalculationId ?? null,
+  await updateOrderTotalsFromCheckout(
+    supabase,
+    parsed.tenantId,
+    guestOrder.id,
+    checkout,
+  );
+  await savePaymentRecord(supabase, {
+    tenantId: parsed.tenantId,
+    orderId: guestOrder.id,
+    checkout,
   });
-
-  if (paymentError) {
-    throw new Error(paymentError.message);
-  }
 
   return {
     mode: "payment",
     orderId: guestOrder.id,
     paymentStatus: "pending",
-    totals,
+    totals: checkout.totals,
     checkoutUrl: checkout.checkoutUrl,
   };
 }
@@ -391,6 +477,35 @@ function defaultApprovalExpiration() {
   const date = new Date();
   date.setHours(date.getHours() + 48);
   return date.toISOString();
+}
+
+async function invalidateActivePayment(
+  supabase: SupabaseClient,
+  order: GuestOrderSummary,
+) {
+  const payment = order.payment;
+  if (!payment || payment.status === "paid" || payment.status === "refunded") {
+    return;
+  }
+
+  await PaymentService.deleteHostedCheckout({
+    provider: payment.provider as PaymentProviderName,
+    checkoutId:
+      payment.provider_checkout_id ?? payment.provider_session_id,
+  });
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
+    .from("payment_records")
+    .update({
+      status: "cancelled",
+      superseded_at: now,
+      updated_at: now,
+    })
+    .eq("tenant_id", order.tenant_id)
+    .eq("id", payment.id);
+
+  if (error) throw new Error(error.message);
 }
 
 async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>) {
@@ -432,6 +547,8 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
       throw error;
     }
 
+    await invalidateActivePayment(supabase, order);
+    const provider = PaymentService.getPaymentProvider();
     const tax = await PaymentService.calculateTax({
       items: order.items,
       currency: order.currency,
@@ -442,6 +559,7 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
       tax.taxCents,
       parsed.deliveryFeeCents,
       tax.taxCalculationId,
+      provider === "square" ? 0 : undefined,
     );
 
     update = {
@@ -463,6 +581,7 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
     };
     eventType = "delivery_approved";
   } else if (parsed.decision === "decline") {
+    await invalidateActivePayment(supabase, order);
     update = {
       status: "delivery_declined",
       delivery_status: "declined",
@@ -473,6 +592,7 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
     };
     eventType = "delivery_declined";
   } else if (parsed.decision === "offer_pickup") {
+    await invalidateActivePayment(supabase, order);
     update = {
       status: "pickup_offered",
       delivery_status: "pickup_offered",
@@ -488,6 +608,7 @@ async function decideDelivery(input: z.input<typeof adminDeliveryDecisionSchema>
       error.name = "OrderStateError";
       throw error;
     }
+    await invalidateActivePayment(supabase, order);
     update = {
       status: "approval_withdrawn",
       delivery_status: "approval_withdrawn",
@@ -532,7 +653,64 @@ async function createDeliveryPayment(input: z.input<typeof deliveryPaymentSchema
     throw error;
   }
 
+  if (
+    order.delivery_approval_expires_at &&
+    new Date(order.delivery_approval_expires_at).getTime() <= Date.now()
+  ) {
+    await invalidateActivePayment(supabase, order);
+  }
+
   PaymentService.assertOrderPaymentEligible(order);
+  const provider = PaymentService.getPaymentProvider();
+
+  if (order.payment && order.payment.provider !== provider) {
+    if (
+      order.payment.status === "pending" ||
+      order.payment.status === "not_started"
+    ) {
+      const error = new Error(
+        `This order still has an active ${order.payment.provider} checkout. Resolve or expire it before starting ${provider} payment.`,
+      );
+      error.name = "OrderPaymentEligibilityError";
+      throw error;
+    }
+
+    await invalidateActivePayment(supabase, order);
+    order.payment = null;
+  }
+
+  if (
+    provider === "square" &&
+    order.payment?.provider === "square" &&
+    order.payment.status === "pending"
+  ) {
+    const existingCheckout = await PaymentService.getHostedCheckout({
+      provider: "square",
+      checkoutId:
+        order.payment.provider_checkout_id ??
+        order.payment.provider_session_id,
+    });
+
+    if (existingCheckout?.paymentLink?.url) {
+      return {
+        mode: "payment" as const,
+        orderId: order.id,
+        paymentStatus: "pending" as const,
+        totals: {
+          subtotalCents: order.subtotal_cents,
+          taxCents: order.tax_cents,
+          feeCents: order.fee_cents,
+          deliveryFeeCents: order.delivery_fee_cents ?? 0,
+          totalCents: order.total_cents,
+          currency: order.currency,
+        },
+        checkoutUrl: existingCheckout.paymentLink.url,
+      };
+    }
+
+    await invalidateActivePayment(supabase, order);
+    order.payment = null;
+  }
 
   const checkout = await PaymentService.createCheckoutSession({
     order,
@@ -540,21 +718,19 @@ async function createDeliveryPayment(input: z.input<typeof deliveryPaymentSchema
     cancelUrl: parsed.cancelUrl,
   });
 
-  const { error: paymentError } = await supabase.from("payment_records").insert({
-    tenant_id: parsed.tenantId,
-    order_id: order.id,
-    provider: checkout.provider,
-    provider_session_id: checkout.sessionId,
-    provider_payment_intent_id: checkout.paymentIntentId,
-    amount_cents: order.total_cents,
-    amount_subtotal_cents: order.subtotal_cents,
-    amount_tax_cents: order.tax_cents,
-    amount_fee_cents: order.fee_cents,
-    currency: order.currency,
-    status: "pending",
+  await updateOrderTotalsFromCheckout(
+    supabase,
+    parsed.tenantId,
+    order.id,
+    checkout,
+  );
+  await savePaymentRecord(supabase, {
+    tenantId: parsed.tenantId,
+    orderId: order.id,
+    checkout,
+    checkoutExpiresAt: order.delivery_approval_expires_at,
+    existingPayment: order.payment ?? null,
   });
-
-  if (paymentError) throw new Error(paymentError.message);
 
   const { error: orderError } = await supabase
     .from("guest_orders")
@@ -581,12 +757,7 @@ async function createDeliveryPayment(input: z.input<typeof deliveryPaymentSchema
     orderId: order.id,
     paymentStatus: "pending" as const,
     totals: {
-      subtotalCents: order.subtotal_cents,
-      taxCents: order.tax_cents,
-      feeCents: order.fee_cents,
-      deliveryFeeCents: order.delivery_fee_cents ?? 0,
-      totalCents: order.total_cents,
-      currency: order.currency,
+      ...checkout.totals,
     },
     checkoutUrl: checkout.checkoutUrl,
   };
@@ -631,7 +802,9 @@ async function listOrders(
       .from("payment_records")
       .select("*")
       .eq("tenant_id", tenantId)
-      .in("order_id", orderIds),
+      .in("order_id", orderIds)
+      .is("superseded_at", null)
+      .order("updated_at", { ascending: false }),
   ]);
 
   return (orders as GuestOrder[]).map((order) => ({
@@ -679,6 +852,278 @@ async function updateFulfillmentStatus(
 
   if (error) {
     throw new Error(error.message);
+  }
+}
+
+async function claimWebhookEvent(
+  supabase: SupabaseClient,
+  event: HostedPaymentEvent,
+) {
+  const { error } = await supabase.from("payment_webhook_events").insert({
+    provider: event.provider,
+    event_id: event.eventId,
+    event_type: event.eventType,
+    processing_status: "received",
+  });
+
+  if (!error) return true;
+  if (error.code === "23505") {
+    const { data: existing, error: lookupError } = await supabase
+      .from("payment_webhook_events")
+      .select("processing_status")
+      .eq("provider", event.provider)
+      .eq("event_id", event.eventId)
+      .maybeSingle();
+
+    if (lookupError) throw new Error(lookupError.message);
+    if (existing?.processing_status !== "failed") return false;
+
+    const { data: reclaimed, error: reclaimError } = await supabase
+      .from("payment_webhook_events")
+      .update({
+        processing_status: "received",
+        error_message: null,
+        processed_at: null,
+      })
+      .eq("provider", event.provider)
+      .eq("event_id", event.eventId)
+      .eq("processing_status", "failed")
+      .select("id")
+      .maybeSingle();
+
+    if (reclaimError) throw new Error(reclaimError.message);
+    return Boolean(reclaimed);
+  }
+  throw new Error(error.message);
+}
+
+async function updateWebhookEvent(
+  supabase: SupabaseClient,
+  event: HostedPaymentEvent,
+  values: {
+    tenantId?: string | null;
+    orderId?: string | null;
+    paymentRecordId?: string | null;
+    status: "processed" | "ignored" | "failed";
+    errorMessage?: string | null;
+  },
+) {
+  const { error } = await supabase
+    .from("payment_webhook_events")
+    .update({
+      tenant_id: values.tenantId ?? null,
+      order_id: values.orderId ?? null,
+      payment_record_id: values.paymentRecordId ?? null,
+      processing_status: values.status,
+      error_message: values.errorMessage ?? null,
+      processed_at: new Date().toISOString(),
+    })
+    .eq("provider", event.provider)
+    .eq("event_id", event.eventId);
+
+  if (error) throw new Error(error.message);
+}
+
+async function findPaymentForProviderEvent(
+  supabase: SupabaseClient,
+  event: HostedPaymentEvent,
+) {
+  let query = supabase
+    .from("payment_records")
+    .select("*")
+    .eq("provider", event.provider);
+
+  if (event.providerOrderId) {
+    query = query.eq("provider_order_id", event.providerOrderId);
+  } else if (event.paymentId) {
+    query = query.eq("provider_payment_intent_id", event.paymentId);
+  } else {
+    return null;
+  }
+
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error(error.message);
+  return (data as PaymentRecord | null) ?? null;
+}
+
+async function applySquareHostedCheckoutEvent(
+  event: HostedPaymentEvent,
+): Promise<void> {
+  const supabase = getServiceClient();
+  const claimed = await claimWebhookEvent(supabase, event);
+  if (!claimed) return;
+
+  let payment: PaymentRecord | null = null;
+
+  try {
+    payment = await findPaymentForProviderEvent(supabase, event);
+    if (!payment) {
+      throw new Error("Square event does not match a stored payment record.");
+    }
+
+    const { data: orderData, error: orderError } = await supabase
+      .from("guest_orders")
+      .select("*")
+      .eq("tenant_id", payment.tenant_id)
+      .eq("id", payment.order_id)
+      .maybeSingle();
+
+    if (orderError) throw new Error(orderError.message);
+    if (!orderData) throw new Error("Square event order could not be found.");
+
+    const order = orderData as GuestOrder;
+    if (
+      event.status === "paid" &&
+      order.fulfillment_type === "delivery" &&
+      order.delivery_status !== "approved_payment_needed"
+    ) {
+      const error = new Error("Delivery order is not approved for payment.");
+      error.name = "OrderStateError";
+      throw error;
+    }
+
+    const providerOrderId =
+      event.providerOrderId ?? payment.provider_order_id ?? null;
+    const authoritativeTotals =
+      providerOrderId &&
+      (event.status === "paid" ||
+        event.status === "failed" ||
+        event.status === "cancelled" ||
+        event.status === "refunded")
+        ? await PaymentService.getProviderOrderTotals({
+            provider: "square",
+            providerOrderId,
+            subtotalCents: order.subtotal_cents,
+            deliveryFeeCents: order.delivery_fee_cents ?? 0,
+          })
+        : null;
+
+    const priorRefunded = payment.refunded_amount_cents ?? 0;
+    const refundedAmount =
+      event.eventType === "refund.updated"
+        ? event.refundId && event.refundId === payment.provider_refund_id
+          ? priorRefunded
+          : Math.min(
+              payment.amount_cents,
+              priorRefunded + (event.refundedAmountCents ?? 0),
+            )
+        : Math.max(priorRefunded, event.refundedAmountCents ?? 0);
+    const fullyRefunded =
+      payment.amount_cents > 0 && refundedAmount >= payment.amount_cents;
+    const paymentStatus: PaymentStatus = fullyRefunded
+      ? "refunded"
+      : event.status === "refunded"
+        ? payment.status
+        : event.status;
+
+    const { error: paymentUpdateError } = await supabase
+      .from("payment_records")
+      .update({
+        provider_order_id: providerOrderId,
+        provider_payment_intent_id:
+          event.paymentId ?? payment.provider_payment_intent_id,
+        provider_refund_id:
+          event.refundId ?? payment.provider_refund_id ?? null,
+        amount_cents:
+          authoritativeTotals?.totalCents ??
+          event.amountCents ??
+          payment.amount_cents,
+        amount_subtotal_cents:
+          authoritativeTotals?.subtotalCents ??
+          event.subtotalCents ??
+          payment.amount_subtotal_cents ??
+          null,
+        amount_tax_cents:
+          authoritativeTotals?.taxCents ??
+          event.taxCents ??
+          payment.amount_tax_cents ??
+          null,
+        amount_fee_cents:
+          authoritativeTotals?.feeCents ??
+          event.feeCents ??
+          payment.amount_fee_cents ??
+          null,
+        refunded_amount_cents: refundedAmount,
+        currency:
+          authoritativeTotals?.currency ??
+          event.currency ??
+          payment.currency,
+        status: paymentStatus,
+        raw_event_id: event.eventId,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("tenant_id", payment.tenant_id)
+      .eq("id", payment.id);
+
+    if (paymentUpdateError) throw new Error(paymentUpdateError.message);
+
+    const nextOrderStatus: OrderStatus =
+      paymentStatus === "paid"
+        ? "paid"
+        : paymentStatus === "failed" || paymentStatus === "cancelled"
+          ? "payment_failed"
+          : order.status;
+
+    const { error: orderUpdateError } = await supabase
+      .from("guest_orders")
+      .update({
+        status: nextOrderStatus,
+        payment_status: paymentStatus,
+        ...(paymentStatus === "paid" && order.fulfillment_type === "delivery"
+          ? { delivery_status: "paid" }
+          : {}),
+        ...(authoritativeTotals
+          ? {
+              subtotal_cents: authoritativeTotals.subtotalCents,
+              tax_cents: authoritativeTotals.taxCents,
+              fee_cents: authoritativeTotals.feeCents,
+              delivery_fee_cents: authoritativeTotals.deliveryFeeCents,
+              total_cents: authoritativeTotals.totalCents,
+              currency: authoritativeTotals.currency,
+            }
+          : {}),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("tenant_id", payment.tenant_id)
+      .eq("id", payment.order_id);
+
+    if (orderUpdateError) throw new Error(orderUpdateError.message);
+
+    if (
+      paymentStatus !== payment.status ||
+      nextOrderStatus !== order.status
+    ) {
+      await recordStatusHistory(supabase, {
+        tenantId: payment.tenant_id,
+        orderId: payment.order_id,
+        eventType:
+          paymentStatus === "paid"
+            ? "payment_paid"
+            : paymentStatus === "refunded"
+              ? "payment_refunded"
+              : "payment_failed",
+        fromStatus: order.status,
+        toStatus: nextOrderStatus,
+        customerVisible: true,
+      });
+    }
+
+    await updateWebhookEvent(supabase, event, {
+      tenantId: payment.tenant_id,
+      orderId: payment.order_id,
+      paymentRecordId: payment.id,
+      status: "processed",
+    });
+  } catch (error) {
+    await updateWebhookEvent(supabase, event, {
+      tenantId: payment?.tenant_id ?? null,
+      orderId: payment?.order_id ?? null,
+      paymentRecordId: payment?.id ?? null,
+      status: "failed",
+      errorMessage:
+        error instanceof Error ? error.message : "Square event failed.",
+    });
+    throw error;
   }
 }
 
@@ -788,4 +1233,5 @@ export const OrderService = {
   decideDelivery,
   createDeliveryPayment,
   applyHostedCheckoutEvent,
+  applySquareHostedCheckoutEvent,
 };

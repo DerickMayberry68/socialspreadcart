@@ -1,6 +1,6 @@
 ﻿# SocialSpreadCart Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-05-29
+Auto-generated from all feature plans. Last updated: 2026-06-23
 
 ## Active Technologies
 - TypeScript 5.6 (strict), React 19.2 + Next.js 15.5 (App Router, Server Components, (012-admin-editable-hero-and-cards)
@@ -15,6 +15,8 @@ Auto-generated from all feature plans. Last updated: 2026-05-29
 - Supabase Postgres; new tenant-scoped customer reviews table with RLS and moderation fields (019-customer-reviews)
 - TypeScript 5.6, React 19.2, Next.js 15.5 App Router + Supabase SSR/client services, Tailwind CSS 3.4, Radix Dialog patterns, `sonner`, existing Lucide icons (020-admin-list-grids)
 - Existing Supabase/Postgres tables; no schema change planned (020-admin-list-grids)
+- TypeScript 5.6, React 19.2, Node.js 20+, Next.js 15.5 App Router + Next.js route handlers, Square Node SDK 44.2.0, existing Stripe SDK 22.1.0 for transition-only webhook compatibility, Supabase JS/SSR, Zod 4.3, Resend (025-stripe-to-square)
+- Existing Supabase Postgres `guest_orders`, `guest_order_items`, `payment_records`, and `order_status_history`; additive migration for Square order references and webhook-event idempotency (025-stripe-to-square)
 
 - TypeScript 5.6 + Next.js 15.5 (App Router), React 19, Tailwind CSS 3.4, (main)
 
@@ -35,9 +37,9 @@ npm test; npm run lint
 TypeScript 5.6: Follow standard conventions
 
 ## Recent Changes
+- 025-stripe-to-square: Added TypeScript 5.6, React 19.2, Node.js 20+, Next.js 15.5 App Router + Next.js route handlers, Square Node SDK 44.2.0, existing Stripe SDK 22.1.0 for transition-only webhook compatibility, Supabase JS/SSR, Zod 4.3, Resend
 - 020-admin-list-grids: Added TypeScript 5.6, React 19.2, Next.js 15.5 App Router + Supabase SSR/client services, Tailwind CSS 3.4, Radix Dialog patterns, `sonner`, existing Lucide icons
 - 019-customer-reviews: Added TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/API routes, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Framer Motion
-- 018-delivery-approval: Added TypeScript 5.6.3, React 19.2.4, Next.js 15.5.14 App Router + Next.js Server Components/API routes, Supabase SSR/client libraries, Zod 4.3.6, Tailwind CSS 3.4.17, Radix UI, sonner, Stripe server SDK 22.1.0
 
 
 <!-- MANUAL ADDITIONS START -->
